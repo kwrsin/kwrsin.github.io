@@ -1,18 +1,22 @@
 enchant();
+
 window.onload = function() {
 
     var game = new Game(320, 320);
-    game.preload('chara1.png');
     game.onload = function() {
-        bear = new Sprite(32, 32);
-        bear.image = game.assets['chara1.png'];
-        game.rootScene.addChild(bear);
+        sprite = new Sprite(320, 320);
+        surface = new Surface(320, 320);
 
+        sprite.image = surface;
+        context = surface.context;
+        context.beginPath();
 
-        game.rootScene.addEventListener('touchend', function(event) {
-            bear.x = event.x;
-            bear.y = event.y;
-        });
-    }
+        context.moveTo(50, 50);
+        context.lineTo(100, 100);
+        context.closePath();
+        context.stroke();
+        game.rootScene.addChild(sprite);
+
+    };
     game.start();
-}
+};
