@@ -1,0 +1,27 @@
+@charset "utf-8";
+
+body {
+    font-family: Arial, Verdana, Geneva, Tahoma, sans-serif, sans-serif;
+    margin: 0 auto;
+    padding: 0px;
+    background-color: black;
+}
+
+#screen {
+}
+
+#footer {
+    
+}
+
+/*スマホのスタイル*/
+
+/*タブレットのスタイル*/
+/*PCのスタイル*/
+@media all and (min-width: 768px) {
+    #screen {
+        margin: 0 auto;
+        width: 50%;
+    }
+    
+}
