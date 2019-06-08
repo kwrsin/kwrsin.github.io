@@ -561,8 +561,8 @@ $(function(){
     $(this).next('ul').toggle();
   });
 
-  let Language,langdata;
-  let url = location.href;
+  var Language,langdata;
+  var url = location.href;
   if(url.match("#")) {
     langdata = $("language").attr("lang").split(",");
     for(i in langdata){
