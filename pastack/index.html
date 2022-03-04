@@ -3,70 +3,20 @@
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-<title>Pastack Guide</title>
-<style>
-body {
-  margin: 0 auto;
-  font-family: Arial, Helvetica, sans-serif;
-}
-
-.mobile-container {
-  max-width: 100vw;
-  margin: auto;
-  background-color: #555;
-  height: 100vh;
-  color: white;
-}
-
-.topnav {
-  overflow: hidden;
-  background-color: #333;
-  position: relative;
-}
-
-.topnav #myLinks {
-  display: none;
-}
-
-.topnav a {
-  color: white;
-  padding: 14px 16px;
-  text-decoration: none;
-  font-size: 17px;
-  display: block;
-}
-
-.topnav a.icon {
-  background: black;
-  display: block;
-  position: absolute;
-  right: 0;
-  top: 0;
-}
-
-.topnav a:hover {
-  background-color: #ddd;
-  color: black;
-}
-
-.active {
-  background-color: #046daa;
-  color: white;
-}
-</style>
+<link rel="stylesheet" href="css/style.css">
+<title>Pastack Official Guide</title>
 </head>
 <body>
 
 <div class="mobile-container">
 
-<!-- Top Navigation Menu -->
 <div class="topnav">
-  <a href="#home" class="active">Pastack Guide</a>
+  <a href="#home" class="active">Pastack Official Guide</a>
   <div id="myLinks">
     <a href="./api">Transfomation APIs</a>
     <a href="./memo">Memo</a>
-    <a href="./downloads">Download</a>
     <a href="./examples">Examples</a>
+    <a href="./downloads">Download</a>
   </div>
   <a href="javascript:void(0);" class="icon" onclick="toggle()">
     <i class="fa fa-bars"></i>
@@ -93,3 +43,15 @@ function toggle() {
 
 </body>
 </html>
+
+
+<script>
+//pastack
+
+function _transform() {
+  return getClips("_greetings")
+    .filter(clip=>(clip.content.search("Good") < 0))
+    .map(clip=>(clip.content))
+}
+
+</script>
