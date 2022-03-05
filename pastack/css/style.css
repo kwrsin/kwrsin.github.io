@@ -111,13 +111,13 @@ caption {
   margin: 3px
 }
 
-#toc_container a { 
+#toc_container a, .listing a { 
   color: #ffffff;font-weight: normal;text-decoration: none;
   padding: 0px;
   margin: 0px; 
 } 
 
-#toc_container a:hover { 
+#toc_container a:hover, .listing a { 
   color: #d99fc6;font-weight: normal;text-decoration: none;cursor: auto; padding: 0px; margin: 0px;
 }
 
