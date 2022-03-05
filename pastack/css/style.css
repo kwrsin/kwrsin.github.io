@@ -82,6 +82,16 @@ caption {
   width: auto;
 }
 
+#toc_container .app_icon {
+  background: url(../images/Icon.svg) no-repeat center;
+  background-size: 20%;
+  height: 5em;
+  width: 5em;
+  background-size: cover;
+  border-radius: 5px;
+  margin: auto;
+}
+
 .toc_title {
   font-size: x-large;
   font-weight: 700;
