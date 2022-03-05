@@ -5,6 +5,8 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="css/style.css">
 <title>Pastack Official Guide</title>
+<style>
+</style>
 </head>
 <body>
 
@@ -23,9 +25,260 @@
   </a>
 </div>
 
+<div id="toc_container">
+  <p class="toc_subtitle">Pastack v1.8</p>
+  <p class="toc_title">Contents</p>
+  <ol>
+    <li><a href="#Overview">Overview</a></li>
+    <li><a href="#Features">Features</a>
+      <ol>
+        <li><a href="#Clipsboard">Clipsboard</a></li>
+        <li><a href="#Settings">Settings: Specify options</a></li>
+        <li><a href="#Search">Search Conditions</a></li>
+        <li><a href="#PressAndHold">Press and Hold</a>
+        <li><a href="#Output">Output</a></li>
+      </ol>
+    </li>
+  </ol>
+</div>
+
 <div style="padding-left:16px">
-  <h3>Overview</h3>
-  <p>UNDER CONSTRUCTION</p>
+  <h3 id="Overview">1. Overview</h3>
+  <p>
+    The purpose of this application is to support document creation. You can store text fragments in this application and retrieve them when you need them. this application works best when working with other devices. Also, this function uses Apple's Universal Clipboard feature, so we do not support platforms other than Apple products such as iPad or Mac.
+  </p>
+</div>
+
+<div style="padding-left:16px">
+  <h3 id="Features">2. Features</h3>
+  <table style="margin-bottom: 3em">
+    <caption><h4 id="Clipsboard">2.1. Clipsboard</h4></caption>
+    <tbody>
+      <tr>
+        <th>Top of the screen</th>
+        <td>Displays the search criteria for these selected tags. Click here to specify the search conditions. If no search condition is specified, it will switch to the tag icon and you can set the search condition by clicking here.</td>
+      </tr>
+      <tr>
+        <th>List</th>
+        <td>
+          Displays the list of clips you have clipped. Tap to copy a clip. Tap and hold on a clip to delete it, tag it, title it, display it in the browser, or specify its color.
+        </td>
+      </tr>
+      <tr>
+        <th>Bulk(Flag)</th>
+        <td>
+          you can tap the flag symbol at the bottom right to enter the bulk operation mode, where you can select multiple clips, tagging/untagging, and delete selected clips.
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <table style="margin-bottom: 3em">
+    <caption><h4 id="Settings">2.2. Settings: Specify options</h4></caption>
+    <tbody>
+      <tr>
+        <th>Get a title from the URL</th>
+        <td>
+          When a clip is created, if the content is a URL, it will try to get the title from the URL.
+        </td>
+      </tr>
+      <tr>
+        <th>give a cell color</th>
+        <td>
+          Adds a color option to the long-press context menu.
+- "show tags in cell": Displays the tags of the clip in the cell.
+        </td>
+      </tr>
+      <tr>
+        <th>use internal browse</th>
+        <td>
+          you can tap the flag symbol at the bottom right to enter the bulk operation mode, where you can select multiple clips, tagging/untagging, and delete selected clips.
+        </td>
+      </tr>
+      <tr>
+        <th>open browser on tap</th>
+        <td>
+          Open a URL by clip tapping if the clip data is URL.
+        </td>
+      </tr>
+      <tr>
+        <th>Auto Tagging</th>
+        <td>
+          Automatically attach tags to new clips when they are registered.
+          <ul>
+            <li>
+              Filtered
+              <ul>
+                <li>you can paste tags from the current search criteria.</li>
+              </ul>
+            </li>
+
+            <li>
+              Designated 
+              <ul>
+                <li>you can specify tags individually and paste them.</li>
+              </ul>
+            </li>
+          </ul>
+        </td>
+      </tr>
+      <tr>
+        <th>Cache</th>
+        <td>
+          Display the cache size, and tap "Clear cache" to delete all clips.
+        </td>
+      </tr>
+      <tr>
+        <th>Export</th>
+        <td>
+          you can export the clip data. If you select "All", you can export all clips to external applications. Select "All" to export all clips to external applications. If you select "Tags", you can select individual tags from the tag list and export them. Select "Tags" to select individual tags from the tag list and start exporting.
+        </td>
+      </tr>
+      <tr>
+        <td colspan="2">
+          <h4>*Pastack file Importing</h4>
+          <p>
+            Use "Share" from an other app. From the application you are transferring from, select the Pastack file, Please find the Pastack app icon from "Share", and select that icon. Pastack app will automatically launch and start importing.
+          </p>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <table style="margin-bottom: 3em">
+    <caption><h4 id="Search">2.3. Search Conditions</h4></caption>
+    <tbody>
+      <tr>
+        <th>Intersection</th>
+        <td>Show all clips that match the selected tag's criteria.</td>
+      </tr>
+      <tr>
+        <th>Union</th>
+        <td>
+          Displays clips that match any of the selected tags.
+        </td>
+      </tr>
+      <tr>
+        <th>Tags</th>
+        <td>
+          <ul>
+            <li>
+              Deselect All
+              <ul><li>you can deselects all selected tags.</li></ul>
+            </li>
+            <li>
+              Tag List
+              <ul><li>you can select the tags you want to search for.</li></ul>
+            </li>
+          </ul>
+        </td>
+      </tr>
+      <tr>
+        <th>History</th>
+        <td>
+          <ul>
+            <li>
+              History List
+              <ul><li>you can filter the clips by selecting the search criteria.</li></ul>
+            </li>
+            <li>
+              Favorites(heart)
+              <ul><li>you can save the search criteria items.</li></ul>
+            </li>
+          </ul>
+          <p>
+            * You can save up to 5 history and 5 favorites.
+          </p>
+        </td>
+      </tr>
+      <tr>
+        <th>+(Add) button</th>
+        <td>
+          you can register a new tag.
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <table style="margin-bottom: 3em">
+    <caption><h4 id="PressAndHold">2.4. Press and Hold</h4></caption>
+    <tbody>
+      <tr>
+        <th>Delete</th>
+        <td>
+          Deletes the clip.
+        </td>
+      </tr>
+      <tr>
+        <th>Tagging</th>
+        <td>
+          Paste a tag to the clip
+        </td>
+      </tr>
+      <tr>
+        <th>Title</th>
+        <td>Give a title to the clip</td>
+      </tr>
+      <tr>
+        <th>Open the URL</th>
+        <td>Opens an external browser with the clip's URL.</td>
+      </tr>
+      <tr>
+        <th>Copy the clip</th>
+        <td>Copy a clip in clipsboard.</td>
+      </tr>
+      <tr>
+        <th>Color</th>
+        <td>Add a color to the clip.</td>
+      </tr>
+      <tr>
+        <th>Transform</th>
+        <td>Converts the clip data.</td>
+      </tr>
+      <tr>
+        <th>Share</th>
+        <td>Open a Share Sheet.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <table style="margin-bottom: 3em">
+    <caption><h4 id="Output">2.5. Output</h4></caption>
+    <tbody>
+      <tr>
+        <th>Processed</th>
+        <td>
+          <ul>
+            <li>
+              Tap
+              <ul><li>Copies the data in a cell.</li></ul>
+            </li>
+            <li>
+              Share (long press)
+              <ul><li>shares the data in a cell.</li></ul>
+            </li>
+          </ul>
+        </td>
+      </tr>
+      <tr>
+        <th>Processing</th>
+        <td>
+          <ul>
+            <li>
+              Cancel
+              <ul><li>cancel the process.</li></ul>
+            </li>
+          </ul>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="footer">
+  <p>
+    Since 2022
+  </p>
 </div>
 
 </div>
@@ -43,15 +296,3 @@ function toggle() {
 
 </body>
 </html>
-
-
-<script>
-//pastack
-
-function _transform() {
-  return getClips("_greetings")
-    .filter(clip=>(clip.content.search("Good") < 0))
-    .map(clip=>(clip.content))
-}
-
-</script>
