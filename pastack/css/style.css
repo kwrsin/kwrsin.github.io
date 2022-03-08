@@ -24,7 +24,7 @@ body {
   color: white;
   padding: 14px 16px;
   text-decoration: none;
-  font-size: 17px;
+  font-size: 16px;
   display: block;
 }
 
@@ -37,13 +37,20 @@ body {
 }
 
 .topnav a:hover {
-  background-color: #ddd;
+  background-color: rgb(190, 223, 252);
   color: black;
 }
 
 .active {
   background-color: #046daa;
   color: white;
+}
+
+.topnav .localization {
+  display: block;
+  position: absolute;
+  right: 40px;
+  top: 0;
 }
 
 table {

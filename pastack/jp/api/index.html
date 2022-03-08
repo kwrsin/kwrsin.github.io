@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="../../css/style.css">
+<title>Transformation APIs</title>
+</head>
+<body>
+
+<div class="mobile-container">
+
+<div class="topnav">
+  <a href="#api" class="active">Transfomation APIs</a>
+  <div id="myLinks">
+    <a href="../">パスタック公式ガイド</a>
+    <a href="../examples">Examples</a>
+    <a href="../downloads">ダウンロード</a>
+  </div>
+  <a href="javascript:void(0);" class="icon" onclick="toggle()">
+    <i class="fa fa-bars"></i>
+  </a>
+  <a href="../../api/index.html" class="localization">
+    en
+  </a>
+</div>
+
+<div style="padding-left:16px;">
+  <h3>パスタック Transformation APIs v1.8</h3>
+  <div>
+    <h4>概要</h4>
+    <p>
+      タグに属するクリップデータを別のデータに変換します。<br>
+      下のような文法のクリップデータを登録したあと、長押しして、それを処理するために「変換を」選択します。
+    </p>
+  </div>
+  <p>これらのAPIはクリップデータを処理するための命令です。</p>
+</div>
+
+<div style="padding-left:16px;padding-top:20px;">
+  <div>
+    <h4>文法</h4>
+    <div style="overflow-x: auto;width: 90%;padding-left: 16px;background-color: #333;border-radius: 5px;">
+      <pre>
+//pastack
+
+//タグに属するすべてのクリップを //-- と --// で囲みます
+function _transform() {
+  return getClips("Daily")
+    .map(clip=>(`//-- ${clip.content} --//`))
+}
+      </pre>
+    </div>
+  </div>
+  <h4>Description</h4>
+  <ul>
+    <li style="padding-bottom:16px;"><strong>javascript</strong>でコーディングします。</li>
+    <li style="padding-bottom:16px;">先頭行 "<strong>//pastack</strong>" は「変換」を認識するのに必要です。</li>
+    <li style="padding-bottom:16px;">必ず<strong>_transform()</strong> 関数の中でコードを書いてください。 処理結果に値を表示するために、<strong>String型要素を持つ配列</strong>を返却してください。</li>
+    <li style="padding-bottom:16px;">処理中にエラーが発生した場合は、 処理結果にエラーが表示されます。</li>
+
+  </ul>
+</div>
+
+<div style="padding-left:16px;padding-bottom: 30px;">
+  <h3>Definitions</h3>
+  <table>
+    <thead>
+    </thead>
+    <tbody>
+      <tr>
+        <th>ディレクティブ</th><th>説明</th>
+      </tr>
+      <tr>
+        <td>//pastack</td><td>「変換」を認識させます</td>
+      </tr>
+    </tbody>
+    </table>
+  </table>
+</div>
+
+<div style="padding-left:16px;padding-bottom: 30px;">
+  <h3>APIs</h3>
+  <table>
+    <thead>
+    </thead>
+    <tbody>
+      <tr>
+        <th>命令</th><th>パラメータ</th><th>戻り値</th>
+      </tr>
+      <tr>
+        <td>getClips</td><td>タグ名(String型)</td><td>Clips型配列</td>
+      </tr>
+      <tr>
+        <td>allTagnames</td><td>なし</td><td>String型配列</td>
+      </tr>
+    </tbody>
+    </table>
+  </table>
+</div>
+
+<div style="padding-left:16px;padding-bottom: 30px;">
+  <h3>オブジェクト</h3>
+  <table>
+    <caption>Clip</caption>
+    <thead>
+    </thead>
+    <tbody>
+      <tr>
+        <th>プロパティ</th><th>説明</th>
+      </tr>
+      <tr>
+        <td>datetime</td><td>1970年からのエポックタイム (String型)</td>
+      </tr>
+      <tr>
+        <td>title</td><td>クリップのタイトル (String型)</td>
+      </tr>
+      <tr>
+        <td>content</td><td>クリップの内容 (String型)</td>
+      </tr>
+    </tbody>
+    </table>
+  </table>
+</div>
+
+<div style="padding-left:16px;padding-bottom: 30px;">
+  <h3>Examples</h3>
+  <a href="../../downloads/transformation_examples.pastack">ここ</a>から変換のサンプルをダウンロードできます。
+</div>
+
+<div class="footer">
+  <p>
+    Since 2022.
+  </p>
+</div>
+
+</div>
+
+<script>
+function toggle() {
+  var x = document.getElementById("myLinks");
+  if (x.style.display === "block") {
+    x.style.display = "none";
+  } else {
+    x.style.display = "block";
+  }
+}
+</script>
+
+</body>
+</html>
