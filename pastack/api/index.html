@@ -13,7 +13,7 @@
 <div class="topnav">
   <a href="#api" class="active">Transfomation APIs</a>
   <div id="myLinks">
-    <a href="../">Guide</a>
+    <a href="../">Pastack Official Guidebook</a>
     <a href="../examples">Examples</a>
     <a href="../downloads">Download</a>
   </div>
@@ -110,7 +110,20 @@ function _transform() {
         <th>property</th><th>Description</th>
       </tr>
       <tr>
-        <td>datetime</td><td>epoch time(since 1970) as string</td>
+        <td>datetime<br>(updated time)</td>
+        <td>
+          epoch time(since 1970) as string
+          <div style="margin: auto;overflow-x: auto;width: 180px;font-size: 0.8em;background-color: #333;border-radius: 5px;">
+<pre>
+  // to get a value as Date, 
+  // you need to multiply 1000 to the datetime value.
+
+  new Date(
+    Number(
+      clip.datetime) * 1000)
+</pre>
+          </div>
+        </td>
       </tr>
       <tr>
         <td>title</td><td>the clip's title as string</td>

@@ -13,7 +13,7 @@
 <div class="topnav">
   <a href="#api" class="active">Transfomation APIs</a>
   <div id="myLinks">
-    <a href="../">パスタック公式ガイド</a>
+    <a href="../">パスタック公式ガイドブック</a>
     <a href="../examples">Examples</a>
     <a href="../downloads">ダウンロード</a>
   </div>
@@ -110,7 +110,20 @@ function _transform() {
         <th>プロパティ</th><th>説明</th>
       </tr>
       <tr>
-        <td>datetime</td><td>1970年からのエポックタイム (String型)</td>
+        <td>datetime<br>(updated time)</td>
+        <td>
+          1970年からのエポックタイム (String型)
+          <div style="margin: auto;overflow-x: auto;width: 180px;font-size: 0.8em;background-color: #333;border-radius: 5px;">
+            <pre>
+  // Date型を取得するために、 
+  // そのdatetimeに1000を掛ける必要があります。
+
+  new Date(
+    Number(
+      clip.datetime) * 1000)
+              </pre>
+          </div>
+        </td>
       </tr>
       <tr>
         <td>title</td><td>クリップのタイトル (String型)</td>
