@@ -119,6 +119,42 @@
     };
     reader.readAsText(file);
   });
+  
+  // 🎯 ドラッグ＆ドロップによる JSON インポート
+  const mapContainer = document.getElementById('map')
+
+  mapContainer.addEventListener('dragover', (e) => {
+    e.preventDefault()
+    mapContainer.style.border = '2px dashed #007acc'
+  })
+
+  mapContainer.addEventListener('dragleave', () => {
+    mapContainer.style.border = '1px solid #ccc'
+  })
+
+  mapContainer.addEventListener('drop', (e) => {
+    e.preventDefault()
+    mapContainer.style.border = '1px solid #ccc'
+
+    const file = e.dataTransfer.files[0]
+    if (file && file.type === 'application/json') {
+      const reader = new FileReader()
+      reader.onload = (event) => {
+        try {
+          const json = JSON.parse(event.target.result)
+          mind.init(json)
+          mind.enableEdit()
+          localStorage.setItem('mindmap-data', JSON.stringify(json))
+          alert('マインドマップをインポートしました。')
+        } catch (err) {
+          alert('JSONファイルの読み込みに失敗しました。')
+        }
+      }
+      reader.readAsText(file)
+    } else {
+      alert('JSONファイルをドロップしてください。')
+    }
+  })
 </script>
 </body>
 </html>
