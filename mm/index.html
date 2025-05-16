@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    #map {
+      height: 500px;
+      width: 100%;
+    }
+    .controls { margin-bottom: 10px; }
+  </style>
+</head>
+<body>
+<div id="map"></div>
+<div class="controls">
+  <button id="export">エクスポート（JSON保存）</button>
+  <input type="file" id="import" accept=".json">
+</div>
+<script type="module">
+  import MindElixir from "https://cdn.jsdelivr.net/npm/mind-elixir/dist/MindElixir.js"
+
+  // 初期データ（初回のみ使用）
+  const defaultData = {
+    nodeData: {
+      id: 'root',
+      topic: '中心ノード',
+      children: [
+        { id: 'node1', topic: 'ノード1' },
+        { id: 'node2', topic: 'ノード2' }
+      ]
+    }
+  };
+
+  // localStorage からデータを取得
+  const savedData = localStorage.getItem('mindmap');
+  const mindData = savedData ? JSON.parse(savedData) : defaultData;
+
+  let mind = new MindElixir({
+      el: '#map',
+      direction: MindElixir.LEFT, // LEFT, RIGHT, SIDE
+      draggable: true,
+      contextMenu: true,
+      toolBar: true,
+      nodeMenu: true,
+      keypress: true,
+  })
+  mind.init(mindData)
+
+  // 保存ボタンの処理
+  //  document.getElementById('saveBtn').addEventListener('click', () => {
+  //    const data = mind.getData(); // 現在のマップデータを取得
+  //    localStorage.setItem('mindmap', JSON.stringify(data));
+  //    alert('保存しました！');
+  //  });
+
+  // 自動保存: イベント発生時に localStorage に保存
+  const autoSave = () => {
+    const data = mind.getData();
+    localStorage.setItem('mindmap', JSON.stringify(data));
+    console.log('保存しました');
+  };
+
+  // 以下のイベントに自動保存を設定
+  mind.bus.addListener('operation', autoSave);
+
+  // JSON エクスポート
+  document.getElementById('export').addEventListener('click', () => {
+    const data = JSON.stringify(mind.getData(), null, 2);
+    const blob = new Blob([data], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'mindmap.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  // JSON インポート
+  document.getElementById('import').addEventListener('change', (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      try {
+        const json = JSON.parse(e.target.result);
+        mind.init(json);
+        localStorage.setItem('mindmap', JSON.stringify(json));
+        alert('マインドマップを読み込みました。');
+      } catch (err) {
+        alert('無効なJSONファイルです。');
+      }
+    };
+    reader.readAsText(file);
+  });
+</script>
+</body>
+</html>
