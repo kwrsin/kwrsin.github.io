@@ -5,18 +5,47 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mind Map</title>
   <style>
-    #map {
-      height: 500px;
-      width: 100%;
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }    
+    #toolbar {
+      height: 40px;
+      background: #f5f5f5;
+      border-bottom: 1px solid #ccc;
+      display: flex;
+      align-items: center;
+      padding: 0 10px;
+      box-sizing: border-box;
     }
-    .controls { margin-bottom: 10px; }
+    #toolbar button {
+      margin-right: 6px;
+      padding: 6px 12px;
+      border: none;
+      background: #e0e0e0;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    #toolbar button:hover {
+      background: #d0d0d0;
+    }
+    #map {
+      height: calc(100% - 40px); /* ツールバーの高さを引く */
+      width: 100%;
+      overflow: hidden;
+    }
   </style>
 </head>
 <body>
 <div id="map"></div>
-<div class="controls">
-  <button id="new">新規作成</button>
-  <button id="export">エクスポート（JSON保存）</button>
+<div id="toolbar">
+  <button id="btn-new">New</button>
+  <button id="btn-undo" title="Undo (Ctrl+Z)">⎌ Undo</button>
+  <button id="btn-redo" title="Redo (Ctrl+Y)">↷ Redo</button>
+  <button id="btn-fold" title="Toggle Fold (Space)">⤢ 折りたたみ</button>
+  <button id="btn-export">Export（JSON）</button>
   <input type="file" id="import" accept=".json">
 </div>
 <script type="module">
@@ -26,10 +55,10 @@
   const defaultData = {
     nodeData: {
       id: 'root',
-      topic: '中心ノード',
+      topic: 'Central Node',
       children: [
-        { id: 'node1', topic: 'ノード1' },
-        { id: 'node2', topic: 'ノード2' }
+        { id: 'node1', topic: 'Node1' },
+        { id: 'node2', topic: 'Node2' }
       ]
     }
   };
@@ -46,7 +75,8 @@
       toolBar: true,
       nodeMenu: true,
       keypress: true,
-      locale: 'ja',
+      allowUndo: true,
+      // locale: 'ja',
   })
   mind.init(mindData)
 
@@ -54,26 +84,29 @@
   //  document.getElementById('saveBtn').addEventListener('click', () => {
   //    const data = mind.getData(); // 現在のマップデータを取得
   //    localStorage.setItem('mindmap', JSON.stringify(data));
-  //    alert('保存しました！');
+  //    alert('Saved!');
   //  });
 
   // 自動保存: イベント発生時に localStorage に保存
   const autoSave = () => {
     const data = mind.getData();
     localStorage.setItem('mindmap', JSON.stringify(data));
-    console.log('保存しました');
+    console.log('Saved!');
   };
 
   // 以下のイベントに自動保存を設定
-  mind.bus.addListener('operation', autoSave);
+  mind.bus.addListener('operation', operation=>{
+      autoSave()
+    }
+  );
 
   // 新規作成処理
-  document.getElementById('new').addEventListener('click', () => {
-    if (confirm('現在のマインドマップを破棄して新しく作成しますか？')) {
+  document.getElementById('btn-new').addEventListener('click', () => {
+    if (confirm('Do you want to discard your current mindmap and create a new one?')) {
       const initialData = {
         nodeData: {
           id: 'root',
-          topic: '新しいマップ',
+          topic: 'New Mindmap',
           root: true,
           children: [],
         },
@@ -85,7 +118,7 @@
   })
 
   // JSON エクスポート
-  document.getElementById('export').addEventListener('click', () => {
+  document.getElementById('btn-export').addEventListener('click', () => {
     const data = mind.getData();
     const json = JSON.stringify(data, null, 2);
 
@@ -112,9 +145,9 @@
         const json = JSON.parse(e.target.result);
         mind.init(json);
         localStorage.setItem('mindmap', JSON.stringify(json));
-        alert('マインドマップを読み込みました。');
+        alert('Mindmap has imported');
       } catch (err) {
-        alert('無効なJSONファイルです。');
+        alert('Invalid JSON File');
       }
     };
     reader.readAsText(file);
@@ -145,14 +178,48 @@
           mind.init(json)
           mind.enableEdit()
           localStorage.setItem('mindmap-data', JSON.stringify(json))
-          alert('マインドマップをインポートしました。')
+          alert('Mindmap has imported')
         } catch (err) {
-          alert('JSONファイルの読み込みに失敗しました。')
+          alert('Failed to read Mindmap')
         }
       }
       reader.readAsText(file)
-    } else {
-      alert('JSONファイルをドロップしてください。')
+    }
+  })
+
+  // ツールバーのボタンに機能を割り当てる
+  document.getElementById('btn-undo').addEventListener('click', () => {
+    mind.undo()
+  })
+  document.getElementById('btn-redo').addEventListener('click', () => {
+    mind.redo()
+  })
+  document.getElementById('btn-fold').addEventListener('click', () => {
+    try {
+      mind.expandNode(mind.currentNode)
+    } catch(err) {
+      console.log('Failed to show/hide the node')
+    }
+  })
+
+  // --- キーボードショートカット ---
+  document.addEventListener('keydown', (e) => {
+    const ctrl = e.ctrlKey || e.metaKey
+    const shift = e.shiftKey
+
+    if (ctrl && !shift && e.key === 'z') {
+      e.preventDefault()
+      mind.undo()
+    } else if ((ctrl && e.key === 'y') || (ctrl && shift && e.key === 'Z')) {
+      e.preventDefault()
+      mind.redo()
+    } else if (e.key === 'h' && mind.currentNode) {
+      e.preventDefault()
+      try {
+        mind.expandNode(mind.currentNode)
+      } catch(err) {
+        console.log('Failed to show/hide the node')
+      }
     }
   })
 </script>
