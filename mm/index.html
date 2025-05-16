@@ -67,12 +67,18 @@
 
   // JSON エクスポート
   document.getElementById('export').addEventListener('click', () => {
-    const data = JSON.stringify(mind.getData(), null, 2);
-    const blob = new Blob([data], { type: 'application/json' });
+    const data = mind.getData();
+    const json = JSON.stringify(data, null, 2);
+
+    // 中心ノードのタイトルを取得し、ファイル名として使用（空白をアンダースコアに置換）
+    const centerTopic = data.nodeData.topic || 'mindmap';
+    const fileName = centerTopic.replace(/\s+/g, '_') + '.json';
+
+    const blob = new Blob([json], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'mindmap.json';
+    a.download = fileName;
     a.click();
     URL.revokeObjectURL(url);
   });
