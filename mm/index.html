@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
+  <title>Mind Map</title>
   <style>
     #map {
       height: 500px;
@@ -15,6 +15,7 @@
 <body>
 <div id="map"></div>
 <div class="controls">
+  <button id="new">新規作成</button>
   <button id="export">エクスポート（JSON保存）</button>
   <input type="file" id="import" accept=".json">
 </div>
@@ -45,6 +46,7 @@
       toolBar: true,
       nodeMenu: true,
       keypress: true,
+      locale: 'ja',
   })
   mind.init(mindData)
 
@@ -64,6 +66,23 @@
 
   // 以下のイベントに自動保存を設定
   mind.bus.addListener('operation', autoSave);
+
+  // 新規作成処理
+  document.getElementById('new').addEventListener('click', () => {
+    if (confirm('現在のマインドマップを破棄して新しく作成しますか？')) {
+      const initialData = {
+        nodeData: {
+          id: 'root',
+          topic: '新しいマップ',
+          root: true,
+          children: [],
+        },
+      }
+      mind.enableEdit()
+      mind.init(initialData)
+      localStorage.setItem('mindmap-data', JSON.stringify(initialData)) // 自動保存対応
+    }
+  })
 
   // JSON エクスポート
   document.getElementById('export').addEventListener('click', () => {
