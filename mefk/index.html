@@ -44,7 +44,8 @@
   <button id="btn-new">New</button>
   <button id="btn-undo" title="Undo (Ctrl+Z)">⎌ Undo</button>
   <button id="btn-redo" title="Redo (Ctrl+Y)">↷ Redo</button>
-  <button id="btn-fold" title="Fold (h)">⤢ Fold</button>
+  <button id="btn-fold" title="Fold (H)">⤢ Fold</button>
+  <button id="btn-export-image">To Image</button>
   <button id="btn-export">Export（JSON）</button>
   <input type="file" id="import" accept=".json">
 </div>
@@ -116,6 +117,31 @@
       localStorage.setItem('mindmap-data', JSON.stringify(initialData)) // 自動保存対応
     }
   })
+
+  document.getElementById('btn-export-image').addEventListener('click', () => {
+    // mind.toPng().then((dataUrl) => {
+    //   const link = document.createElement('a');
+    //   link.download = (mind.getRoot().topic || 'mindmap') + '.png';
+    //   link.href = dataUrl;
+    //   link.click();
+    // }).catch((err) => {
+    //   console.error("Failed To Export a Image: ", err);
+    // });
+    const downloadPng = async () => {
+      const data = mind.getData();
+      const blob = await mind.exportPng() // Get a Blob!
+      if (!blob) return
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      const centerTopic = data.nodeData.topic || 'mindmap'
+      const fileName = centerTopic.replace(/\s+/g, '_') + '.png'
+      a.download = fileName
+      a.click()
+      URL.revokeObjectURL(url)
+    }
+    downloadPng()
+  });
 
   // JSON エクスポート
   document.getElementById('btn-export').addEventListener('click', () => {
@@ -210,16 +236,22 @@
     if (ctrl && !shift && e.key === 'z') {
       e.preventDefault()
       mind.undo()
-    } else if ((ctrl && e.key === 'y') || (ctrl && shift && e.key === 'Z')) {
+      return
+    } 
+    if ((ctrl && e.key === 'y') || (ctrl && shift && e.key === 'Z')) {
       e.preventDefault()
       mind.redo()
-    } else if (e.key === 'h' && mind.currentNode) {
+      return
+    } 
+
+    if (e.key === 'h' && mind.currentNode) {
       e.preventDefault()
       try {
         mind.expandNode(mind.currentNode)
       } catch(err) {
         console.log('Failed to show/hide the node')
       }
+      return
     }
   })
 </script>
