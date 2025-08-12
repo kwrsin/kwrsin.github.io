@@ -60,10 +60,55 @@
   const defaultData = {
     nodeData: {
       id: 'root',
-      topic: 'Central Node',
+      topic: 'Project',
+      root: true,
       children: [
-        { id: 'node1', topic: 'Node1' },
-        { id: 'node2', topic: 'Node2' }
+        {
+          topic: 'EXAMPLE',
+          id: '89ceeef3ad026006',
+          direction: 1,
+          children: [
+            {
+              topic: 'DIRECTORY1',
+              id: '89cef34977d84b92',
+              direction: 0
+            },
+            {
+              topic: 'DIRECTORY2',
+              id: '89cef1e969b7634a',
+              direction: 0,
+              children: [
+                {
+                  topic: 'FILE.txt',
+                  id: '89cef1e968b95de2'
+                }
+              ]
+            }
+          ]
+        },
+        {
+          topic: 'TASKS',
+          id: '89cef4c88f5e6526',
+          direction: 0,
+          children: [
+            {
+              topic: 'TODO',
+              id: '89cf070c8ec2a6f6'
+            },
+            {
+              topic: 'DONE',
+              id: '89cf092b2aaeff94'
+            },
+            {
+              topic: 'PENDING',
+              id: '89cf0a8de1ff6a23'
+            },
+            {
+              topic: 'ISSUE',
+              id: '89cf10a9cdafac5e'
+            }
+          ]
+        }
       ]
     }
   };
@@ -74,7 +119,7 @@
 
   let mind = new MindElixir({
       el: '#map',
-      direction: MindElixir.LEFT, // LEFT, RIGHT, SIDE
+      direction: MindElixir.SIDE, // LEFT, RIGHT, SIDE
       draggable: true,
       contextMenu: true,
       toolBar: true,
