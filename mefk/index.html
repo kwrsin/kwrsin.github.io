@@ -10,7 +10,7 @@
       margin: 0;
       padding: 0;
       overflow: hidden;
-    }    
+    }
     #toolbar {
       height: 40px;
       background: #f5f5f5;
@@ -37,6 +37,8 @@
       overflow: hidden;
     }
   </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 </head>
 <body>
 <div id="map"></div>
@@ -46,6 +48,7 @@
   <button id="btn-redo" title="Redo (Ctrl+Y)">↷ Redo</button>
   <button id="btn-fold" title="Fold (H)">⤢ Fold</button>
   <button id="btn-export-image">To Image</button>
+  <button id="btn-export-dir">To Dir</button>
   <button id="btn-export">Export（JSON）</button>
   <input type="file" id="import" accept=".json">
 </div>
@@ -179,7 +182,7 @@
     };
     reader.readAsText(file);
   });
-  
+
   // 🎯 ドラッグ＆ドロップによる JSON インポート
   const mapContainer = document.getElementById('map')
 
@@ -229,6 +232,45 @@
     }
   })
 
+  function exportMindToZip(mind) {
+    if (!mind || !mind.nodeData) {
+      console.error("MindElixir インスタンスまたは nodeData が存在しません");
+      return;
+    }
+
+    const zip = new JSZip();
+
+    // 再帰的にフォルダ・ファイルを作成
+    function traverse(node, folder) {
+      const name = node.topic || "untitled";
+
+      // 子供がいない かつ topic に '.' が含まれる → ファイル
+      if ((!node.children || node.children.length === 0) && name.includes(".")) {
+        folder.file(name, ""); // 中身は空
+      } else {
+        // ディレクトリを作成
+        const newFolder = folder.folder(name);
+        if (node.children && node.children.length > 0) {
+          node.children.forEach(child => traverse(child, newFolder));
+        }
+      }
+    }
+
+    const topName = mind.nodeData.topic || "mind_export";
+    const rootFolder = zip.folder(topName);
+    if (mind.nodeData.children) {
+      mind.nodeData.children.forEach(child => traverse(child, rootFolder));
+    }
+
+    // zip 生成してダウンロード
+    zip.generateAsync({ type: "blob" }).then(content => {
+      saveAs(content, `${topName}.zip`);
+    });
+  }
+  document.getElementById("btn-export-dir").addEventListener("click", () => {
+    exportMindToZip(mind);
+  });
+
   // --- キーボードショートカット ---
   document.addEventListener('keydown', (e) => {
     const ctrl = e.ctrlKey || e.metaKey
@@ -238,12 +280,12 @@
       e.preventDefault()
       mind.undo()
       return
-    } 
+    }
     if ((ctrl && e.key === 'y') || (ctrl && shift && e.key === 'Z')) {
       e.preventDefault()
       mind.redo()
       return
-    } 
+    }
 
     if (e.key === 'h' && mind.currentNode) {
       e.preventDefault()
