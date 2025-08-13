@@ -80,7 +80,9 @@
               children: [
                 {
                   topic: 'FILE.txt',
-                  id: '89cef1e968b95de2'
+                  id: '89cef1e968b95de2',
+                  note: "#Content\n\nyou can set text lines from Note in contextmenu\n",
+                  expanded: false
                 }
               ]
             }
@@ -122,12 +124,30 @@
       direction: MindElixir.SIDE, // LEFT, RIGHT, SIDE
       draggable: true,
       contextMenu: true,
+      contextMenuOption: {
+        focus: true,
+        link: true,
+        extend: [
+          {
+            name: 'Note',
+            onclick: () => {
+              const selected = mind.currentNode;
+              if (!selected) return;
+
+              const nodeData = selected.nodeObj;
+              openNotePopup(nodeData);
+            }
+          }
+        ]
+      },
       toolBar: true,
       nodeMenu: true,
       keypress: true,
       allowUndo: true,
       // locale: 'ja',
   })
+  mindData.linkData = {}
+  mindData.note = {}
   mind.init(mindData)
 
   // 保存ボタンの処理
@@ -162,6 +182,8 @@
         },
       }
       mind.enableEdit()
+      mindData.linkData = {}
+      mindData.note = {}
       mind.init(initialData)
       localStorage.setItem('mindmap-data', JSON.stringify(initialData)) // 自動保存対応
     }
@@ -279,7 +301,7 @@
 
   function exportMindToZip(mind) {
     if (!mind || !mind.nodeData) {
-      console.error("MindElixir インスタンスまたは nodeData が存在しません");
+      console.error("MindElixir instance or nodeData does not exist.");
       return;
     }
 
@@ -291,7 +313,7 @@
 
       // 子供がいない かつ topic に '.' が含まれる → ファイル
       if ((!node.children || node.children.length === 0) && name.includes(".")) {
-        folder.file(name, ""); // 中身は空
+        folder.file(name, node.note || ""); // 中身は空
       } else {
         // ディレクトリを作成
         const newFolder = folder.folder(name);
@@ -342,6 +364,75 @@
       return
     }
   })
+
+  function openNotePopup(nodeData) {
+    // すでに存在する場合は削除
+    let existingOverlay = document.getElementById("noteOverlay");
+    if (existingOverlay) existingOverlay.remove();
+
+    // 背景オーバーレイ作成
+    const overlay = document.createElement("div");
+    overlay.id = "noteOverlay";
+    overlay.style.position = "fixed";
+    overlay.style.top = "0";
+    overlay.style.left = "0";
+    overlay.style.width = "100%";
+    overlay.style.height = "100%";
+    overlay.style.backgroundColor = "rgba(0,0,0,0.5)";
+    overlay.style.display = "flex";
+    overlay.style.alignItems = "center";
+    overlay.style.justifyContent = "center";
+    overlay.style.zIndex = "1000";
+
+    // ポップアップボックス作成
+    const popup = document.createElement("div");
+    popup.style.backgroundColor = "#fff";
+    popup.style.padding = "20px";
+    popup.style.borderRadius = "8px";
+    popup.style.width = "400px";
+    popup.style.maxWidth = "90%";
+    popup.style.boxShadow = "0 0 10px rgba(0,0,0,0.3)";
+
+    const title = document.createElement('h3')
+    title.textContent = nodeData.topic || 'No Title'
+    title.style.margin = '0'
+    title.style.fontSize = '18px'
+    title.style.borderBottom = '1px solid #ddd'
+    title.style.paddingBottom = '5px'
+
+    const textarea = document.createElement("textarea");
+    textarea.style.width = "100%";
+    textarea.style.height = "150px";
+    textarea.value = nodeData.note || "";
+
+    const saveButton = document.createElement("button");
+    saveButton.textContent = "OK";
+    saveButton.style.marginTop = "10px";
+
+    saveButton.onclick = () => {
+      nodeData.note = textarea.value; // ノードデータに保存
+      overlay.remove(); // ポップアップを閉じる
+      mind.refresh(); // MindElixirを再描画（note更新用）
+    };
+
+    const cancelButton = document.createElement("button");
+    cancelButton.textContent = "CANCEL";
+    cancelButton.style.marginTop = "10px";
+    cancelButton.style.marginLeft = "5px";
+
+    cancelButton.onclick = () => {
+      overlay.remove();
+    };
+
+    popup.appendChild(title)
+    popup.appendChild(textarea);
+    popup.appendChild(document.createElement("br"));
+    popup.appendChild(saveButton);
+    popup.appendChild(cancelButton);
+    overlay.appendChild(popup);
+
+    document.body.appendChild(overlay);
+  }
 </script>
 </body>
 </html>
