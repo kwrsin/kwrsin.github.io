@@ -342,6 +342,9 @@
   document.addEventListener('keydown', (e) => {
     const ctrl = e.ctrlKey || e.metaKey
     const shift = e.shiftKey
+    let existingOverlay = document.getElementById("noteOverlay");
+    if (existingOverlay) return true;
+
 
     if (ctrl && !shift && e.key === 'z') {
       e.preventDefault()
@@ -411,6 +414,7 @@
 
     saveButton.onclick = () => {
       nodeData.note = textarea.value; // ノードデータに保存
+      autoSave()
       overlay.remove(); // ポップアップを閉じる
       mind.refresh(); // MindElixirを再描画（note更新用）
     };
