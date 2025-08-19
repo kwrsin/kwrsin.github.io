@@ -305,6 +305,10 @@
     setNote()
   })
 
+  mind.bus.addListener('operation', op => {
+    setNote()
+  })
+
   // 保存ボタンの処理
   //  document.getElementById('saveBtn').addEventListener('click', () => {
   //    const data = mind.getData(); // 現在のマップデータを取得
