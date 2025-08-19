@@ -89,6 +89,36 @@
       flex-direction: column;
     }
 
+    #color-options {
+      display: flex;
+      gap: 6px;
+      padding: 6px;
+    }
+
+    .color-item {
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      cursor: pointer;
+      user-select: none;
+      font-weight: bold;
+      text-align: center;
+      min-width: 28px;
+    }
+
+    /* 各色サンプル */
+    .color-item[data-bg="black"]  { background: black; color: white; }
+    .color-item[data-bg="red"]    { background: red; color: white; }
+    .color-item[data-bg="blue"]   { background: blue; color: white; }
+    .color-item[data-bg="green"]  { background: green; color: white; }
+    .color-item[data-bg="orange"] { background: orange; color: white; }
+    .color-item[data-bg="gray"]   { background: gray; color: black; }
+
+    .color-item[data-reset="true"] {
+      background: #eee;
+      color: #333;
+    }
+
     .tabs {
       display: flex;
       border-bottom: 1px solid #ccc;
@@ -128,7 +158,15 @@
     <button id="sidebar-close">✕</button>
   </div>
   <div id="sidebar-controls">
-    <button id="bg-toggle">Color</button>
+    <div id="color-options">
+      <div class="color-item" data-bg="black" data-fg="white" data-title="black">black</div>
+      <div class="color-item" data-bg="red" data-fg="white" data-title="red">red</div>
+      <div class="color-item" data-bg="blue" data-fg="white" data-title="blue">blue</div>
+      <div class="color-item" data-bg="green" data-fg="white" data-title="green">green</div>
+      <div class="color-item" data-bg="orange" data-fg="white" data-title="green">orange</div>
+      <div class="color-item" data-bg="gray" data-fg="black" data-title="gray">gray</div>
+      <div class="color-item" data-reset="true">reset</div>
+    </div>
   </div>
   <div class="tabs">
     <div class="tab" data-tab="editor">Edit</div>
@@ -285,11 +323,6 @@
     })
   })
 
-  // 背景色切替
-  document.getElementById('bg-toggle').onclick = () => {
-    sidebar.style.background = sidebar.style.background === 'black' ? 'white' : 'black'
-    sidebar.style.color = sidebar.style.background === 'black' ? 'white' : 'black'
-  }
 
   // 更新ボタン
   document.getElementById('update-btn').onclick = () => {
@@ -534,6 +567,37 @@
   document.getElementById('sidebar-close').addEventListener('click', () => {
     toggleNote()
   })
+
+  document.querySelectorAll('.color-item').forEach(item => {
+    item.addEventListener('click', () => {
+      const selected = mind.currentNode;
+      if (!selected) return;
+
+
+      if (item.dataset.reset) {
+        // リセット（元に戻す）
+          delete selected.nodeObj.style;  // style を削除
+          mind.reshapeNode(selected, { style: {} });
+      } else {
+        const bg = item.dataset.bg;
+        const fg = item.dataset.fg;
+        const title = item.dataset.title;
+
+        // ノードの style を変更
+        const style = {
+          background: bg,
+          color: fg,
+          border: `2px solid ${title}`
+        };
+        mind.reshapeNode(selected, { style: style });
+      }
+
+      // 再描画（MindElixirなどを利用している場合）
+//      if (window.mind) {
+//        window.mind.refresh();
+//      }
+    });
+  });
 
   // --- キーボードショートカット ---
   document.addEventListener('keydown', (e) => {
