@@ -36,17 +36,96 @@
       width: 100%;
       overflow: hidden;
     }
+    /* サイドバー */
+    #sidebar {
+      position: fixed;
+      top: 0;
+      right: -400px;
+      width: 400px;
+      height: 100%;
+      background: #fff;
+      box-shadow: -2px 0 6px rgba(0,0,0,0.3);
+      transition: right 0.3s;
+      display: flex;
+      flex-direction: column;
+      z-index: 1000;
+    }
+    #sidebar.open { right: 0; }
+
+    #sidebar-header {
+      padding: 10px;
+      background: #f0f0f0;
+      font-weight: bold;
+    }
+
+    #sidebar-controls {
+      display: flex;
+      gap: 10px;
+      padding: 5px 10px;
+    }
+
+    #sidebar-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .tabs {
+      display: flex;
+      border-bottom: 1px solid #ccc;
+    }
+    .tab {
+      padding: 8px 12px;
+      cursor: pointer;
+    }
+    .tab.active {
+      background: #ddd;
+      font-weight: bold;
+    }
+
+    #editor, #preview {
+      flex: 1;
+      padding: 10px;
+      overflow: auto;
+      display: none;
+    }
+    #editor.active, #preview.active { display: block; }
+
+    textarea {
+      width: 100%;
+      height: 100%;
+      resize: none;
+    }
   </style>
   <script src="./libs/jszip.min.js"></script>
   <script src="./libs/FileSaver.min.js"></script>
+  <script src="./libs/marked.min.js"></script>
 </head>
 <body>
 <div id="map"></div>
+<div id="sidebar">
+  <div id="sidebar-header">NOTE</div>
+  <div id="sidebar-controls">
+    <button id="bg-toggle">Color</button>
+    <button id="update-btn">Update</button>
+  </div>
+  <div class="tabs">
+    <div class="tab" data-tab="editor">Edit</div>
+    <div class="tab active" data-tab="preview">Preview</div>
+  </div>
+  <div id="sidebar-content">
+    <div id="editor" class="active">
+      <textarea id="note-text"></textarea>
+    </div>
+    <div id="preview"></div>
+  </div>
+</div>
 <div id="toolbar">
   <button id="btn-new">New</button>
   <button id="btn-undo" title="Undo (Ctrl+Z)">⎌ Undo</button>
   <button id="btn-redo" title="Redo (Ctrl+Y)">↷ Redo</button>
-  <button id="btn-fold" title="Fold (H)">⤢ Fold</button>
+  <button id="btn-fold" title="Fold (Ctrl+H)">⤢ Fold</button>
+  <button id="btn-note" title="Note (Ctrl+Shift+V)">🗒️Note</button>
   <button id="btn-export-image">To Image</button>
   <button id="btn-export-dir">To Dir</button>
   <button id="btn-export">Export（JSON）</button>
@@ -81,7 +160,7 @@
                 {
                   topic: 'FILE.txt',
                   id: '89cef1e968b95de2',
-                  note: "#Content\n\nyou can set text lines from Note in contextmenu\n",
+                  note: "#Content\n\nYou can set the selected text line from the Note as the node's content.\n",
                   expanded: false
                 }
               ]
@@ -124,22 +203,22 @@
       direction: MindElixir.SIDE, // LEFT, RIGHT, SIDE
       draggable: true,
       contextMenu: true,
-      contextMenuOption: {
-        focus: true,
-        link: true,
-        extend: [
-          {
-            name: 'Note',
-            onclick: () => {
-              const selected = mind.currentNode;
-              if (!selected) return;
+//      contextMenuOption: {
+//        focus: true,
+//        link: true,
+//        extend: [
+//          {
+//            name: 'Note',
+//            onclick: () => {
+//              const selected = mind.currentNode;
+//              if (!selected) return;
 
-              const nodeData = selected.nodeObj;
-              openNotePopup(nodeData);
-            }
-          }
-        ]
-      },
+//              const nodeData = selected.nodeObj;
+//              openNotePopup(nodeData);
+//            }
+//          }
+//        ]
+//      },
       toolBar: true,
       nodeMenu: true,
       keypress: true,
@@ -149,6 +228,82 @@
   mindData.linkData = {}
   mindData.note = {}
   mind.init(mindData)
+
+  const sidebar = document.getElementById('sidebar')
+  const sidebarHeader = document.getElementById('sidebar-header')
+  const noteText = document.getElementById('note-text')
+  const preview = document.getElementById('preview')
+  const tabs = document.querySelectorAll('.tab')
+
+  let currentNode = null
+
+  const renderer = {
+    link(href, title, text) {
+      const link = marked.Renderer.prototype.link.call(this, href, title, text);
+      return link.replace("<a","<a target='_blank' rel='noreferrer' ");
+    }
+  };
+
+  marked.use({
+      renderer
+  });
+
+  // タブ切り替え
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'))
+      tab.classList.add('active')
+      document.querySelectorAll('#editor, #preview').forEach(el => el.classList.remove('active'))
+      const target = document.getElementById(tab.dataset.tab)
+      target.classList.add('active')
+
+      if (tab.dataset.tab === 'preview') {
+        preview.innerHTML = marked.parse(noteText.value || '')
+      }
+    })
+  })
+
+  // 背景色切替
+  document.getElementById('bg-toggle').onclick = () => {
+    sidebar.style.background = sidebar.style.background === 'black' ? 'white' : 'black'
+    sidebar.style.color = sidebar.style.background === 'black' ? 'white' : 'black'
+  }
+
+  // 更新ボタン
+  document.getElementById('update-btn').onclick = () => {
+    if (currentNode) {
+      currentNode.note = noteText.value
+      alert('saved')
+    }
+  }
+
+  function setNote() {
+    if(sidebar.classList.contains('open') == false) return;
+    const selected = mind.currentNode;
+    if (!selected) return;
+
+    currentNode = selected.nodeObj;
+    sidebarHeader.textContent = currentNode.topic
+    noteText.value = currentNode.note || ''
+    preview.innerHTML = marked.parse(currentNode.note || '')
+  }
+
+  function showNote() {
+    sidebar.classList.add('open')
+  }
+
+  function hideNote() {
+    sidebar.classList.remove('open')
+  }
+
+  function toggleNote() {
+    sidebar.classList.toggle('open')
+  }
+
+  // ノード選択イベント
+  mind.bus.addListener('selectNode', node => {
+    setNote()
+  })
 
   // 保存ボタンの処理
   //  document.getElementById('saveBtn').addEventListener('click', () => {
@@ -298,6 +453,9 @@
       console.log('Failed to show/hide the node')
     }
   })
+  document.getElementById('btn-note').addEventListener('click', () => {
+    toggleNote()
+  })
 
   function exportMindToZip(mind) {
     if (!mind || !mind.nodeData) {
@@ -345,6 +503,14 @@
     let existingOverlay = document.getElementById("noteOverlay");
     if (existingOverlay) return true;
 
+    if (ctrl && shift && e.key === 'V') {
+      e.preventDefault()
+      toggleNote()
+      setNote()
+      return
+    }
+
+    if(sidebar.classList.contains('open')) return true;
 
     if (ctrl && !shift && e.key === 'z') {
       e.preventDefault()
@@ -357,7 +523,7 @@
       return
     }
 
-    if (e.key === 'h' && mind.currentNode) {
+    if ((ctrl && e.key === 'h') && mind.currentNode) {
       e.preventDefault()
       try {
         mind.expandNode(mind.currentNode)
@@ -366,6 +532,8 @@
       }
       return
     }
+
+    return true
   })
 
   function openNotePopup(nodeData) {
