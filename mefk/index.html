@@ -329,8 +329,7 @@
     }
   );
 
-  // 新規作成処理
-  document.getElementById('btn-new').addEventListener('click', () => {
+  function createMap() {
     if (confirm('Do you want to discard your current mindmap and create a new one?')) {
       const initialData = {
         nodeData: {
@@ -346,6 +345,11 @@
       mind.init(initialData)
       localStorage.setItem('mindmap-data', JSON.stringify(initialData)) // 自動保存対応
     }
+  }
+
+  // 新規作成処理
+  document.getElementById('btn-new').addEventListener('click', () => {
+    createMap()
   })
 
   document.getElementById('btn-export-image').addEventListener('click', () => {
@@ -373,8 +377,7 @@
     downloadPng()
   });
 
-  // JSON エクスポート
-  document.getElementById('btn-export').addEventListener('click', () => {
+  function exportToJSON() {
     const data = mind.getData();
     const json = JSON.stringify(data, null, 2);
 
@@ -389,6 +392,11 @@
     a.download = fileName;
     a.click();
     URL.revokeObjectURL(url);
+  }
+
+  // JSON エクスポート
+  document.getElementById('btn-export').addEventListener('click', () => {
+    exportToJSON()
   });
 
   // JSON インポート
@@ -534,6 +542,18 @@
       } catch(err) {
         console.log('Failed to show/hide the node')
       }
+      return
+    }
+
+    if ((ctrl && e.key === 'e')) {
+      e.preventDefault()
+      exportToJSON()
+      return
+    }
+
+    if ((ctrl && e.key === 'n')) {
+      e.preventDefault()
+      createMap()
       return
     }
 
