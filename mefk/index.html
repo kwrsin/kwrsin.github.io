@@ -121,14 +121,14 @@
   </div>
 </div>
 <div id="toolbar">
-  <button id="btn-new">New</button>
-  <button id="btn-undo" title="Undo (Ctrl+Z)">⎌ Undo</button>
-  <button id="btn-redo" title="Redo (Ctrl+Y)">↷ Redo</button>
-  <button id="btn-fold" title="Fold (Ctrl+H)">⤢ Fold</button>
-  <button id="btn-note" title="Note (Ctrl+Shift+V)">🗒️Note</button>
+  <button id="btn-new" title="New (Ctrl+n)">New</button>
+  <button id="btn-undo" title="Undo (Ctrl+z)">⎌ Undo</button>
+  <button id="btn-redo" title="Redo (Ctrl+y)">↷ Redo</button>
+  <button id="btn-fold" title="Fold (Ctrl+h)">⤢ Fold</button>
+  <button id="btn-note" title="Note (Shift+space)">🗒️Note</button>
   <button id="btn-export-image">To Image</button>
   <button id="btn-export-dir">To Dir</button>
-  <button id="btn-export">Export（JSON）</button>
+  <button id="btn-export" title="Export (Ctrl+e)">Export（JSON）</button>
   <input type="file" id="import" accept=".json">
 </div>
 <script type="module">
@@ -273,6 +273,7 @@
   document.getElementById('update-btn').onclick = () => {
     if (currentNode) {
       currentNode.note = noteText.value
+      autoSave()
       alert('saved')
     }
   }
@@ -515,7 +516,7 @@
     let existingOverlay = document.getElementById("noteOverlay");
     if (existingOverlay) return true;
 
-    if (ctrl && shift && e.key === 'V') {
+    if (shift && e.key === ' ') {
       e.preventDefault()
       toggleNote()
       setNote()
