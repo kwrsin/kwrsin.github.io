@@ -155,6 +155,7 @@
 <div id="sidebar">
   <div id="sidebar-header-frame">
     <div id="sidebar-header">NOTE</div>
+    <span id="save-status" style="margin-left:auto; padding:6px; font-size:12px; color:green; display:none;">✔ saved</span>
     <button id="sidebar-close">✕</button>
   </div>
   <div id="sidebar-controls">
@@ -175,7 +176,7 @@
   <div id="sidebar-content">
     <div id="editor">
       <textarea id="note-text"></textarea>
-      <button id="update-btn">Update</button>
+      <button id="update-btn">Save</button>
     </div>
     <div id="preview" class="active"></div>
   </div>
@@ -329,7 +330,13 @@
     if (currentNode) {
       currentNode.note = noteText.value
       autoSave()
-      alert('saved')
+
+      // ✔ saved をフラッシュ表示
+      const status = document.getElementById('save-status')
+      status.style.display = 'inline'
+      setTimeout(() => {
+        status.style.display = 'none'
+      }, 1500)
     }
   }
 
@@ -591,11 +598,6 @@
         };
         mind.reshapeNode(selected, { style: style });
       }
-
-      // 再描画（MindElixirなどを利用している場合）
-//      if (window.mind) {
-//        window.mind.refresh();
-//      }
     });
   });
 
