@@ -31,6 +31,14 @@
     #toolbar button:hover {
       background: #d0d0d0;
     }
+    #memory {
+      margin-left: auto;
+      font-size: 16px;
+      color: red;
+    }
+    #memory.saved {
+      color: green;
+    }
     #map {
       height: calc(100% - 40px); /* ツールバーの高さを引く */
       width: 100%;
@@ -155,7 +163,7 @@
 <div id="sidebar">
   <div id="sidebar-header-frame">
     <div id="sidebar-header">NOTE</div>
-    <span id="save-status" style="margin-left:auto; padding:6px; font-size:12px; color:green; display:none;">✔ saved</span>
+    <span id="save-status" style="margin-left:auto; padding:6px; font-size:12px; color:green; display:none;">✔ updated</span>
     <button id="sidebar-close">✕</button>
   </div>
   <div id="sidebar-controls">
@@ -176,7 +184,7 @@
   <div id="sidebar-content">
     <div id="editor">
       <textarea id="note-text"></textarea>
-      <button id="update-btn">Save</button>
+      <button id="update-btn">Update</button>
     </div>
     <div id="preview" class="active"></div>
   </div>
@@ -186,11 +194,13 @@
   <button id="btn-undo" title="Undo (Ctrl+z)">⎌ Undo</button>
   <button id="btn-redo" title="Redo (Ctrl+y)">↷ Redo</button>
   <button id="btn-fold" title="Fold (Ctrl+h)">⤢ Fold</button>
-  <button id="btn-note" title="Note (Shift+space)">🗒️Note</button>
+  <button id="btn-save" title="Save (Ctrl+s)">Save</button>
+  <button id="btn-note" title="Note (Shift+space)">Note</button>
   <button id="btn-export-image">To Image</button>
   <button id="btn-export-dir">To Dir</button>
   <button id="btn-export" title="Export (Ctrl+e)">Export（JSON）</button>
   <input type="file" id="import" accept=".json">
+  <span id="memory">unsaved</span>
 </div>
 <script type="module">
   // import MindElixir from "https://cdn.jsdelivr.net/npm/mind-elixir/dist/MindElixir.js"
@@ -289,7 +299,7 @@
   mindData.linkData = {}
   mindData.note = {}
   mind.init(mindData)
-
+  updateSaveStatus(true)
   const sidebar = document.getElementById('sidebar')
   const sidebarHeader = document.getElementById('sidebar-header')
   const noteText = document.getElementById('note-text')
@@ -383,6 +393,7 @@
   const autoSave = () => {
     const data = mind.getData();
     localStorage.setItem('mindmap', JSON.stringify(data));
+    updateSaveStatus(true)
     console.log('Saved!');
   };
 
@@ -406,7 +417,7 @@
       mindData.linkData = {}
       mindData.note = {}
       mind.init(initialData)
-      localStorage.setItem('mindmap-data', JSON.stringify(initialData)) // 自動保存対応
+      updateSaveStatus(false)
     }
   }
 
@@ -471,7 +482,7 @@
       try {
         const json = JSON.parse(e.target.result);
         mind.init(json);
-        localStorage.setItem('mindmap', JSON.stringify(json));
+        updateSaveStatus(false)
         alert('Mindmap has imported');
       } catch (err) {
         alert('Invalid JSON File');
@@ -504,7 +515,7 @@
           const json = JSON.parse(event.target.result)
           mind.init(json)
           mind.enableEdit()
-          localStorage.setItem('mindmap-data', JSON.stringify(json))
+          updateSaveStatus(false)
           alert('Mindmap has imported')
         } catch (err) {
           alert('Failed to read Mindmap')
@@ -527,6 +538,9 @@
     } catch(err) {
       console.log('Failed to show/hide the node')
     }
+  })
+  document.getElementById('btn-save').addEventListener('click', () => {
+    autoSave()
   })
   document.getElementById('btn-note').addEventListener('click', () => {
     toggleNote()
@@ -650,6 +664,12 @@
       return
     }
 
+    if ((ctrl && e.key === 's')) {
+      e.preventDefault()
+      autoSave()
+      return
+    }
+
     return true
   })
 
@@ -721,6 +741,17 @@
     overlay.appendChild(popup);
 
     document.body.appendChild(overlay);
+  }
+
+  function updateSaveStatus(saved = false) {
+    const label = document.getElementById("memory");
+    if (saved) {
+      label.textContent = "✔ saved";
+      label.style.color = "green";
+    } else {
+      label.textContent = "unsaved";
+      label.style.color = "red";
+    }
   }
 </script>
 </body>
