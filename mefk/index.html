@@ -72,32 +72,47 @@
       font-weight: bold;
     }
 
-    #sidebar-urls > div {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-top: 16px;
-      margin-bottom: 8px;
-    }
-
     #sidebar-urls label {
-      width: 76px;
-      text-align: right;
+      width: 50px;
+      text-align: center;
       font-size: 14px;
     }
 
     #sidebar-urls input {
       flex: 1;
       min-height: 20px;
-      padding: 4px 6px;
+      padding: 4px 3px;
       box-sizing: border-box;
+      margin-right: 10px;
     }
 
     #sidebar-urls button {
       min-height: 16px;
-      padding: 4px 6px;
+      padding: 4px 3px;
       white-space: nowrap;
       margin-right: 10px;
+    }
+
+    #sidebar-urls details {
+      padding: 4px;
+    }
+
+    #sidebar-urls summary {
+      cursor: pointer;
+      font-weight: bold;
+      padding: 4px;
+    }
+
+    #sidebar-urls .url-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    #sidebar-urls .url-group > div {
+      display: flex;
+      align-items: center;
+      margin-top: 4px;
+      margin-bottom: 4px;
     }
 
     #sidebar-close {
@@ -203,16 +218,21 @@
     <button id="sidebar-close">✕</button>
   </div>
   <div id="sidebar-urls">
-    <div>
-      <label for="sidebar-imageurl">Image URL</label>
-      <input id="sidebar-imageurl" type="text">
-      <button id="sidebar-imageurl-set" type="button">Set</button>
-    </div>
-    <div>
-      <label for="sidebar-siteurl">Site URL</label>
-      <input id="sidebar-siteurl" type="text">
-      <button id="sidebar-siteurl-set" type="button">Set</button>
-    </div>
+    <details>
+      <summary>URLs</summary>
+      <div class="url-group">
+        <div>
+          <label for="sidebar-imageurl">Image</label>
+          <input id="sidebar-imageurl" type="text">
+          <button id="sidebar-imageurl-set" type="button">Set</button>
+        </div>
+        <div>
+          <label for="sidebar-siteurl">Site</label>
+          <input id="sidebar-siteurl" type="text">
+          <button id="sidebar-siteurl-set" type="button">Set</button>
+        </div>
+      </div>
+    </details>
   </div>
   <div id="sidebar-controls">
     <div id="color-options">
