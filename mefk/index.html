@@ -72,6 +72,34 @@
       font-weight: bold;
     }
 
+    #sidebar-urls > div {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 16px;
+      margin-bottom: 8px;
+    }
+
+    #sidebar-urls label {
+      width: 76px;
+      text-align: right;
+      font-size: 14px;
+    }
+
+    #sidebar-urls input {
+      flex: 1;
+      min-height: 20px;
+      padding: 4px 6px;
+      box-sizing: border-box;
+    }
+
+    #sidebar-urls button {
+      min-height: 16px;
+      padding: 4px 6px;
+      white-space: nowrap;
+      margin-right: 10px;
+    }
+
     #sidebar-close {
       background: transparent;
       border: none;
@@ -166,6 +194,18 @@
     <div id="sidebar-header">Please select one of the nodes.</div>
     <span id="save-status" style="margin-left:auto; padding:6px; font-size:12px; color:green; display:none;">✔ updated</span>
     <button id="sidebar-close">✕</button>
+  </div>
+  <div id="sidebar-urls">
+    <div>
+      <label for="sidebar-imageurl">Image URL</label>
+      <input id="sidebar-imageurl" type="text">
+      <button id="sidebar-imageurl-set" type="button">Set</button>
+    </div>
+    <div>
+      <label for="sidebar-siteurl">Site URL</label>
+      <input id="sidebar-siteurl" type="text">
+      <button id="sidebar-siteurl-set" type="button">Set</button>
+    </div>
   </div>
   <div id="sidebar-controls">
     <div id="color-options">
@@ -306,6 +346,8 @@
   const noteText = document.getElementById('note-text')
   const preview = document.getElementById('preview')
   const tabs = document.querySelectorAll('.tab')
+  const siteurl = document.getElementById('sidebar-siteurl')
+  const imageurl = document.getElementById('sidebar-imageurl')
 
   let currentNode = null
 
@@ -360,6 +402,10 @@
     sidebarHeader.textContent = currentNode.topic
     noteText.value = currentNode.note || ''
     preview.innerHTML = marked.parse(currentNode.note || '')
+
+    // imageurl.value
+    siteurl.value = currentNode.hyperLink || ''
+    imageurl.value = currentNode.image.url || ''
   }
 
   function showNote() {
@@ -588,6 +634,60 @@
 
   document.getElementById('sidebar-close').addEventListener('click', () => {
     toggleNote()
+  })
+
+  function isValidHttpUrl(str) {
+    try {
+      const url = new URL(str);
+      return url.protocol === "http:" || url.protocol === "https:";
+    } catch (e) {
+      return false;
+    }
+  }
+  document.getElementById('sidebar-imageurl-set').addEventListener('click', () => {
+    function getImageSize(url, callback) {
+      const img = new Image();
+      img.onload = function() {
+        callback({ width: img.width, height: img.height });
+      };
+      img.onerror = function() {
+        callback(null);
+      };
+      img.src = url;
+    }
+    const selected = mind.currentNode;
+    if (!selected) return;
+    const url = imageurl.value || "";
+    if(url.length <= 0) {
+      mind.reshapeNode(selected, { image: {} });
+      return
+    }
+    if(isValidHttpUrl(url) == false) return
+    getImageSize(url, size => {
+      if(size) {
+        mind.reshapeNode(selected, {
+          image: {
+            url: url,
+            width: size.width,
+            height: size.height,
+            fit: 'cover'
+          }
+        });
+      }
+    })
+  })
+
+  document.getElementById('sidebar-siteurl-set').addEventListener('click', () => {
+    const selected = mind.currentNode;
+    if (!selected) return;
+    currentNode = selected;
+    const url = siteurl.value || "";
+    if(url.length <= 0) {
+      mind.reshapeNode(selected, { hyperLink: null });
+      return
+    }
+    if(isValidHttpUrl(url) == false) return
+    mind.reshapeNode(selected, { hyperLink: url });
   })
 
   document.querySelectorAll('.color-item').forEach(item => {
