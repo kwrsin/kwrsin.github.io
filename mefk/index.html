@@ -110,7 +110,7 @@
     }
 
     #sidebar-close:hover {
-      color: #e74c3c; /* 赤くなる */
+      color: #e74c3c;
     }
 
     #sidebar-controls {
@@ -175,12 +175,20 @@
       overflow: auto;
       display: none;
     }
+
     #editor.active, #preview.active { display: block; }
 
     textarea {
       width: 100%;
       height: 90%;
       resize: none;
+    }
+
+    #save-status {
+      float: right;
+      font-size: 12px;
+      color:green;
+      display: none;
     }
   </style>
   <script src="./libs/jszip.min.js"></script>
@@ -192,7 +200,6 @@
 <div id="sidebar">
   <div id="sidebar-header-frame">
     <div id="sidebar-header">Please select one of the nodes.</div>
-    <span id="save-status" style="margin-left:auto; padding:6px; font-size:12px; color:green; display:none;">✔ updated</span>
     <button id="sidebar-close">✕</button>
   </div>
   <div id="sidebar-urls">
@@ -226,6 +233,7 @@
     <div id="editor">
       <textarea id="note-text"></textarea>
       <button id="update-btn">Update</button>
+      <span id="save-status">✔ Updated</span>
     </div>
     <div id="preview" class="active"></div>
   </div>
@@ -403,9 +411,8 @@
     noteText.value = currentNode.note || ''
     preview.innerHTML = marked.parse(currentNode.note || '')
 
-    // imageurl.value
     siteurl.value = currentNode.hyperLink || ''
-    imageurl.value = currentNode.image.url || ''
+    imageurl.value = currentNode.image?.url || '';
   }
 
   function showNote() {
