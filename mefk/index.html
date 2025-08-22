@@ -377,8 +377,6 @@
   const siteurl = document.getElementById('sidebar-siteurl')
   const imageurl = document.getElementById('sidebar-imageurl')
 
-  let currentNode = null
-
   const renderer = {
     link(href, title, text) {
       const link = marked.Renderer.prototype.link.call(this, href, title, text);
@@ -405,20 +403,20 @@
     })
   })
 
-
-  // 更新ボタン
   document.getElementById('update-btn').onclick = () => {
-    if (currentNode) {
-      currentNode.note = noteText.value
-      autoSave()
+    const selected = mind.currentNode;
+    if (!selected) return;
 
-      // ✔ saved をフラッシュ表示
-      const status = document.getElementById('save-status')
-      status.style.display = 'inline'
-      setTimeout(() => {
-        status.style.display = 'none'
-      }, 1500)
-    }
+    let currentNode = selected.nodeObj;
+    currentNode.note = noteText.value
+    autoSave()
+
+    // ✔ saved をフラッシュ表示
+    const status = document.getElementById('save-status')
+    status.style.display = 'inline'
+    setTimeout(() => {
+      status.style.display = 'none'
+    }, 1500)
   }
 
   function setNote() {
@@ -426,13 +424,13 @@
     const selected = mind.currentNode;
     if (!selected) return;
 
-    currentNode = selected.nodeObj;
-    sidebarHeader.textContent = currentNode.topic
-    noteText.value = currentNode.note || ''
-    preview.innerHTML = marked.parse(currentNode.note || '')
+    const nodeObj = selected.nodeObj;
+    sidebarHeader.textContent = nodeObj.topic
+    noteText.value = nodeObj.note || ''
+    preview.innerHTML = marked.parse(nodeObj.note || '')
 
-    siteurl.value = currentNode.hyperLink || ''
-    imageurl.value = currentNode.image?.url || '';
+    siteurl.value = nodeObj.hyperLink || ''
+    imageurl.value = nodeObj.image?.url || '';
   }
 
   function showNote() {
@@ -707,7 +705,6 @@
   document.getElementById('sidebar-siteurl-set').addEventListener('click', () => {
     const selected = mind.currentNode;
     if (!selected) return;
-    currentNode = selected;
     const url = siteurl.value || "";
     if(url.length <= 0) {
       mind.reshapeNode(selected, { hyperLink: null });
