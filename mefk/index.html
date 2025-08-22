@@ -264,7 +264,7 @@
   <button id="btn-redo" title="Redo (Ctrl+y)">↷ Redo</button>
   <button id="btn-fold" title="Fold (Ctrl+h)">⤢ Fold</button>
   <button id="btn-save" title="Save (Ctrl+s)">Save</button>
-  <button id="btn-note" title="Note (Shift+space)">Note</button>
+  <button id="btn-note" title="Note (Ctrl+q)">Note</button>
   <button id="btn-export-image">To Image</button>
   <button id="btn-export-dir">To Dir</button>
   <button id="btn-export" title="Export (Ctrl+e)">Export（JSON）</button>
@@ -376,6 +376,7 @@
   const tabs = document.querySelectorAll('.tab')
   const siteurl = document.getElementById('sidebar-siteurl')
   const imageurl = document.getElementById('sidebar-imageurl')
+  let focusedEl = null
 
   const renderer = {
     link(href, title, text) {
@@ -433,20 +434,29 @@
     imageurl.value = nodeObj.image?.url || '';
   }
 
+  function backToFocus() {
+    if(focusedEl && sidebar.classList.contains('open') == false) {
+      focusedEl.focus()
+    }
+  }
+
   function showNote() {
     sidebar.classList.add('open')
   }
 
   function hideNote() {
     sidebar.classList.remove('open')
+    backToFocus()
   }
 
   function toggleNote() {
     sidebar.classList.toggle('open')
+    backToFocus()
   }
 
   // ノード選択イベント
   mind.bus.addListener('selectNode', node => {
+    focusedEl = document.activeElement
     setNote()
   })
 
