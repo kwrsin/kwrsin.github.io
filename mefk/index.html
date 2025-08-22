@@ -566,6 +566,7 @@
         const json = JSON.parse(e.target.result);
         mind.init(json);
         updateSaveStatus(false)
+        hideNote()
         alert('Mindmap has imported');
       } catch (err) {
         alert('Invalid JSON File');
@@ -599,6 +600,7 @@
           mind.init(json)
           mind.enableEdit()
           updateSaveStatus(false)
+          hideNote()
           alert('Mindmap has imported')
         } catch (err) {
           alert('Failed to read Mindmap')
