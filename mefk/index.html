@@ -461,6 +461,7 @@
   })
 
   mind.bus.addListener('operation', op => {
+    focusedEl = document.activeElement
     setNote()
   })
 
