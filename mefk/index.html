@@ -765,13 +765,12 @@
       return
     }
 
-    if(sidebar.classList.contains('open')) return true;
-
     if (ctrl && !shift && e.key === 'z') {
       e.preventDefault()
       mind.undo()
       return
     }
+
     if ((ctrl && e.key === 'y') || (ctrl && shift && e.key === 'Z')) {
       e.preventDefault()
       mind.redo()
@@ -796,6 +795,7 @@
 
     if ((ctrl && e.key === 'n')) {
       e.preventDefault()
+      hideNote()
       createMap()
       return
     }
