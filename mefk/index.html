@@ -20,6 +20,9 @@
       padding: 0 10px;
       box-sizing: border-box;
     }
+    #toolbar.dark {
+      background: #BFBFBF;
+    }
     #toolbar button {
       margin-right: 6px;
       padding: 6px 12px;
@@ -57,6 +60,9 @@
       display: flex;
       flex-direction: column;
       z-index: 1000;
+    }
+    #sidebar.dark {
+      background: #BFBFBF;
     }
     #sidebar.open { right: 0; }
 
@@ -259,6 +265,7 @@
   </div>
 </div>
 <div id="toolbar">
+  <button id="btn-theme" title="Dark/Light">🌓</button>
   <button id="btn-new" title="New (Ctrl+n)">New</button>
   <button id="btn-undo" title="Undo (Ctrl+z)">⎌ Undo</button>
   <button id="btn-redo" title="Redo (Ctrl+y)">↷ Redo</button>
@@ -376,7 +383,9 @@
   const tabs = document.querySelectorAll('.tab')
   const siteurl = document.getElementById('sidebar-siteurl')
   const imageurl = document.getElementById('sidebar-imageurl')
+  const toolbar = document.getElementById('toolbar')
   let focusedEl = null
+  applyTheme()
 
   const renderer = {
     link(href, title, text) {
@@ -505,6 +514,16 @@
   }
 
   // 新規作成処理
+  document.getElementById('btn-theme').addEventListener('click', () => {
+    const type = mind.theme.type
+    if(type === "dark") {
+      mind.changeTheme(MindElixir.THEME)
+    } else {
+      mind.changeTheme(MindElixir.DARK_THEME)
+    }
+    applyTheme()
+  })
+
   document.getElementById('btn-new').addEventListener('click', () => {
     createMap()
   })
@@ -567,6 +586,7 @@
         mind.init(json);
         updateSaveStatus(false)
         hideNote()
+        applyTheme()
         alert('Mindmap has imported');
       } catch (err) {
         alert('Invalid JSON File');
@@ -601,6 +621,7 @@
           mind.enableEdit()
           updateSaveStatus(false)
           hideNote()
+          applyTheme()
           alert('Mindmap has imported')
         } catch (err) {
           alert('Failed to read Mindmap')
@@ -889,6 +910,17 @@
     } else {
       label.textContent = "unsaved";
       label.style.color = "red";
+    }
+  }
+
+  function applyTheme() {
+    const type = mind.theme.type
+    if(type === 'dark') {
+      sidebar.classList.add('dark')
+      toolbar.classList.add('dark')
+    } else {
+      sidebar.classList.remove('dark')
+      toolbar.classList.remove('dark')
     }
   }
 </script>
