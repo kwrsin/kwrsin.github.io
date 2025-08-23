@@ -499,7 +499,7 @@
     tab.addEventListener('click', () => {
       tabs.forEach(t => t.classList.remove('active'))
       tab.classList.add('active')
-      document.querySelectorAll('#editor, #preview').forEach(el => el.classList.remove('active'))
+      document.querySelectorAll('#editor, #preview, #help').forEach(el => el.classList.remove('active'))
       const target = document.getElementById(tab.dataset.tab)
       target.classList.add('active')
 
