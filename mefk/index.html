@@ -190,14 +190,20 @@
       font-weight: bold;
     }
 
-    #editor, #preview {
+    #editor, #preview, #help {
       flex: 1;
       padding: 10px;
       overflow: auto;
       display: none;
     }
 
-    #editor.active, #preview.active { display: block; }
+    #editor.active, #preview.active ,#help.active { display: block; }
+
+    ##help.active {
+      overflow-y: auto;
+      padding: 10px;
+      max-height: 90hv;
+    }
 
     textarea {
       width: 100%;
@@ -252,16 +258,106 @@
     </div>
   </div>
   <div class="tabs">
-    <div class="tab" data-tab="editor">Edit</div>
     <div class="tab active" data-tab="preview">Preview</div>
+    <div class="tab" data-tab="editor">Edit</div>
+    <div class="tab" data-tab="help">Help</div>
   </div>
   <div id="sidebar-content">
+    <div id="preview" class="active"></div>
     <div id="editor">
       <textarea id="note-text"></textarea>
       <button id="update-btn">Update</button>
       <span id="save-status">✔ Updated</span>
     </div>
-    <div id="preview" class="active"></div>
+    <div id="help">
+      <h2>📘 MIND ELIXIR for Kwrsin — HELP</h2>
+
+      <h3>🗂 Basics</h3>
+      <ul>
+        <li>Start from the central node (e.g., <code>Project</code>) to build your mind map.</li>
+        <li>Select a node to edit its details in the right sidebar.</li>
+        <li>All data is saved automatically in <b>localStorage</b>.</li>
+        <li>Save status is shown in the top-right toolbar:
+          <ul>
+            <li>✅ <b>saved</b> (green): already saved</li>
+            <li>❌ <b>unsaved</b> (red): not saved yet</li>
+          </ul>
+        </li>
+      </ul>
+
+      <h3>🎛 Toolbar</h3>
+      <table border="1" cellpadding="5">
+        <tr><th>Button</th><th>Description</th></tr>
+        <tr><td>🌓 Theme</td><td>Toggle dark/light mode</td></tr>
+        <tr><td><b>New</b></td><td>Create a new mind map (Ctrl+n)</td></tr>
+        <tr><td>⎌ Undo</td><td>Undo last action (Ctrl+z)</td></tr>
+        <tr><td>↷ Redo</td><td>Redo action (Ctrl+y / Ctrl+Shift+Z)</td></tr>
+        <tr><td>⤢ Fold</td><td>Expand/Collapse nodes (Ctrl+h)</td></tr>
+        <tr><td><b>Save</b></td><td>Save manually (Ctrl+s)</td></tr>
+        <tr><td><b>Note</b></td><td>Toggle note sidebar (Ctrl+q)</td></tr>
+        <tr><td><b>To Image</b></td><td>Export as PNG</td></tr>
+        <tr><td><b>To Dir</b></td><td>Export as folder structure (ZIP)</td></tr>
+        <tr><td><b>Export (JSON)</b></td><td>Export as JSON (Ctrl+e)</td></tr>
+        <tr><td><b>Import (JSON)</b></td><td>Import from JSON file</td></tr>
+        <tr><td><b>unsaved / ✔ saved</b></td><td>Show save state</td></tr>
+      </table>
+
+      <h3>📝 Note Editing (Sidebar)</h3>
+      <ul>
+        <li>Select a node to open the sidebar.</li>
+        <li><b>Edit Tab</b>: Write notes in Markdown.</li>
+        <li><b>Preview Tab</b>: Preview formatted Markdown.</li>
+        <li><b>Update Button</b>: Save note to the node (✔ Updated will show).</li>
+      </ul>
+
+      <h3>🌐 URL Settings</h3>
+      <ul>
+        <li><b>Image URL</b>: Display an image on the node (size auto-fetched).</li>
+        <li><b>Site URL</b>: Add a hyperlink to the node.</li>
+        <li>⚠️ Only <code>http://</code> and <code>https://</code> are valid.</li>
+      </ul>
+
+      <h3>🎨 Node Colors</h3>
+      <ul>
+        <li>Use the sidebar’s <b>color options</b> to set background and text colors.</li>
+        <li>Click <b>reset</b> to restore default.</li>
+      </ul>
+
+      <h3>📂 Export / Import</h3>
+      <ul>
+        <li><b>To Image</b>: Save as PNG</li>
+        <li><b>To Dir</b>: Save as folder (ZIP)</li>
+        <li><b>Export (JSON)</b>: Save as JSON</li>
+        <li><b>Import (JSON)</b>: Load from JSON (drag & drop supported)</li>
+      </ul>
+
+      <h3>⌨️ Shortcuts</h3>
+      <table border="1" cellpadding="5">
+        <tr><th>Shortcut</th><th>Action</th></tr>
+        <tr><td>Ctrl + q</td><td>Toggle notes</td></tr>
+        <tr><td>Ctrl + n</td><td>New mind map</td></tr>
+        <tr><td>Ctrl + s</td><td>Save</td></tr>
+        <tr><td>Ctrl + z</td><td>Undo</td></tr>
+        <tr><td>Ctrl + y / Ctrl+Shift+Z</td><td>Redo</td></tr>
+        <tr><td>Ctrl + h</td><td>Expand/Collapse</td></tr>
+        <tr><td>Ctrl + e</td><td>Export JSON</td></tr>
+      </table>
+
+      <h3>💡 Tips</h3>
+      <ul>
+        <li>If a node name includes an extension (e.g., <code>.txt</code>, <code>.md</code>), it will be exported as a file.</li>
+        <li>Sidebar state (open/closed) is preserved per node.</li>
+        <li>Data persists in <code>localStorage</code>, so it remains even after closing the browser.</li>
+      </ul>
+
+      <h3>Open Source Libraries Used</h3>
+      <ul>
+        <li><a href="https://github.com/ssshooter/mind-elixir-core" target="_blank">mind-elixir-core</a></li>
+        <li><a href="https://github.com/eligrey/FileSaver.js/" target="_blank">FileSaver.js</a></li>
+        <li><a href="https://github.com/Stuk/jszip" target="_blank">JSZip</a></li>
+        <li><a href="https://github.com/markedjs/marked" target="_blank">marked</a></li>
+      </ul>
+    </div>
   </div>
 </div>
 <div id="toolbar">
@@ -513,7 +609,6 @@
     }
   }
 
-  // 新規作成処理
   document.getElementById('btn-theme').addEventListener('click', () => {
     const type = mind.theme.type
     if(type === "dark") {
