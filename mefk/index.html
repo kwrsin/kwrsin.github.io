@@ -609,8 +609,12 @@
   }
 
   function activate() {
-    mind.selectNode(activeNode)
-    document.getElementsByClassName('map-canvas')[0]?.focus()
+    try {
+      mind.selectNode(activeNode)
+      document.getElementsByClassName('map-canvas')[0]?.focus()
+    } catch(e) {
+      activateRootNode()
+    }
   }
 
   function activateRootNode() {
