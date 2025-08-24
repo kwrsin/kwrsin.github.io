@@ -363,6 +363,7 @@
       <h3>⌨️ Shortcuts</h3>
       <table border="1" cellpadding="5">
         <tr><th>Shortcut</th><th>Action</th></tr>
+        <tr><td>Ctrl + f</td><td>Focus the node</td></tr>
         <tr><td>Ctrl + q</td><td>Toggle notes</td></tr>
         <tr><td>Ctrl + n</td><td>New mind map</td></tr>
         <tr><td>Ctrl + s</td><td>Save</td></tr>
@@ -532,8 +533,10 @@
   const siteurl = document.getElementById('sidebar-siteurl')
   const imageurl = document.getElementById('sidebar-imageurl')
   const toolbar = document.getElementById('toolbar')
-  let focusedEl = null
+  let activeNode = null
+
   applyTheme()
+  activateRootNode()
 
   const renderer = {
     link(href, title, text) {
@@ -591,34 +594,38 @@
     imageurl.value = nodeObj.image?.url || '';
   }
 
-  function backToFocus() {
-    if(focusedEl && sidebar.classList.contains('open') == false) {
-      focusedEl.focus()
-    }
-  }
-
   function showNote() {
     sidebar.classList.add('open')
   }
 
   function hideNote() {
     sidebar.classList.remove('open')
-    backToFocus()
+    activate()
   }
 
   function toggleNote() {
     sidebar.classList.toggle('open')
-    backToFocus()
+    activate()
+  }
+
+  function activate() {
+    mind.selectNode(activeNode)
+    document.getElementsByClassName('map-canvas')[0]?.focus()
+  }
+
+  function activateRootNode() {
+    mind.selectNode(mind.findEle('root'))
+    document.getElementsByClassName('map-canvas')[0]?.focus()
   }
 
   // ノード選択イベント
   mind.bus.addListener('selectNode', node => {
-    focusedEl = document.activeElement
+    activeNode = mind.currentNode
     setNote()
   })
 
   mind.bus.addListener('operation', op => {
-    focusedEl = document.activeElement
+    activeNode = mind.currentNode
     setNote()
   })
 
@@ -658,6 +665,7 @@
       mindData.note = {}
       mind.init(initialData)
       updateSaveStatus(false)
+      activateRootNode()
     }
   }
 
@@ -734,6 +742,7 @@
         updateSaveStatus(false)
         hideNote()
         applyTheme()
+        activateRootNode()
         alert('Mindmap has imported');
       } catch (err) {
         alert('Invalid JSON File');
@@ -769,6 +778,7 @@
           updateSaveStatus(false)
           hideNote()
           applyTheme()
+          activateRootNode()
           alert('Mindmap has imported')
         } catch (err) {
           alert('Failed to read Mindmap')
@@ -973,6 +983,12 @@
     if ((ctrl && e.key === 's')) {
       e.preventDefault()
       autoSave()
+      return
+    }
+
+    if ((ctrl && e.key === 'f')) {
+      e.preventDefault()
+      activate()
       return
     }
 
