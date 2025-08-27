@@ -355,7 +355,7 @@
       <h3>📂 Export / Import</h3>
       <ul>
         <li><b>To Image</b>: Save as PNG</li>
-        <li><b>To Dir</b>: Save as folder (ZIP)</li>
+        <li><b>To Dir</b>: Save as folder (ZIP) — <i>starts from the selected node</i></li>
         <li><b>Export (JSON)</b>: Save as JSON</li>
         <li><b>Import (JSON)</b>: Load from JSON (drag & drop supported)</li>
       </ul>
@@ -813,23 +813,23 @@
     toggleNote()
   })
 
-  function exportMindToZip(mind) {
-    if (!mind || !mind.nodeData) {
-      console.error("MindElixir instance or nodeData does not exist.");
+  function exportSelectedNodeToZip(mind) {
+    if (!mind || !mind.currentNode) {
+      console.error("No node is selected.");
       return;
     }
 
     const zip = new JSZip();
+    const selected = mind.currentNode.nodeObj;
 
-    // 再帰的にフォルダ・ファイルを作成
     function traverse(node, folder) {
       const name = node.topic || "untitled";
 
-      // 子供がいない かつ topic に '.' が含まれる → ファイル
+      // ファイル判定: 子供なし & topicに.が含まれる
       if ((!node.children || node.children.length === 0) && name.includes(".")) {
-        folder.file(name, node.note || ""); // 中身は空
+        folder.file(name, node.note || ""); // 内容は note があれば入れる
       } else {
-        // ディレクトリを作成
+        // ディレクトリ
         const newFolder = folder.folder(name);
         if (node.children && node.children.length > 0) {
           node.children.forEach(child => traverse(child, newFolder));
@@ -837,19 +837,22 @@
       }
     }
 
-    const topName = mind.nodeData.topic || "mind_export";
+    const topName = selected.topic || "mind_export";
     const rootFolder = zip.folder(topName);
-    if (mind.nodeData.children) {
-      mind.nodeData.children.forEach(child => traverse(child, rootFolder));
+
+    // 選択されたノード自体を基点に再帰処理
+    if (selected.children) {
+      selected.children.forEach(child => traverse(child, rootFolder));
     }
 
-    // zip 生成してダウンロード
+    // zip生成して保存
     zip.generateAsync({ type: "blob" }).then(content => {
       saveAs(content, `${topName}.zip`);
     });
   }
+
   document.getElementById("btn-export-dir").addEventListener("click", () => {
-    exportMindToZip(mind);
+    exportSelectedNodeToZip(mind);
   });
 
   document.getElementById('sidebar-close').addEventListener('click', () => {
