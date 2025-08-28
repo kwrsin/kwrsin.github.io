@@ -743,6 +743,7 @@
 
       // ノードを選択＆スクロール
       mind.selectNode(domNode);
+      document.getElementsByClassName('map-canvas')[0]?.focus()
       domNode.scrollIntoView({ block: "nearest", inline: "nearest" });
 
       if(memo) addToRecent(node);
