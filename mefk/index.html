@@ -261,6 +261,10 @@
         padding: 16px;
     }
 
+    #node-move-popup.dark {
+      background: #BFBFBF;
+    }
+
     #node-move-popup > div {
         display: flex;
         justify-content: space-between;
@@ -1290,9 +1294,11 @@
     if(type === 'dark') {
       sidebar.classList.add('dark')
       toolbar.classList.add('dark')
+      mPopup.classList.add('dark')
     } else {
       sidebar.classList.remove('dark')
       toolbar.classList.remove('dark')
+      mPopup.classList.remove('dark')
     }
   }
 </script>
