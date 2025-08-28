@@ -246,7 +246,7 @@
       text-align:center;
     }
 
-    #node-move-popup {
+    #node-find-popup {
         display: none;
         position: fixed;
         top: 20%;
@@ -261,21 +261,21 @@
         padding: 16px;
     }
 
-    #node-move-popup.dark {
+    #node-find-popup.dark {
       background: #BFBFBF;
     }
 
-    #node-move-popup > div {
+    #node-find-popup > div {
         display: flex;
         justify-content: space-between;
         align-items: center;
     }
 
-    #node-move-popup > div h3{
+    #node-find-popup > div h3{
         margin: 0;
     }
 
-    #node-move-close {
+    #node-find-close {
         border: none;
         background: transparent;
         font-size: 18px;
@@ -378,7 +378,7 @@
         <tr><td>⤢ Fold</td><td>Expand/Collapse nodes (Ctrl+h)</td></tr>
         <tr><td><b>Save</b></td><td>Save manually (Ctrl+s)</td></tr>
         <tr><td><b>Note</b></td><td>Toggle note sidebar (Ctrl+q)</td></tr>
-        <tr><td><b>Move</b></td><td>Move To the Node (Ctrl+m)</td></tr>
+        <tr><td><b>Find</b></td><td>Find the Node (Ctrl+m)</td></tr>
         <tr><td><b>To Image</b></td><td>Export as PNG</td></tr>
         <tr><td><b>To Dir</b></td><td>Export as folder structure (ZIP)</td></tr>
         <tr><td><b>Export (JSON)</b></td><td>Export as JSON (Ctrl+e)</td></tr>
@@ -420,7 +420,7 @@
         <tr><th>Shortcut</th><th>Action</th></tr>
         <tr><td>Ctrl + f</td><td>Focus the node</td></tr>
         <tr><td>Ctrl + q</td><td>Toggle notes</td></tr>
-        <tr><td>Ctrl + m</td><td>Move to the node</td></tr>
+        <tr><td>Ctrl + m</td><td>Find the node</td></tr>
         <tr><td>Ctrl + n</td><td>New mind map</td></tr>
         <tr><td>Ctrl + s</td><td>Save</td></tr>
         <tr><td>Ctrl + z</td><td>Undo</td></tr>
@@ -454,7 +454,7 @@
   <button id="btn-fold" title="Fold (Ctrl+h)">⤢ Fold</button>
   <button id="btn-save" title="Save (Ctrl+s)">Save</button>
   <button id="btn-note" title="Note (Ctrl+q)">Note</button>
-  <button id="btn-moveto" title="Move (Ctrl+m)">Move</button>
+  <button id="btn-find" title="Find (Ctrl+m)">Find</button>
   <button id="btn-export-image">To Image</button>
   <button id="btn-export-dir">To Dir</button>
   <button id="btn-export" title="Export (Ctrl+e)">Export（JSON）</button>
@@ -475,11 +475,11 @@
   </div>
 </div>
 
-<!-- Popup for Node Move -->
-<div id="node-move-popup">
+<!-- Popup for Node Finding -->
+<div id="node-find-popup">
   <div>
-    <h3>Move To</h3>
-    <button id="node-move-close" style="">×</button>
+    <h3>Find</h3>
+    <button id="node-find-close" style="">×</button>
   </div>
 
   <!-- Search -->
@@ -610,8 +610,8 @@
   const siteurl = document.getElementById('sidebar-siteurl')
   const imageurl = document.getElementById('sidebar-imageurl')
   const toolbar = document.getElementById('toolbar')
-  const mPopup = document.getElementById("node-move-popup");
-  const closeMPopupBtn = document.getElementById("node-move-close");
+  const mPopup = document.getElementById("node-find-popup");
+  const closeMPopupBtn = document.getElementById("node-find-close");
   const searchInput = document.getElementById("node-search");
   const searchResults = document.getElementById("node-search-results");
   const recentList = document.getElementById("node-recent");
@@ -1003,7 +1003,7 @@
   document.getElementById('btn-note').addEventListener('click', () => {
     toggleNote()
   })
-  document.getElementById('btn-moveto').addEventListener('click', () => {
+  document.getElementById('btn-find').addEventListener('click', () => {
     hideNote()
     openMPopup();
   })
