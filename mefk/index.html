@@ -692,6 +692,15 @@
     activate()
   }
 
+  function toggleNodeFinder() {
+    if (mPopup.style.display === "block") {
+      closeMPopup();
+    } else {
+      hideNote();
+      openMPopup();
+    }
+  }
+
   // --- Utility: ノードのPathを取得 ---
   function getNodePath(node) {
     let path = [];
@@ -1004,8 +1013,7 @@
     toggleNote()
   })
   document.getElementById('btn-find').addEventListener('click', () => {
-    hideNote()
-    openMPopup();
+    toggleNodeFinder()
   })
 
   function exportSelectedNodeToZip(mind) {
@@ -1196,12 +1204,7 @@
 
     if ((ctrl && e.key === 'm')) {
       e.preventDefault()
-      if (mPopup.style.display === "block") {
-        closeMPopup();
-      } else {
-        hideNote()
-        openMPopup();
-      }
+      toggleNodeFinder()
       return
     }
 
