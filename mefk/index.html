@@ -771,7 +771,14 @@
       const li = document.createElement("li");
       li.textContent = r.path;
       li.style.cursor = "pointer";
+      li.tabIndex = "0";
       li.onclick = () => jumpToNode(r);
+      li.addEventListener('keydown', e => {
+        if(e.key == 'Enter') {
+          jumpToNode(r);
+        }
+        return true;
+      });
       recentList.appendChild(li);
     });
   }
@@ -804,7 +811,14 @@
       const li = document.createElement("li");
       li.textContent = getNodePath(n);
       li.style.cursor = "pointer";
+      li.tabIndex = "0";
       li.onclick = () => jumpToNode(n);
+      li.addEventListener('keydown', e => {
+        if(e.key == 'Enter') {
+          jumpToNode(n);
+        }
+        return true;
+      });
       searchResults.appendChild(li);
     });
   });
