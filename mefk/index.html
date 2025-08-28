@@ -775,12 +775,24 @@
     });
   }
 
+  // --- 折りたたみチェック ---
+  function isVisible(node) {
+    let current = node.parent;
+    while (current) {
+      if (current.expanded === false) {
+        return false; // 祖先が折りたたまれている
+      }
+      current = current.parent;
+    }
+    return true;
+  }
+
   // --- 検索UI更新 ---
   searchInput.addEventListener("input", () => {
     const keyword = searchInput.value.trim();
     searchResults.innerHTML = "";
     if (!keyword) return;
-    const results = searchNodes(keyword);
+    const results = searchNodes(keyword).filter(isVisible);
     if (results.length === 0) {
       const li = document.createElement("li");
       li.textContent = "No results";
