@@ -728,7 +728,7 @@
   }
 
   // --- ノード移動 ---
-  function jumpToNode(node, memo=true) {
+  function jumpToNode(node) {
     if (!node) {
       alert("Target node not found.");
       return;
@@ -746,7 +746,7 @@
       document.getElementsByClassName('map-canvas')[0]?.focus()
       domNode.scrollIntoView({ block: "nearest", inline: "nearest" });
 
-      if(memo) addToRecent(node);
+      addToRecent(node);
       closeMPopup();
     } catch(e) {
       alert("Target node element not found");
@@ -758,7 +758,8 @@
   function addToRecent(node) {
     const id = node.id;
     recentJumps = recentJumps.filter(r => r.id !== id); // 重複排除
-    recentJumps.unshift({ id, path: getNodePath(node) });
+    const path = node.path || getNodePath(node)
+    recentJumps.unshift({ id, path: path });
     if (recentJumps.length > 10) recentJumps.pop();
     localStorage.setItem("recentNodeJumps", JSON.stringify(recentJumps));
     renderRecent();
@@ -770,7 +771,7 @@
       const li = document.createElement("li");
       li.textContent = r.path;
       li.style.cursor = "pointer";
-      li.onclick = () => jumpToNode(r, false);
+      li.onclick = () => jumpToNode(r);
       recentList.appendChild(li);
     });
   }
