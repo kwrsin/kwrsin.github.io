@@ -246,6 +246,56 @@
       text-align:center;
     }
 
+    #node-move-popup {
+        display: none;
+        position: fixed;
+        top: 20%;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 500px;
+        background: #fff;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        z-index: 9999;
+        padding: 16px;
+    }
+
+    #node-move-popup > div {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    #node-move-popup > div h3{
+        margin: 0;
+    }
+
+    #node-move-close {
+        border: none;
+        background: transparent;
+        font-size: 18px;
+        cursor: pointer;
+    }
+
+    #node-search {
+        width: 90%;
+        padding: 6px;
+        margin: 4px 0;
+    }
+
+    #node-search-results {
+        max-height: 150px;
+        overflow-y: auto;
+        padding-left: 16px;
+    }
+
+    #node-recent {
+        max-height: 120px;
+        overflow-y: auto;
+        padding-left: 16px;
+    }
+
   </style>
   <script src="./libs/jszip.min.js"></script>
   <script src="./libs/FileSaver.min.js"></script>
@@ -324,6 +374,7 @@
         <tr><td>⤢ Fold</td><td>Expand/Collapse nodes (Ctrl+h)</td></tr>
         <tr><td><b>Save</b></td><td>Save manually (Ctrl+s)</td></tr>
         <tr><td><b>Note</b></td><td>Toggle note sidebar (Ctrl+q)</td></tr>
+        <tr><td><b>MoveTo</b></td><td>Move To the Node (Ctrl+m)</td></tr>
         <tr><td><b>To Image</b></td><td>Export as PNG</td></tr>
         <tr><td><b>To Dir</b></td><td>Export as folder structure (ZIP)</td></tr>
         <tr><td><b>Export (JSON)</b></td><td>Export as JSON (Ctrl+e)</td></tr>
@@ -365,6 +416,7 @@
         <tr><th>Shortcut</th><th>Action</th></tr>
         <tr><td>Ctrl + f</td><td>Focus the node</td></tr>
         <tr><td>Ctrl + q</td><td>Toggle notes</td></tr>
+        <tr><td>Ctrl + m</td><td>MoveTo the node</td></tr>
         <tr><td>Ctrl + n</td><td>New mind map</td></tr>
         <tr><td>Ctrl + s</td><td>Save</td></tr>
         <tr><td>Ctrl + z</td><td>Undo</td></tr>
@@ -398,12 +450,15 @@
   <button id="btn-fold" title="Fold (Ctrl+h)">⤢ Fold</button>
   <button id="btn-save" title="Save (Ctrl+s)">Save</button>
   <button id="btn-note" title="Note (Ctrl+q)">Note</button>
+  <button id="btn-moveto" title="MoveTo (Ctrl+m)">MoveTo</button>
   <button id="btn-export-image">To Image</button>
   <button id="btn-export-dir">To Dir</button>
   <button id="btn-export" title="Export (Ctrl+e)">Export（JSON）</button>
   <input type="file" id="import" accept=".json">
   <span id="memory">unsaved</span>
 </div>
+
+<!-- Disclaimer -->
 <div id="disclaimer">
   <div>
     <h2>Disclaimer</h2>
@@ -415,6 +470,24 @@
     <button id="agree-btn">I Understand</button>
   </div>
 </div>
+
+<!-- Popup for Node Move -->
+<div id="node-move-popup">
+  <div>
+    <h3>Move To</h3>
+    <button id="node-move-close" style="">×</button>
+  </div>
+
+  <!-- Search -->
+  <label for="node-search">Search Node:</label>
+  <input type="text" id="node-search" placeholder="Type node name...">
+  <ul id="node-search-results"></ul>
+
+  <!-- Recent Jumps -->
+  <h4>Recent Jumps</h4>
+  <ul id="node-recent"></ul>
+</div>
+
 <script>
   window.addEventListener("load", () => {
     if (!localStorage.getItem("disclaimerAccepted")) {
@@ -533,6 +606,13 @@
   const siteurl = document.getElementById('sidebar-siteurl')
   const imageurl = document.getElementById('sidebar-imageurl')
   const toolbar = document.getElementById('toolbar')
+  const mPopup = document.getElementById("node-move-popup");
+  const closeMPopupBtn = document.getElementById("node-move-close");
+  const searchInput = document.getElementById("node-search");
+  const searchResults = document.getElementById("node-search-results");
+  const recentList = document.getElementById("node-recent");
+
+  let recentJumps = JSON.parse(localStorage.getItem("recentNodeJumps") || "[]");
   let activeNode = null
 
   applyTheme()
@@ -607,6 +687,113 @@
     sidebar.classList.toggle('open')
     activate()
   }
+
+  // --- Utility: ノードのPathを取得 ---
+  function getNodePath(node) {
+    let path = [];
+    let cur = node;
+    while (cur) {
+      path.unshift(cur.topic || "untitled");
+      cur = cur.parent;
+    }
+    return path.join("/");
+  }
+
+  // --- Utility: 全ノードをリストアップ ---
+  function getAllNodes(node, arr = []) {
+    arr.push(node);
+    if (node.children) {
+      node.children.forEach(c => getAllNodes(c, arr));
+    }
+    return arr;
+  }
+
+  // --- 検索処理 ---
+  function searchNodes(keyword) {
+    const allNodes = getAllNodes(mind.nodeData);
+    return allNodes.filter(n => n.topic && n.topic.toLowerCase().includes(keyword.toLowerCase()));
+  }
+
+  // --- ノード移動 ---
+  function jumpToNode(node, memo=true) {
+    if (!node) {
+      alert("Target node not found.");
+      return;
+    }
+    // DOMノードを取得
+    try {
+      const domNode = MindElixir.E(node.id);
+      if (!domNode) {
+        alert("Target node element not found");
+        return;
+      }
+
+      // ノードを選択＆スクロール
+      mind.selectNode(domNode);
+      domNode.scrollIntoView({ block: "nearest", inline: "nearest" });
+
+      if(memo) addToRecent(node);
+      closeMPopup();
+    } catch(e) {
+      alert("Target node element not found");
+      return;
+    }
+  }
+
+  // --- 履歴管理 ---
+  function addToRecent(node) {
+    const id = node.id;
+    recentJumps = recentJumps.filter(r => r.id !== id); // 重複排除
+    recentJumps.unshift({ id, path: getNodePath(node) });
+    if (recentJumps.length > 10) recentJumps.pop();
+    localStorage.setItem("recentNodeJumps", JSON.stringify(recentJumps));
+    renderRecent();
+  }
+
+  function renderRecent() {
+    recentList.innerHTML = "";
+    recentJumps.forEach(r => {
+      const li = document.createElement("li");
+      li.textContent = r.path;
+      li.style.cursor = "pointer";
+      li.onclick = () => jumpToNode(r, false);
+      recentList.appendChild(li);
+    });
+  }
+
+  // --- 検索UI更新 ---
+  searchInput.addEventListener("input", () => {
+    const keyword = searchInput.value.trim();
+    searchResults.innerHTML = "";
+    if (!keyword) return;
+    const results = searchNodes(keyword);
+    if (results.length === 0) {
+      const li = document.createElement("li");
+      li.textContent = "No results";
+      searchResults.appendChild(li);
+      return;
+    }
+    results.forEach(n => {
+      const li = document.createElement("li");
+      li.textContent = getNodePath(n);
+      li.style.cursor = "pointer";
+      li.onclick = () => jumpToNode(n);
+      searchResults.appendChild(li);
+    });
+  });
+
+  // --- ポップアップ開閉 ---
+  function openMPopup() {
+    searchInput.value = "";
+    searchResults.innerHTML = "";
+    renderRecent();
+    mPopup.style.display = "block";
+    searchInput.focus();
+  }
+  function closeMPopup() {
+    mPopup.style.display = "none";
+  }
+  closeMPopupBtn.onclick = closeMPopup;
 
   function activate() {
     if(activeNode) {
@@ -812,6 +999,10 @@
   document.getElementById('btn-note').addEventListener('click', () => {
     toggleNote()
   })
+  document.getElementById('btn-moveto').addEventListener('click', () => {
+    hideNote()
+    openMPopup();
+  })
 
   function exportSelectedNodeToZip(mind) {
     if (!mind || !mind.currentNode) {
@@ -996,6 +1187,17 @@
     if ((ctrl && e.key === 'f')) {
       e.preventDefault()
       activate()
+      return
+    }
+
+    if ((ctrl && e.key === 'm')) {
+      e.preventDefault()
+      if (mPopup.style.display === "block") {
+        closeMPopup();
+      } else {
+        hideNote()
+        openMPopup();
+      }
       return
     }
 
