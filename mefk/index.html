@@ -1170,7 +1170,7 @@
   });
 
   // --- キーボードショートカット ---
-  document.addEventListener('keydown', (e) => {
+  document.addEventListener('keydown', e => {
     const ctrl = e.ctrlKey || e.metaKey
     const shift = e.shiftKey
     let existingOverlay = document.getElementById("noteOverlay");
@@ -1236,6 +1236,32 @@
       return
     }
 
+    return true
+  })
+
+  mPopup.addEventListener('keydown', e => {
+    const ctrl = e.ctrlKey || e.metaKey
+    if (e.key === 'Escape') {
+      e.preventDefault()
+      closeMPopup()
+      return
+    }
+    if (e.key === 'Tab') {
+      const node_recent = document.getElementById('node-find-popup')
+      const firstEl = document.getElementById('node-search')
+      const liEls = node_recent.querySelectorAll('li')
+      const lastLiEl = liEls[liEls.length - 1]
+
+      if(document.activeElement == firstEl && e.shiftKey) {
+        e.preventDefault()
+      }
+
+      if(document.activeElement == lastLiEl && !e.shiftKey) {
+        e.preventDefault()
+      }
+
+      return
+    }
     return true
   })
 
