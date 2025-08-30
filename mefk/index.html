@@ -960,6 +960,19 @@
     URL.revokeObjectURL(url);
   }
 
+  function expandNode() {
+    function isRootNode() {
+      if(!mind.currentNode) return false
+      return mind.currentNode.nodeObj === mind.nodeData
+    }
+    if(isRootNode()) return
+    try {
+      mind.expandNode(mind.currentNode)
+    } catch(err) {
+      console.log('Failed to show/hide the node')
+    }
+  }
+
   // JSON エクスポート
   document.getElementById('btn-export').addEventListener('click', () => {
     exportToJSON()
@@ -974,6 +987,7 @@
       try {
         const json = JSON.parse(e.target.result);
         mind.init(json);
+        mind.nodeData.expanded = true
         updateSaveStatus(false)
         closeMPopup()
         hideNote()
@@ -1011,6 +1025,7 @@
           const json = JSON.parse(event.target.result)
           mind.init(json)
           mind.enableEdit()
+          mind.nodeData.expanded = true
           updateSaveStatus(false)
           closeMPopup()
           hideNote()
@@ -1033,11 +1048,7 @@
     mind.redo()
   })
   document.getElementById('btn-fold').addEventListener('click', () => {
-    try {
-      mind.expandNode(mind.currentNode)
-    } catch(err) {
-      console.log('Failed to show/hide the node')
-    }
+    expandNode()
   })
   document.getElementById('btn-save').addEventListener('click', () => {
     autoSave()
@@ -1204,11 +1215,7 @@
 
     if ((ctrl && e.key === 'h') && mind.currentNode) {
       e.preventDefault()
-      try {
-        mind.expandNode(mind.currentNode)
-      } catch(err) {
-        console.log('Failed to show/hide the node')
-      }
+      expandNode()
       return
     }
 
