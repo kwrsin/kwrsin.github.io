@@ -602,6 +602,7 @@
   mindData.linkData = {}
   mindData.note = {}
   mind.init(mindData)
+  mind.nodeData.expanded = true
   updateSaveStatus(true)
   const sidebar = document.getElementById('sidebar')
   const sidebarHeader = document.getElementById('sidebar-header')
@@ -897,6 +898,7 @@
       mindData.linkData = {}
       mindData.note = {}
       mind.init(initialData)
+      mind.nodeData.expanded = true
       updateSaveStatus(false)
       activateRootNode()
 
