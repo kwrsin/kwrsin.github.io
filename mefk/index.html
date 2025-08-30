@@ -696,7 +696,6 @@
     if (mPopup.style.display === "block") {
       closeMPopup();
     } else {
-      hideNote();
       openMPopup();
     }
   }
@@ -898,6 +897,9 @@
       mind.init(initialData)
       updateSaveStatus(false)
       activateRootNode()
+
+      closeMPopup()
+      hideNote()
     }
   }
 
@@ -1213,7 +1215,6 @@
 
     if ((ctrl && e.key === 'n')) {
       e.preventDefault()
-      hideNote()
       createMap()
       return
     }
@@ -1241,11 +1242,13 @@
 
   mPopup.addEventListener('keydown', e => {
     const ctrl = e.ctrlKey || e.metaKey
+
     if (e.key === 'Escape') {
       e.preventDefault()
       closeMPopup()
       return
     }
+
     if (e.key === 'Tab') {
       const node_recent = document.getElementById('node-find-popup')
       const firstEl = document.getElementById('node-search')
@@ -1262,7 +1265,7 @@
 
       return
     }
-    return true
+
   })
 
   function openNotePopup(nodeData) {
