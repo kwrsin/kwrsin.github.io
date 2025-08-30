@@ -974,6 +974,7 @@
         const json = JSON.parse(e.target.result);
         mind.init(json);
         updateSaveStatus(false)
+        closeMPopup()
         hideNote()
         applyTheme()
         activateRootNode()
@@ -1010,6 +1011,7 @@
           mind.init(json)
           mind.enableEdit()
           updateSaveStatus(false)
+          closeMPopup()
           hideNote()
           applyTheme()
           activateRootNode()
