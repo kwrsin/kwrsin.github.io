@@ -378,7 +378,7 @@
         <tr><td>⤢ Fold</td><td>Expand/Collapse nodes (Ctrl+h)</td></tr>
         <tr><td><b>Save</b></td><td>Save manually (Ctrl+s)</td></tr>
         <tr><td><b>Note</b></td><td>Toggle note sidebar (Ctrl+q)</td></tr>
-        <tr><td><b>Find</b></td><td>Find & Focus (Ctrl+m)</td></tr>
+        <tr><td><b>Find</b></td><td>Find & Focus (Ctrl+f)</td></tr>
         <tr><td><b>To Image</b></td><td>Export as PNG</td></tr>
         <tr><td><b>To Dir</b></td><td>Export as folder structure (ZIP)</td></tr>
         <tr><td><b>Export (JSON)</b></td><td>Export as JSON (Ctrl+e)</td></tr>
@@ -418,9 +418,9 @@
       <h3>⌨️ Shortcuts</h3>
       <table border="1" cellpadding="5">
         <tr><th>Shortcut</th><th>Action</th></tr>
-        <tr><td>Ctrl + f</td><td>Focus the node</td></tr>
+        <tr><td>Ctrl + a</td><td>Focus the node</td></tr>
         <tr><td>Ctrl + q</td><td>Toggle notes</td></tr>
-        <tr><td>Ctrl + m</td><td>Find & Focus</td></tr>
+        <tr><td>Ctrl + f</td><td>Find & Focus</td></tr>
         <tr><td>Ctrl + n</td><td>New mind map</td></tr>
         <tr><td>Ctrl + s</td><td>Save</td></tr>
         <tr><td>Ctrl + z</td><td>Undo</td></tr>
@@ -455,7 +455,7 @@
   <button id="btn-fold" title="Fold (Ctrl+h)">⤢ Fold</button>
   <button id="btn-save" title="Save (Ctrl+s)">Save</button>
   <button id="btn-note" title="Note (Ctrl+q)">Note</button>
-  <button id="btn-find" title="Find (Ctrl+m)">Find</button>
+  <button id="btn-find" title="Find (Ctrl+f)">Find</button>
   <button id="btn-export-image">To Image</button>
   <button id="btn-export-dir">To Dir</button>
   <button id="btn-export" title="Export (Ctrl+e)">Export（JSON）</button>
@@ -1240,13 +1240,13 @@
       return
     }
 
-    if ((ctrl && e.key === 'f')) {
+    if ((ctrl && e.key === 'a')) {
       e.preventDefault()
       activate()
       return
     }
 
-    if ((ctrl && e.key === 'm')) {
+    if ((ctrl && e.key === 'f')) {
       e.preventDefault()
       toggleNodeFinder()
       return
