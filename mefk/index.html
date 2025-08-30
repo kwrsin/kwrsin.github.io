@@ -427,6 +427,7 @@
         <tr><td>Ctrl + y / Ctrl+Shift+Z</td><td>Redo</td></tr>
         <tr><td>Ctrl + h</td><td>Expand/Collapse</td></tr>
         <tr><td>Ctrl + e</td><td>Export JSON</td></tr>
+        <tr><td>Alt + h,j,k,l</td><td>As Cursor Keys</td></tr>
       </table>
 
       <h3>💡 Tips</h3>
@@ -1177,6 +1178,8 @@
   document.addEventListener('keydown', e => {
     const ctrl = e.ctrlKey || e.metaKey
     const shift = e.shiftKey
+    const alt = e.altKey
+
     let existingOverlay = document.getElementById("noteOverlay");
     if (existingOverlay) return true;
 
@@ -1237,6 +1240,51 @@
       e.preventDefault()
       toggleNodeFinder()
       return
+    }
+
+    const elm = document.activeElement
+    if(elm) {
+      if(e.key === '˙') {
+        e.preventDefault()
+        elm.dispatchEvent(new KeyboardEvent('keydown', {
+          key: 'ArrowLeft',
+          code: 'ArrowLeft',
+          keyCode: 37,
+          which: 37,
+          bubbles: true
+        }))
+        return
+      } else if(e.key === '¬') {
+        e.preventDefault()
+        elm.dispatchEvent(new KeyboardEvent('keydown', {
+          key: "ArrowRight",
+          code: "ArrowRight",
+          keyCode: 39,
+          which: 39,
+          bubbles: true
+        }))
+        return
+      } else if(e.key === '˚') {
+        e.preventDefault()
+        elm.dispatchEvent(new KeyboardEvent('keydown', {
+          key: "ArrowUp",
+          code: "ArrowUp",
+          keyCode: 38,
+          which: 38,
+          bubbles: true
+        }))
+        return
+      } else if(e.key === '∆') {
+        e.preventDefault()
+        elm.dispatchEvent(new KeyboardEvent('keydown', {
+          key: "ArrowDown",
+          code: "ArrowDown",
+          keyCode: 40,
+          which: 40,
+          bubbles: true
+        }))
+        return
+      }
     }
 
     return true
