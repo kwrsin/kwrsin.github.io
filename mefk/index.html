@@ -859,6 +859,17 @@
   })
 
   mind.bus.addListener('operation', op => {
+    function getDefautText(txt, defaultTxt='Default') {
+      return isValidHttpUrl(txt) ? defaultTxt : txt
+    }
+    if(op?.name === 'finishEditSummary') {
+      op.obj.text = getDefautText(op?.obj?.text, 'summary')
+      mind.renderSummary()
+    }
+    if(op?.name === 'finishEditArrowLabel') {
+      op.obj.label = getDefautText(op?.obj?.label, 'Custom Link')
+      mind.refresh()
+    }
     activeNode = mind.currentNode
     setNote()
   })
