@@ -26,6 +26,21 @@
       align-items: center;
       padding: 0 10px;
       box-sizing: border-box;
+      max-width: 100%;
+      scrollbar-width: none;
+    }
+    #toolbar::-webkit-scrollbar {
+      display:none;
+    }
+    #toolbar button {
+      flex-shrink: 0;
+    }
+    @media (max-width: 1024px) {
+      #toolbar {
+        max-width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
     }
     #toolbar.dark {
       background: #BFBFBF;
@@ -44,6 +59,7 @@
     #memory {
       margin-left: auto;
       font-size: 16px;
+      flex-shrink: 0;
       color: red;
     }
     #memory.saved {
