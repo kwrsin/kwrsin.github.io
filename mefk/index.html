@@ -1239,7 +1239,7 @@
       return
     }
 
-    if ((ctrl && e.key === 'n')) {
+    if ((ctrl && e.key === 'n') && !shift) {
       e.preventDefault()
       createMap()
       return
