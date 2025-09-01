@@ -67,9 +67,6 @@
       color: red;
       padding-left: 20px;
     }
-    #memory.saved {
-      color: green;
-    }
     #map {
       height: calc(100% - 40px); /* ツールバーの高さを引く */
       width: 100%;
@@ -381,10 +378,10 @@
         <li>Start from the central node (e.g., <code>Project</code>) to build your mind map.</li>
         <li>Select a node to edit its details in the right sidebar.</li>
         <li>All data is saved automatically in <b>localStorage</b>.</li>
-        <li>Save status is shown in the top-right toolbar:
+        <li>Reserve status is shown in the bottom-right toolbar:
           <ul>
-            <li>✅ <b>saved</b> (green): already saved</li>
-            <li>❌ <b>unsaved</b> (red): not saved yet</li>
+            <li>✅ <b>reserved</b> (green): already reserved</li>
+            <li>❌ <b>unreserved</b> (red): not reserved yet</li>
           </ul>
         </li>
       </ul>
@@ -404,7 +401,7 @@
         <tr><td><b>To Dir</b></td><td>Export as folder structure (ZIP)</td></tr>
         <tr><td><b>Export (JSON)</b></td><td>Export as JSON (Ctrl+e)</td></tr>
         <tr><td><b>Import (JSON)</b></td><td>Import from JSON file</td></tr>
-        <tr><td><b>unsaved / ✔ saved</b></td><td>Show save state</td></tr>
+        <tr><td><b>unreserved / ✔ reserved</b></td><td>Stay data in browser or not</td></tr>
       </table>
 
       <h3>📝 Note Editing (Sidebar)</h3>
@@ -481,7 +478,7 @@
   <button id="btn-export-dir">To Dir</button>
   <button id="btn-export" title="Export (Ctrl+e)">Export（JSON）</button>
   <input type="file" id="import" accept=".json">
-  <span id="memory">unsaved</span>
+  <span id="memory">unreserved</span>
 </div>
 
 <!-- Disclaimer -->
@@ -1440,10 +1437,10 @@
   function updateSaveStatus(saved = false) {
     const label = document.getElementById("memory");
     if (saved) {
-      label.textContent = "✔ saved";
+      label.textContent = "✔ reserved";
       label.style.color = "green";
     } else {
-      label.textContent = "unsaved";
+      label.textContent = "unreserved";
       label.style.color = "red";
     }
   }
