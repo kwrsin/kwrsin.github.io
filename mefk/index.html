@@ -318,6 +318,27 @@
         padding-left: 16px;
     }
 
+    #cmd-btn {
+      position: fixed;
+      bottom: 60px;
+      left: 22px;
+      font-size: 20px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: white;
+      height: 36px;
+      width: 36px;
+      border-radius: 6px;
+      box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1);
+      z-index: 9999;
+    }
+
+    #cmd-btn.dark {
+      color: white;
+      background-color: #2d3748;
+    }
   </style>
   <script src="./libs/jszip.min.js"></script>
   <script src="./libs/FileSaver.min.js"></script>
@@ -511,6 +532,7 @@
   <ul id="node-recent"></ul>
 </div>
 
+<div id="cmd-btn">☰</div>
 <script>
   window.addEventListener("load", () => {
     if (!localStorage.getItem("disclaimerAccepted")) {
@@ -642,6 +664,7 @@
   const searchInput = document.getElementById("node-search");
   const searchResults = document.getElementById("node-search-results");
   const recentList = document.getElementById("node-recent");
+  const cmd_button = document.getElementById("cmd-btn")
 
   let recentJumps = JSON.parse(localStorage.getItem("recentNodeJumps") || "[]");
   let activeNode = null
@@ -1451,12 +1474,25 @@
       sidebar.classList.add('dark')
       toolbar.classList.add('dark')
       mPopup.classList.add('dark')
+      cmd_button.classList.add('dark')
     } else {
       sidebar.classList.remove('dark')
       toolbar.classList.remove('dark')
       mPopup.classList.remove('dark')
+      cmd_button.classList.remove('dark')
     }
   }
+
+  cmd_button.addEventListener("click", () => {
+    const node = mind.currentNode;
+    if (!node) return console.log("Please select a node.");
+    node.dispatchEvent(new MouseEvent("contextmenu", {
+      bubbles: true,
+      clientX: window.innerWidth / 2,
+      clientY: window.innerHeight / 2,
+    }))
+  })
+
 </script>
 <script type="application/ld+json">
 {
