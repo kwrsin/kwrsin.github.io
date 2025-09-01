@@ -1,16 +1,16 @@
 const CACHE_NAME = 'mefk-cache-v1';
 const FILES_TO_CACHE = [
-  './',
-  './index.html',
-  './libs/FileSaver.min.js',
-  './libs/jszip.min.js',
-  './libs/marked.min.js',
-  './libs/MindElixir.js',
-  './images/apple-touch-icon.png',
-  './images/favicon-16.png',
-  './images/favicon-32.png',
-  './images/favicon-48.png',
-  './images/favicon.ico',
+  'mefk/',
+  'mefk/index.html',
+  'mefk/libs/FileSaver.min.js',
+  'mefk/libs/jszip.min.js',
+  'mefk/libs/marked.min.js',
+  'mefk/libs/MindElixir.js',
+  'mefk/images/apple-touch-icon.png',
+  'mefk/images/favicon-16.png',
+  'mefk/images/favicon-32.png',
+  'mefk/images/favicon-48.png',
+  'mefk/images/favicon.ico',
 ];
 
 self.addEventListener('install', (event) => {
