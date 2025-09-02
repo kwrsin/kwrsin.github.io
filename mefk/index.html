@@ -318,26 +318,62 @@
         padding-left: 16px;
     }
 
-    #cmd-btn {
+    .cmd {
       position: fixed;
-      bottom: 60px;
-      left: 22px;
-      font-size: 20px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background-color: white;
-      height: 36px;
-      width: 36px;
-      border-radius: 6px;
-      box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1);
-      z-index: 9999;
+      left: 16px;
+      bottom: 64px;
+      z-index: 2000;
     }
 
-    #cmd-btn.dark {
-      color: white;
-      background-color: #2d3748;
+    .cmd__btn {
+      width: 36px;
+      height: 36px;
+      border: none;
+      border-radius: 6px;
+      background: #fff;
+      /*color: #fff;*/
+      font-size: 20px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1);
+    }
+
+    .cmd__menu {
+      position: absolute;
+      left: 50px;     /* アイコンの“横”に表示（左側へ） */
+      bottom: 0;       /* 高さの位置はハンバーガーの“下”に整列（下辺を合わせる） */
+      width: 200px;
+      max-height: 180px;       /* 項目が多いので縦スクロール */
+      overflow-y: auto;
+      background: #fff;
+      border-radius: 4px;
+      box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1);
+      padding: 6px;
+      display: none;            /* 初期は閉じる */
+    }
+
+    .cmd__menu.open {
+      display: block;
+    }
+
+    .cmd__item {
+      width: 100%;
+      text-align: left;
+      border: none;
+      background: transparent;
+      padding: 8px 10px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .cmd__item:hover {
+      background: rgba(0,0,0,0.06);
+    }
+
+    /* タッチ操作で掴みやすい余白 */
+    @media (pointer: coarse) {
+      .cmd__item { padding: 12px 12px; }
     }
   </style>
   <script src="./libs/jszip.min.js"></script>
@@ -538,7 +574,26 @@
   <ul id="node-recent"></ul>
 </div>
 
-<div id="cmd-btn">☰</div>
+<div class="cmd" id="cmd">
+  <button class="cmd__btn" id="cmdToggle" aria-expanded="false" aria-controls="cmdMenu" title="Menu">☰</button>
+
+  <div class="cmd__menu" id="cmdMenu" role="menu" aria-hidden="true">
+    <!-- root 以外で表示する標準メニュー -->
+    <button class="cmd__item" data-action="addChild" role="menuitem">add child</button>
+    <button class="cmd__item" data-action="addSibling" role="menuitem">add sibling</button>
+    <button class="cmd__item" data-action="addParent" role="menuitem">add parent</button>
+    <button class="cmd__item" data-action="fold" role="menuitem">fold</button>
+    <button class="cmd__item" data-action="remove" role="menuitem">remove</button>
+    <button class="cmd__item" data-action="moveUp" role="menuitem">move up</button>
+    <button class="cmd__item" data-action="moveDown" role="menuitem">move down</button>
+    <button class="cmd__item" data-action="copy" role="menuitem">copy</button>
+    <button class="cmd__item" data-action="cut" role="menuitem">cut</button>
+    <button class="cmd__item" data-action="paste" role="menuitem">paste</button>
+    <button class="cmd__item" data-action="undo" role="menuitem">undo</button>
+    <button class="cmd__item" data-action="redo" role="menuitem">redo</button>
+    <button class="cmd__item" data-action="note" role="menuitem">note</button>
+  </div>
+</div>
 <script>
   window.addEventListener("load", () => {
     if (!localStorage.getItem("disclaimerAccepted")) {
@@ -670,7 +725,8 @@
   const searchInput = document.getElementById("node-search");
   const searchResults = document.getElementById("node-search-results");
   const recentList = document.getElementById("node-recent");
-  const cmd_button = document.getElementById("cmd-btn")
+  const cmdToggle = document.getElementById('cmdToggle');
+  const cmdMenu   = document.getElementById('cmdMenu');
 
   let recentJumps = JSON.parse(localStorage.getItem("recentNodeJumps") || "[]");
   let activeNode = null
@@ -1028,11 +1084,12 @@
     URL.revokeObjectURL(url);
   }
 
+  function isRootNode() {
+    if(!mind.currentNode) return false
+    return mind.currentNode.nodeObj === mind.nodeData
+  }
+
   function expandNode() {
-    function isRootNode() {
-      if(!mind.currentNode) return false
-      return mind.currentNode.nodeObj === mind.nodeData
-    }
     if(isRootNode()) return
     try {
       mind.expandNode(mind.currentNode)
@@ -1480,24 +1537,80 @@
       sidebar.classList.add('dark')
       toolbar.classList.add('dark')
       mPopup.classList.add('dark')
-      cmd_button.classList.add('dark')
+      // cmd_button.classList.add('dark')
     } else {
       sidebar.classList.remove('dark')
       toolbar.classList.remove('dark')
       mPopup.classList.remove('dark')
-      cmd_button.classList.remove('dark')
+      // cmd_button.classList.remove('dark')
     }
   }
 
-  cmd_button.addEventListener("click", () => {
-    const node = mind.currentNode;
-    if (!node) return console.log("Please select a node.");
-    node.dispatchEvent(new MouseEvent("contextmenu", {
+  cmdToggle.addEventListener('click', (e) => {
+    const isOpen = cmdMenu.classList.toggle('open');
+    cmdToggle.setAttribute('aria-expanded', String(isOpen));
+    cmdMenu.setAttribute('aria-hidden', String(!isOpen));
+    e.stopPropagation();
+  });
+
+  function sendKey(key, options = {}) {
+    const event = new KeyboardEvent("keydown", {
+      key: key,
+      code: key,
       bubbles: true,
-      clientX: window.innerWidth / 2,
-      clientY: window.innerHeight / 2,
-    }))
-  })
+      cancelable: true,
+      ...options,
+    });
+    document.activeElement.dispatchEvent(event);
+  }
+
+  cmdMenu.addEventListener('click', (e) => {
+    const handleRemove = () => {
+      if (mind.currentArrow) mind.removeArrow()
+      else if (mind.currentSummary) mind.removeSummary(mind.currentSummary.summaryObj.id)
+      else if (mind.currentNodes) {
+        mind.removeNodes(mind.currentNodes)
+      } else if(mind.currentNode) {
+        mind.removeNode(mind.currentNode)
+      }
+    }
+    const btn = e.target.closest('.cmd__item');
+    if (!btn) return;
+    const action = btn.dataset.action;
+    if(!mind.currentNode) return;
+    switch (action) {
+      case 'addChild': mind.addChild(mind.currentNode); break;
+      case 'addSibling': if(!isRootNode()) mind.insertSibling("after", mind.currentNode); break;
+      case 'addParent': if(!isRootNode()) mind.insertParent(mind.currentNode); break;
+      case 'fold': if(!isRootNode()) expandNode(); break;
+      case 'remove': if(!isRootNode()) mind.removeNode(mind.currentNode); break;
+      case 'moveUp': if(!isRootNode()) mind.moveUpNode(mind.currentNode); break;
+      case 'moveDown': if(!isRootNode()) mind.moveDownNode(mind.currentNode); break;
+      case 'copy':
+        mind.waitCopy = mind.currentNodes || [mind.currentNode];
+        break;
+      case 'cut': if(!isRootNode())
+        mind.waitCopy = mind.currentNodes || [mind.currentNode];
+        handleRemove();
+        break;
+      case 'paste':
+        if (!mind.waitCopy || !mind.currentNode) return;
+        if (mind.waitCopy.length === 1) {
+          mind.copyNode(mind.waitCopy[0], mind.currentNode)
+        } else {
+          mind.copyNodes(mind.waitCopy, mind.currentNode)
+        }
+        break;
+      case 'undo': mind.undo(); break;
+      case 'redo': mind.redo(); break;
+      case 'note': toggleNote(); break;
+    }
+
+    // 押したら閉じたい場合は以下を有効化
+    // cmdMenu.classList.remove('open');
+    // cmdToggle.setAttribute('aria-expanded', 'false');
+    // cmdMenu.setAttribute('aria-hidden', 'true');
+  });
 
 </script>
 <script type="application/ld+json">
