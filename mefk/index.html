@@ -463,8 +463,9 @@
         <tr><td>⎌ Undo</td><td>Undo last action (Ctrl+z)</td></tr>
         <tr><td>↷ Redo</td><td>Redo action (Ctrl+y / Ctrl+Shift+Z)</td></tr>
         <tr><td>⤢ Fold</td><td>Expand/Collapse nodes (Ctrl+h)</td></tr>
-        <tr><td><b>Save</b></td><td>Save manually (Ctrl+s)</td></tr>
         <tr><td><b>Note</b></td><td>Toggle note sidebar (Ctrl+q)</td></tr>
+        <tr><td><b>Save</b></td><td>Save manually (Ctrl+s)</td></tr>
+        <tr><td><b>Reload</b></td><td>Reload data (Ctrl+r)</td></tr>
         <tr><td><b>Find</b></td><td>Find & Focus (Ctrl+f)</td></tr>
         <tr><td><b>To Image</b></td><td>Export as PNG</td></tr>
         <tr><td><b>To Dir</b></td><td>Export as folder structure (ZIP)</td></tr>
@@ -516,6 +517,7 @@
         <tr><td>Ctrl + f</td><td>Find & Focus</td></tr>
         <tr><td>Ctrl + n</td><td>New mind map</td></tr>
         <tr><td>Ctrl + s</td><td>Save</td></tr>
+        <tr><td>Ctrl + r</td><td>Reload</td></tr>
         <tr><td>Ctrl + z</td><td>Undo</td></tr>
         <tr><td>Ctrl + y / Ctrl+Shift+Z</td><td>Redo</td></tr>
         <tr><td>Ctrl + h</td><td>Expand/Collapse</td></tr>
@@ -546,8 +548,9 @@
   <button id="btn-undo" title="Undo (Ctrl+z)">⎌ Undo</button>
   <button id="btn-redo" title="Redo (Ctrl+y)">↷ Redo</button>
   <button id="btn-fold" title="Fold (Ctrl+h)">⤢ Fold</button>
-  <button id="btn-save" title="Save (Ctrl+s)">Save</button>
   <button id="btn-note" title="Note (Ctrl+q)">Note</button>
+  <button id="btn-save" title="Save (Ctrl+s)">Save</button>
+  <button id="btn-reload" title="Reload (Ctrl+r)">Reload</button>
   <button id="btn-find" title="Find (Ctrl+f)">Find</button>
   <button id="btn-export-image">To Image</button>
   <button id="btn-export-dir">To Dir</button>
@@ -823,6 +826,15 @@
     } else {
       openMPopup();
     }
+  }
+
+  function reloadData() {
+    const message = "Are you sure you want to reload the page?";
+    if (confirm(message)) {
+      location.reload();
+      return
+    }
+    activate()
   }
 
   // --- Utility: ノードのPathを取得 ---
@@ -1197,6 +1209,9 @@
   document.getElementById('btn-find').addEventListener('click', () => {
     toggleNodeFinder()
   })
+  document.getElementById('btn-reload').addEventListener('click', () => {
+    reloadData()
+  });
 
   function exportSelectedNodeToZip(mind) {
     if (!mind || !mind.currentNode) {
@@ -1384,6 +1399,12 @@
     if ((ctrl && e.key === 'f')) {
       e.preventDefault()
       toggleNodeFinder()
+      return
+    }
+
+    if ((ctrl && e.key === 'r')) {
+      e.preventDefault()
+      reloadData()
       return
     }
 
