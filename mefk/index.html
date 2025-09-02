@@ -331,7 +331,6 @@
       border: none;
       border-radius: 6px;
       background: #fff;
-      /*color: #fff;*/
       font-size: 20px;
       cursor: pointer;
       display: inline-flex;
@@ -340,11 +339,16 @@
       box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1);
     }
 
+    .cmd__btn.dark {
+      color: white;
+      background-color: #2d3748;
+    }
+
     .cmd__menu {
       position: absolute;
       left: 50px;     /* アイコンの“横”に表示（左側へ） */
       bottom: 0;       /* 高さの位置はハンバーガーの“下”に整列（下辺を合わせる） */
-      width: 200px;
+      width: 120px;
       max-height: 180px;       /* 項目が多いので縦スクロール */
       overflow-y: auto;
       background: #fff;
@@ -352,6 +356,11 @@
       box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1);
       padding: 6px;
       display: none;            /* 初期は閉じる */
+    }
+
+    .cmd__menu.dark {
+      color: white;
+      background-color: #2d3748;
     }
 
     .cmd__menu.open {
@@ -369,6 +378,9 @@
     }
     .cmd__item:hover {
       background: rgba(0,0,0,0.06);
+    }
+    .cmd__item.dark {
+      color: white;
     }
 
     /* タッチ操作で掴みやすい余白 */
@@ -579,19 +591,19 @@
 
   <div class="cmd__menu" id="cmdMenu" role="menu" aria-hidden="true">
     <!-- root 以外で表示する標準メニュー -->
-    <button class="cmd__item" data-action="addChild" role="menuitem">add child</button>
-    <button class="cmd__item" data-action="addSibling" role="menuitem">add sibling</button>
-    <button class="cmd__item" data-action="addParent" role="menuitem">add parent</button>
-    <button class="cmd__item" data-action="fold" role="menuitem">fold</button>
-    <button class="cmd__item" data-action="remove" role="menuitem">remove</button>
-    <button class="cmd__item" data-action="moveUp" role="menuitem">move up</button>
-    <button class="cmd__item" data-action="moveDown" role="menuitem">move down</button>
-    <button class="cmd__item" data-action="copy" role="menuitem">copy</button>
-    <button class="cmd__item" data-action="cut" role="menuitem">cut</button>
-    <button class="cmd__item" data-action="paste" role="menuitem">paste</button>
-    <button class="cmd__item" data-action="undo" role="menuitem">undo</button>
-    <button class="cmd__item" data-action="redo" role="menuitem">redo</button>
-    <button class="cmd__item" data-action="note" role="menuitem">note</button>
+    <button class="cmd__item" data-action="addChild" role="menuitem">Add a child</button>
+    <button class="cmd__item" data-action="addSibling" role="menuitem">Add a sibling</button>
+    <button class="cmd__item" data-action="addParent" role="menuitem">Add a parent</button>
+    <button class="cmd__item" data-action="fold" role="menuitem">Fold</button>
+    <button class="cmd__item" data-action="remove" role="menuitem">Remove</button>
+    <button class="cmd__item" data-action="moveUp" role="menuitem">Move up</button>
+    <button class="cmd__item" data-action="moveDown" role="menuitem">Move down</button>
+    <button class="cmd__item" data-action="copy" role="menuitem">Copy</button>
+    <button class="cmd__item" data-action="cut" role="menuitem">Cut</button>
+    <button class="cmd__item" data-action="paste" role="menuitem">Paste</button>
+    <button class="cmd__item" data-action="undo" role="menuitem">Undo</button>
+    <button class="cmd__item" data-action="redo" role="menuitem">Redo</button>
+    <button class="cmd__item" data-action="note" role="menuitem">Note</button>
   </div>
 </div>
 <script>
@@ -726,7 +738,8 @@
   const searchResults = document.getElementById("node-search-results");
   const recentList = document.getElementById("node-recent");
   const cmdToggle = document.getElementById('cmdToggle');
-  const cmdMenu   = document.getElementById('cmdMenu');
+  const cmdMenu = document.getElementById('cmdMenu');
+  const cmdItems = document.getElementsByClassName('cmd__item');
 
   let recentJumps = JSON.parse(localStorage.getItem("recentNodeJumps") || "[]");
   let activeNode = null
@@ -1532,17 +1545,27 @@
   }
 
   function applyTheme() {
-    const type = mind.theme.type
+    const type = mind.theme.type;
+    // cmdItems.forEach(i=>console.log(i))
+    // console.log(cmdItems[0])
     if(type === 'dark') {
-      sidebar.classList.add('dark')
-      toolbar.classList.add('dark')
-      mPopup.classList.add('dark')
-      // cmd_button.classList.add('dark')
+      sidebar.classList.add('dark');
+      toolbar.classList.add('dark');
+      mPopup.classList.add('dark');
+      cmdToggle.classList.add('dark');
+      cmdMenu.classList.add('dark');
+      for(let elm of cmdItems) {
+        elm.classList.add('dark');
+      }
     } else {
-      sidebar.classList.remove('dark')
-      toolbar.classList.remove('dark')
-      mPopup.classList.remove('dark')
-      // cmd_button.classList.remove('dark')
+      sidebar.classList.remove('dark');
+      toolbar.classList.remove('dark');
+      mPopup.classList.remove('dark');
+      cmdToggle.classList.remove('dark');
+      cmdMenu.classList.remove('dark');
+      for(let elm of cmdItems) {
+        elm.classList.remove('dark');
+      }
     }
   }
 
@@ -1589,9 +1612,11 @@
       case 'copy':
         mind.waitCopy = mind.currentNodes || [mind.currentNode];
         break;
-      case 'cut': if(!isRootNode())
-        mind.waitCopy = mind.currentNodes || [mind.currentNode];
-        handleRemove();
+      case 'cut':
+        if(!isRootNode()) {
+          mind.waitCopy = mind.currentNodes || [mind.currentNode];
+          handleRemove();
+        }
         break;
       case 'paste':
         if (!mind.waitCopy || !mind.currentNode) return;
