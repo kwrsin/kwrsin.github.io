@@ -604,8 +604,6 @@
     <button class="cmd__item" data-action="copy" role="menuitem">Copy</button>
     <button class="cmd__item" data-action="cut" role="menuitem">Cut</button>
     <button class="cmd__item" data-action="paste" role="menuitem">Paste</button>
-    <button class="cmd__item" data-action="undo" role="menuitem">Undo</button>
-    <button class="cmd__item" data-action="redo" role="menuitem">Redo</button>
     <button class="cmd__item" data-action="note" role="menuitem">Note</button>
   </div>
 </div>
@@ -1647,8 +1645,6 @@
           mind.copyNodes(mind.waitCopy, mind.currentNode)
         }
         break;
-      case 'undo': mind.undo(); break;
-      case 'redo': mind.redo(); break;
       case 'note': toggleNote(); break;
     }
 
