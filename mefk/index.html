@@ -522,6 +522,7 @@
         <tr><td>Ctrl + y / Ctrl+Shift+Z</td><td>Redo</td></tr>
         <tr><td>Ctrl + h</td><td>Expand/Collapse</td></tr>
         <tr><td>Ctrl + e</td><td>Export JSON</td></tr>
+        <tr><td>Ctrl + o</td><td>Open a url link</td></tr>
         <tr><td>Alt + h,j,k,l</td><td>As Cursor Keys</td></tr>
       </table>
 
@@ -985,6 +986,17 @@
     document.getElementsByClassName('map-canvas')[0]?.focus()
   }
 
+  function openBrowser() {
+    const selected = mind.currentNode;
+    if (!selected) return;
+
+    const nodeObj = selected.nodeObj;
+
+    if(nodeObj.hyperLink) {
+      window.open(nodeObj.hyperLink, "_blank")
+    }
+  }
+
   // ノード選択イベント
   mind.bus.addListener('selectNode', node => {
     activeNode = mind.currentNode
@@ -1403,6 +1415,12 @@
     if ((ctrl && e.key === 'r')) {
       e.preventDefault()
       reloadData()
+      return
+    }
+
+    if ((ctrl && e.key === 'o')) {
+      e.preventDefault()
+      openBrowser()
       return
     }
 
