@@ -233,17 +233,10 @@
       max-height: 90hv;
     }
 
-    textarea {
-      width: 100%;
-      height: 90%;
+    #note-text {
+      width: 98%;
+      height: 95%;
       resize: none;
-    }
-
-    #save-status {
-      float: right;
-      font-size: 12px;
-      color:green;
-      display: none;
     }
 
     #disclaimer {
@@ -452,8 +445,6 @@
     <div id="preview" class="active"></div>
     <div id="editor">
       <textarea id="note-text"></textarea>
-      <button id="update-btn">Update</button>
-      <span id="save-status">✔ Updated</span>
     </div>
     <div id="help">
       <h2>📘 MIND ELIXIR for Kwrsin — HELP</h2>
@@ -790,22 +781,6 @@
       }
     })
   })
-
-  document.getElementById('update-btn').onclick = () => {
-    const selected = mind.currentNode;
-    if (!selected) return;
-
-    let currentNode = selected.nodeObj;
-    currentNode.note = noteText.value
-    autoSave()
-
-    // ✔ saved をフラッシュ表示
-    const status = document.getElementById('save-status')
-    status.style.display = 'inline'
-    setTimeout(() => {
-      status.style.display = 'none'
-    }, 1500)
-  }
 
   function setNote() {
     if(sidebar.classList.contains('open') == false) return;
@@ -1556,75 +1531,75 @@
     }
   })
 
-  function openNotePopup(nodeData) {
-    // すでに存在する場合は削除
-    let existingOverlay = document.getElementById("noteOverlay");
-    if (existingOverlay) existingOverlay.remove();
-
-    // 背景オーバーレイ作成
-    const overlay = document.createElement("div");
-    overlay.id = "noteOverlay";
-    overlay.style.position = "fixed";
-    overlay.style.top = "0";
-    overlay.style.left = "0";
-    overlay.style.width = "100%";
-    overlay.style.height = "100%";
-    overlay.style.backgroundColor = "rgba(0,0,0,0.5)";
-    overlay.style.display = "flex";
-    overlay.style.alignItems = "center";
-    overlay.style.justifyContent = "center";
-    overlay.style.zIndex = "1000";
-
-    // ポップアップボックス作成
-    const popup = document.createElement("div");
-    popup.style.backgroundColor = "#fff";
-    popup.style.padding = "20px";
-    popup.style.borderRadius = "8px";
-    popup.style.width = "400px";
-    popup.style.maxWidth = "90%";
-    popup.style.boxShadow = "0 0 10px rgba(0,0,0,0.3)";
-
-    const title = document.createElement('h3')
-    title.textContent = nodeData.topic || 'No Title'
-    title.style.margin = '0'
-    title.style.fontSize = '18px'
-    title.style.borderBottom = '1px solid #ddd'
-    title.style.paddingBottom = '5px'
-
-    const textarea = document.createElement("textarea");
-    textarea.style.width = "100%";
-    textarea.style.height = "150px";
-    textarea.value = nodeData.note || "";
-
-    const saveButton = document.createElement("button");
-    saveButton.textContent = "OK";
-    saveButton.style.marginTop = "10px";
-
-    saveButton.onclick = () => {
-      nodeData.note = textarea.value; // ノードデータに保存
-      autoSave()
-      overlay.remove(); // ポップアップを閉じる
-      mind.refresh(); // MindElixirを再描画（note更新用）
-    };
-
-    const cancelButton = document.createElement("button");
-    cancelButton.textContent = "CANCEL";
-    cancelButton.style.marginTop = "10px";
-    cancelButton.style.marginLeft = "5px";
-
-    cancelButton.onclick = () => {
-      overlay.remove();
-    };
-
-    popup.appendChild(title)
-    popup.appendChild(textarea);
-    popup.appendChild(document.createElement("br"));
-    popup.appendChild(saveButton);
-    popup.appendChild(cancelButton);
-    overlay.appendChild(popup);
-
-    document.body.appendChild(overlay);
-  }
+//  function openNotePopup(nodeData) {
+//    // すでに存在する場合は削除
+//    let existingOverlay = document.getElementById("noteOverlay");
+//    if (existingOverlay) existingOverlay.remove();
+//
+//    // 背景オーバーレイ作成
+//    const overlay = document.createElement("div");
+//    overlay.id = "noteOverlay";
+//    overlay.style.position = "fixed";
+//    overlay.style.top = "0";
+//    overlay.style.left = "0";
+//    overlay.style.width = "100%";
+//    overlay.style.height = "100%";
+//    overlay.style.backgroundColor = "rgba(0,0,0,0.5)";
+//    overlay.style.display = "flex";
+//    overlay.style.alignItems = "center";
+//    overlay.style.justifyContent = "center";
+//    overlay.style.zIndex = "1000";
+//
+//    // ポップアップボックス作成
+//    const popup = document.createElement("div");
+//    popup.style.backgroundColor = "#fff";
+//    popup.style.padding = "20px";
+//    popup.style.borderRadius = "8px";
+//    popup.style.width = "400px";
+//    popup.style.maxWidth = "90%";
+//    popup.style.boxShadow = "0 0 10px rgba(0,0,0,0.3)";
+//
+//    const title = document.createElement('h3')
+//    title.textContent = nodeData.topic || 'No Title'
+//    title.style.margin = '0'
+//    title.style.fontSize = '18px'
+//    title.style.borderBottom = '1px solid #ddd'
+//    title.style.paddingBottom = '5px'
+//
+//    const textarea = document.createElement("textarea");
+//    textarea.style.width = "100%";
+//    textarea.style.height = "150px";
+//    textarea.value = nodeData.note || "";
+//
+//    const saveButton = document.createElement("button");
+//    saveButton.textContent = "OK";
+//    saveButton.style.marginTop = "10px";
+//
+//    saveButton.onclick = () => {
+//      nodeData.note = textarea.value; // ノードデータに保存
+//      autoSave()
+//      overlay.remove(); // ポップアップを閉じる
+//      mind.refresh(); // MindElixirを再描画（note更新用）
+//    };
+//
+//    const cancelButton = document.createElement("button");
+//    cancelButton.textContent = "CANCEL";
+//    cancelButton.style.marginTop = "10px";
+//    cancelButton.style.marginLeft = "5px";
+//
+//    cancelButton.onclick = () => {
+//      overlay.remove();
+//    };
+//
+//    popup.appendChild(title)
+//    popup.appendChild(textarea);
+//    popup.appendChild(document.createElement("br"));
+//    popup.appendChild(saveButton);
+//    popup.appendChild(cancelButton);
+//    overlay.appendChild(popup);
+//
+//    document.body.appendChild(overlay);
+//  }
 
   function updateSaveStatus(saved = false) {
     const label = document.getElementById("memory");
@@ -1715,6 +1690,19 @@
     // cmdMenu.classList.remove('open');
     // cmdToggle.setAttribute('aria-expanded', 'false');
     // cmdMenu.setAttribute('aria-hidden', 'true');
+  });
+
+  noteText.addEventListener('input', () => {
+    const selected = mind.currentNode;
+    if (!selected) return;
+
+    let currentNode = selected.nodeObj;
+    currentNode.note = noteText.value;
+    autoSave();
+
+  });
+  noteText.addEventListener('keydown', e => {
+    e.stopPropagation()
   });
 
 </script>
