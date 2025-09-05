@@ -318,6 +318,11 @@
         padding-left: 16px;
     }
 
+    #node-search:focus, #node-search-results li:focus, #node-recent li:focus {
+      background-color: lightyellow;
+      outline: none;
+    }
+
     .cmd {
       position: fixed;
       left: 16px;
@@ -1261,6 +1266,18 @@
     });
   }
 
+  function sendKey(key, options = {}) {
+    const elm = document.activeElement
+    const event = new KeyboardEvent("keydown", {
+      key: key,
+      code: key,
+      bubbles: true,
+      cancelable: true,
+      ...options,
+    });
+    elm?.dispatchEvent(event);
+  }
+
   document.getElementById("btn-export-dir").addEventListener("click", () => {
     exportSelectedNodeToZip(mind);
   });
@@ -1389,6 +1406,9 @@
     }
 
     if ((ctrl && e.key === 'n') && !shift) {
+      if(mPopup.style.display === 'block') {
+        return true
+      }
       e.preventDefault()
       createMap()
       return
@@ -1424,55 +1444,70 @@
       return
     }
 
-    const elm = document.activeElement
-    if(elm) {
-      if(e.key === '˙') {
-        e.preventDefault()
-        elm.dispatchEvent(new KeyboardEvent('keydown', {
-          key: 'ArrowLeft',
-          code: 'ArrowLeft',
-          keyCode: 37,
-          which: 37,
-          bubbles: true
-        }))
-        return
-      } else if(e.key === '¬') {
-        e.preventDefault()
-        elm.dispatchEvent(new KeyboardEvent('keydown', {
-          key: "ArrowRight",
-          code: "ArrowRight",
-          keyCode: 39,
-          which: 39,
-          bubbles: true
-        }))
-        return
-      } else if(e.key === '˚') {
-        e.preventDefault()
-        elm.dispatchEvent(new KeyboardEvent('keydown', {
-          key: "ArrowUp",
-          code: "ArrowUp",
-          keyCode: 38,
-          which: 38,
-          bubbles: true
-        }))
-        return
-      } else if(e.key === '∆') {
-        e.preventDefault()
-        elm.dispatchEvent(new KeyboardEvent('keydown', {
-          key: "ArrowDown",
-          code: "ArrowDown",
-          keyCode: 40,
-          which: 40,
-          bubbles: true
-        }))
-        return
-      }
+    if(e.key === '˙') {
+      e.preventDefault()
+      sendKey('ArrowLeft', {keyCode: 37, which:37})
+      return
+    } else if(e.key === '¬') {
+      e.preventDefault()
+      sendKey('ArrowRight', {keyCode: 39, which:39})
+      return
+    } else if(e.key === '˚') {
+      e.preventDefault()
+      sendKey('ArrowUp', {keyCode: 38, which:38})
+      return
+    } else if(e.key === '∆') {
+      e.preventDefault()
+      sendKey('ArrowDown', {keyCode: 40, which:40})
+      return
     }
 
     return true
   })
 
   mPopup.addEventListener('keydown', e => {
+    function sort(liEls) {
+      return Array.from(liEls)
+        .sort((a, b) => {
+          return a.getBoundingClientRect().top - b.getBoundingClientRect().top
+        })
+    }
+    function next() {
+      const currentElement = document.activeElement
+      const node_recent = document.getElementById('node-find-popup')
+      const liEls = sort(node_recent.querySelectorAll('li'))
+      if(!currentElement) return
+      if(currentElement === liEls[liEls.length - 1]) return
+      if(liEls.length > 0 && currentElement === searchInput) {
+        liEls[0]?.focus()
+        return
+      }
+      for(let i = 0;i < liEls.length; i++) {
+        if(currentElement === liEls[i]) {
+          const idx = Math.min(i + 1 ,liEls.length - 1)
+         liEls[idx]?.focus()
+        }
+      }
+      return
+    }
+    function previous() {
+      const currentElement = document.activeElement
+      const node_recent = document.getElementById('node-find-popup')
+      const liEls = sort(node_recent.querySelectorAll('li'))
+      if(!currentElement) return
+      if(currentElement === searchInput) return
+      if(liEls.length > 0 && currentElement === liEls[0]) {
+        searchInput.focus()
+        return
+      }
+      for(let i = liEls.length - 1;i >= 0; i--) {
+        if(currentElement === liEls[i]) {
+          const idx = Math.max(0, i - 1)
+          liEls[idx]?.focus()
+        }
+      }
+      return
+    }
     const ctrl = e.ctrlKey || e.metaKey
 
     if (e.key === 'Escape') {
@@ -1498,6 +1533,16 @@
       return
     }
 
+    if(ctrl && e.key == 'n') {
+      e.preventDefault()
+      next()
+      return
+    }
+    if(ctrl && e.key == 'p') {
+      e.preventDefault()
+      previous()
+      return
+    }
   })
 
   function openNotePopup(nodeData) {
@@ -1612,17 +1657,6 @@
     cmdMenu.setAttribute('aria-hidden', String(!isOpen));
     e.stopPropagation();
   });
-
-  function sendKey(key, options = {}) {
-    const event = new KeyboardEvent("keydown", {
-      key: key,
-      code: key,
-      bubbles: true,
-      cancelable: true,
-      ...options,
-    });
-    document.activeElement.dispatchEvent(event);
-  }
 
   cmdMenu.addEventListener('click', (e) => {
     const handleRemove = () => {
