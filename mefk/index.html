@@ -786,32 +786,42 @@
     })
   })
 
+  function openPreview() {
+    preview.innerHTML = marked.parse(noteText.value || '');
+    document.querySelectorAll('#editor, #preview, #help').forEach(el => el.classList.remove('active'));
+    tabs.forEach(t => t.classList.remove('active'));
+    preview.classList.add('active');
+    tabs[0].classList.add('active');
+  }
+
   function setNote() {
     if(sidebar.classList.contains('open') == false) return;
     const selected = mind.currentNode;
     if (!selected) return;
 
     const nodeObj = selected.nodeObj;
-    sidebarHeader.textContent = nodeObj.topic
+    sidebarHeader.textContent = nodeObj.topic;
     noteText.value = nodeObj.note || ''
-    preview.innerHTML = marked.parse(nodeObj.note || '')
+    preview.innerHTML = marked.parse(nodeObj.note || '');
 
-    siteurl.value = nodeObj.hyperLink || ''
+    siteurl.value = nodeObj.hyperLink || '';
     imageurl.value = nodeObj.image?.url || '';
   }
 
   function showNote() {
-    sidebar.classList.add('open')
+    sidebar.classList.add('open');
+    openPreview();
   }
 
   function hideNote() {
-    sidebar.classList.remove('open')
-    activate()
+    sidebar.classList.remove('open');
+    activate();
   }
 
   function toggleNote() {
-    sidebar.classList.toggle('open')
-    activate()
+    sidebar.classList.toggle('open');
+    if(sidebar.classList.contains('open')) openPreview();
+    activate();
   }
 
   function toggleNodeFinder() {
@@ -1723,11 +1733,7 @@
 
   noteText.addEventListener('blur', e => {
     if(sidebar.classList.contains('open')) {
-      preview.innerHTML = marked.parse(noteText.value || '');
-      document.querySelectorAll('#editor, #preview, #help').forEach(el => el.classList.remove('active'));
-      tabs.forEach(t => t.classList.remove('active'));
-      preview.classList.add('active');
-      tabs[0].classList.add('active');
+      openPreview()
       activate();
     }
   });
