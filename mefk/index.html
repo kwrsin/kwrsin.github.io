@@ -721,6 +721,11 @@
 //          }
 //        ]
 //      },
+      before: {
+        beginEdit(el, obj) {
+          return !sidebar.classList.contains('open');
+        }
+      },
       toolBar: true,
       nodeMenu: true,
       keypress: true,
@@ -1429,6 +1434,17 @@
       return
     }
 
+    if (e.key === 'F2') {
+      if(sidebar.classList.contains('open')) {
+        const editor = document.getElementById('editor');
+        document.querySelectorAll('#editor, #preview, #help').forEach(el => el.classList.remove('active'));
+        tabs.forEach(t => t.classList.remove('active'));
+        editor.classList.add('active');
+        tabs[1].classList.add('active');
+        noteText.focus();
+      }
+    }
+
     if(e.key === '˙') {
       e.preventDefault()
       sendKey('ArrowLeft', {keyCode: 37, which:37})
@@ -1700,8 +1716,20 @@
     autoSave();
 
   });
+
   noteText.addEventListener('keydown', e => {
-    e.stopPropagation()
+    e.stopPropagation();
+  });
+
+  noteText.addEventListener('blur', e => {
+    if(sidebar.classList.contains('open')) {
+      preview.innerHTML = marked.parse(noteText.value || '');
+      document.querySelectorAll('#editor, #preview, #help').forEach(el => el.classList.remove('active'));
+      tabs.forEach(t => t.classList.remove('active'));
+      preview.classList.add('active');
+      tabs[0].classList.add('active');
+      activate();
+    }
   });
 
 </script>
