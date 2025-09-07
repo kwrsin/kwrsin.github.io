@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
@@ -635,6 +634,7 @@
 </script>
 <script type="module">
   const userLang = navigator.language || navigator.userLanguage;
+  document.documentElement.lang = userLang;
   // import MindElixir from "https://cdn.jsdelivr.net/npm/mind-elixir/dist/MindElixir.js"
   import MindElixir from "./libs/MindElixir.js"
 
@@ -1737,10 +1737,6 @@
       openPreview()
       activate();
     }
-  });
-
-  document.addEventListener("DOMContentLoaded", () => {
-    document.documentElement.lang = userLang;
   });
 
 </script>
