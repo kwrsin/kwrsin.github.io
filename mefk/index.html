@@ -634,6 +634,7 @@
 
 </script>
 <script type="module">
+  const userLang = navigator.language || navigator.userLanguage;
   // import MindElixir from "https://cdn.jsdelivr.net/npm/mind-elixir/dist/MindElixir.js"
   import MindElixir from "./libs/MindElixir.js"
 
@@ -730,7 +731,7 @@
       nodeMenu: true,
       keypress: true,
       allowUndo: true,
-      // locale: 'ja',
+      locale: userLang,
   })
   mindData.linkData = {}
   mindData.note = {}
@@ -1736,6 +1737,10 @@
       openPreview()
       activate();
     }
+  });
+
+  document.addEventListener("DOMContentLoaded", () => {
+    document.documentElement.lang = userLang;
   });
 
 </script>
