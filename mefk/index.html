@@ -395,6 +395,17 @@
     @media (pointer: coarse) {
       .cmd__item { padding: 12px 12px; }
     }
+
+    .map-container {
+      font-family: unset !important;
+    }
+
+    @supports (font: -apple-system-body) {
+      .map-container {
+        font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif !important;
+      }
+    }
+
   </style>
   <script src="./libs/jszip.min.js"></script>
   <script src="./libs/FileSaver.min.js"></script>
