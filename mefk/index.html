@@ -16,12 +16,16 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="MIND ELIXIR for Kwrsin">
   <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+  <link rel="stylesheet" href="./libs/normalize.css">
   <style>
     html, body {
       height: 100%;
       margin: 0;
       padding: 0;
       overflow: hidden;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
     }
     #toolbar {
       height: 40px;
@@ -37,11 +41,6 @@
     #toolbar::-webkit-scrollbar {
       display:none;
     }
-    #toolbar button {
-      flex-shrink: 0;
-      line-height: 1;
-      height: 26px;
-    }
     @media (max-width: 1024px) {
       #toolbar {
         max-width: 100%;
@@ -53,6 +52,10 @@
       background: #BFBFBF;
     }
     #toolbar button {
+      flex-shrink: 0;
+      line-height: 1;
+      height: 26px;
+      font-size: 0.7rem;
       margin-right: 6px;
       padding: 6px 12px;
       border: none;

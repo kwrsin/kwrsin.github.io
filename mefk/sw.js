@@ -6,6 +6,7 @@ const FILES_TO_CACHE = [
   './libs/jszip.min.js',
   './libs/marked.min.js',
   './libs/MindElixir.js',
+  './libs/normalize.css',
   './images/apple-touch-icon.png',
   './images/favicon-16.png',
   './images/favicon-32.png',
