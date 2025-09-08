@@ -959,9 +959,9 @@
     if (!keyword) return;
     const results = searchNodes(keyword).filter(isVisible);
     if (results.length === 0) {
-      const li = document.createElement("li");
-      li.textContent = "No results";
-      searchResults.appendChild(li);
+//      const li = document.createElement("li");
+//      li.textContent = "No results";
+//      searchResults.appendChild(li);
       return;
     }
     results.forEach(n => {
@@ -1558,6 +1558,9 @@
       const firstEl = document.getElementById('node-search')
       const liEls = node_recent.querySelectorAll('li')
       const lastLiEl = liEls[liEls.length - 1]
+      if(liEls.length <= 0) {
+        e.preventDefault()
+      }
 
       if(document.activeElement == firstEl && e.shiftKey) {
         e.preventDefault()
