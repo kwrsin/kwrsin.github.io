@@ -478,9 +478,10 @@
         <tr><th>Button</th><th>Description</th></tr>
         <tr><td>🌓 Theme</td><td>Toggle dark/light mode</td></tr>
         <tr><td><b>New</b></td><td>Create a new mind map (Ctrl+n)</td></tr>
-        <tr><td>⎌ Undo</td><td>Undo last action (Ctrl+z)</td></tr>
-        <tr><td>↷ Redo</td><td>Redo action (Ctrl+y / Ctrl+Shift+Z)</td></tr>
-        <tr><td>⤢ Fold</td><td>Expand/Collapse nodes (Ctrl+h)</td></tr>
+        <tr><td><b>⎌ Undo</b></td><td>Undo last action (Ctrl+z)</td></tr>
+        <tr><td><b>↷ Redo</b></td><td>Redo action (Ctrl+y / Ctrl+Shift+Z)</td></tr>
+        <tr><td><b>⤢ Fold</b></td><td>Expand/Collapse nodes (Ctrl+h)</td></tr>
+        <tr><td><b>Center</b></td><td>Node to center (Ctrl+u)</td></tr>
         <tr><td><b>Find</b></td><td>Find & Focus (Ctrl+f)</td></tr>
         <tr><td><b>Note</b></td><td>Toggle note sidebar (Ctrl+q)</td></tr>
         <tr><td><b>Save</b></td><td>Save manually (Ctrl+s)</td></tr>
@@ -540,6 +541,7 @@
         <tr><td>Ctrl + h</td><td>Expand/Collapse</td></tr>
         <tr><td>Ctrl + e</td><td>Export JSON</td></tr>
         <tr><td>Ctrl + o</td><td>Open a url link</td></tr>
+        <tr><td>Ctrl + u</td><td>Selected Node to Center</td></tr>
         <tr><td>Alt + h,j,k,l</td><td>As Cursor Keys</td></tr>
       </table>
 
@@ -566,6 +568,7 @@
   <button id="btn-undo" title="Undo (Ctrl+z)">⎌ Undo</button>
   <button id="btn-redo" title="Redo (Ctrl+y)">↷ Redo</button>
   <button id="btn-fold" title="Fold (Ctrl+h)">⤢ Fold</button>
+  <button id="btn-center" title="Center (Ctrl+u)">Center</button>
   <button id="btn-find" title="Find (Ctrl+f)">Find</button>
   <button id="btn-note" title="Note (Ctrl+q)">Note</button>
   <button id="btn-save" title="Save (Ctrl+s)">Save</button>
@@ -623,6 +626,7 @@
     <button class="cmd__item" data-action="cut" role="menuitem">Cut</button>
     <button class="cmd__item" data-action="paste" role="menuitem">Paste</button>
     <button class="cmd__item" data-action="note" role="menuitem">Note</button>
+    <button class="cmd__item" data-action="toCenter" role="menuitem">Center</button>
   </div>
 </div>
 <script>
@@ -1237,6 +1241,9 @@
   document.getElementById('btn-find').addEventListener('click', () => {
     toggleNodeFinder()
   })
+  document.getElementById('btn-center').addEventListener('click', () => {
+    nodeToCenter(true)
+  })
   document.getElementById('btn-reload').addEventListener('click', () => {
     reloadData()
   });
@@ -1378,7 +1385,7 @@
     });
   });
 
-  // --- キーボードショートカット ---
+  // --- KEYBOARD SHORTCUTS ---
   document.addEventListener('keydown', e => {
     const ctrl = e.ctrlKey || e.metaKey
     const shift = e.shiftKey
@@ -1454,6 +1461,12 @@
     if ((ctrl && e.key === 'o')) {
       e.preventDefault()
       openBrowser()
+      return
+    }
+
+    if ((ctrl && e.key === 'u')) {
+      e.preventDefault()
+      nodeToCenter(true)
       return
     }
 
@@ -1675,6 +1688,29 @@
     }
   }
 
+  function nodeToCenter(activation = false) {
+    const selected = mind.currentNode;
+    if (!selected) return;
+    const container = mind.container;
+    container.addEventListener('scrollend', () => {
+      if(activation) {
+        activation = false
+        activate()
+      }
+    })
+    const nodeRect = selected.getBoundingClientRect();
+    const containerRect = container.getBoundingClientRect();
+
+    const nodeCenterX = nodeRect.left + nodeRect.width / 2;
+    const nodeCenterY = nodeRect.top + nodeRect.height / 2;
+
+    container.scrollBy({
+      left: nodeCenterX - (containerRect.left + containerRect.width / 2),
+      top: nodeCenterY - (containerRect.top + containerRect.height / 2),
+      behavior: "smooth",
+    });
+  }
+
   cmdToggle.addEventListener('click', (e) => {
     const isOpen = cmdMenu.classList.toggle('open');
     cmdToggle.setAttribute('aria-expanded', String(isOpen));
@@ -1722,6 +1758,7 @@
         }
         break;
       case 'note': toggleNote(); break;
+      case 'toCenter': nodeToCenter(true); break;
     }
 
     // 押したら閉じたい場合は以下を有効化
