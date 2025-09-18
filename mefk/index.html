@@ -536,6 +536,7 @@
       <table border="1" cellpadding="5">
         <tr><th>Shortcut</th><th>Action</th></tr>
         <tr><td>Ctrl + a</td><td>Focus the node</td></tr>
+        <tr><td>Ctrl + b</td><td>Go back</td></tr>
         <tr><td>Ctrl + q</td><td>Toggle notes</td></tr>
         <tr><td>Ctrl + f</td><td>Find & Focus</td></tr>
         <tr><td>Ctrl + n</td><td>New mind map</td></tr>
@@ -778,6 +779,7 @@
 
   let recentJumps = JSON.parse(localStorage.getItem("recentNodeJumps") || "[]");
   let activeNode = null
+  let oldActiveNodeList = []
 
   applyTheme()
   activateRootNode()
@@ -903,6 +905,7 @@
         return;
       }
 
+      storeOldActiveNode()
       // ノードを選択＆スクロール
       mind.selectNode(domNode);
       document.getElementsByClassName('map-canvas')[0]?.focus()
@@ -999,17 +1002,42 @@
   }
   closeMPopupBtn.onclick = closeMPopup;
 
+  function storeOldActiveNode() {
+    if(!activeNode) return
+    if(oldActiveNodeList.length > 0) {
+      if(oldActiveNodeList[oldActiveNodeList.length - 1] == activeNode) return
+    }
+
+    oldActiveNodeList.push(activeNode)
+  }
   function activate() {
-    if(activeNode) {
-      mind.selectNode(activeNode)
-      document.getElementsByClassName('map-canvas')[0]?.focus()
-    } else {
+    try {
+      if(activeNode) {
+        mind.selectNode(activeNode)
+        document.getElementsByClassName('map-canvas')[0]?.focus()
+      } else if(oldActiveNodeList.length > 0) {
+        mind.selectNode(oldActiveNodeList.pop())
+        document.getElementsByClassName('map-canvas')[0]?.focus()
+      }
+    } catch(e) {
+      activateRootNode()
+    }
+  }
+
+  function backToOldNode() {
+    try {
+      if(oldActiveNodeList.length > 0) {
+        mind.selectNode(oldActiveNodeList.pop())
+        document.getElementsByClassName('map-canvas')[0]?.focus()
+      }
+    } catch(e) {
       activateRootNode()
     }
   }
 
   function activateRootNode() {
     mind.selectNode(mind.findEle('root'))
+    activeNode = mind.findEle('root')
     document.getElementsByClassName('map-canvas')[0]?.focus()
   }
 
@@ -1451,6 +1479,12 @@
       return
     }
 
+    if ((ctrl && e.key === 'b')) {
+      e.preventDefault()
+      backToOldNode()
+      return
+    }
+
     if ((ctrl && e.key === 'f')) {
       e.preventDefault()
       toggleNodeFinder()
@@ -1488,24 +1522,37 @@
 
     if(e.key === '˙') {
       e.preventDefault()
+      storeOldActiveNode()
       sendKey('ArrowLeft', {keyCode: 37, which:37})
       return
     } else if(e.key === '¬') {
       e.preventDefault()
+      storeOldActiveNode()
       sendKey('ArrowRight', {keyCode: 39, which:39})
       return
     } else if(e.key === '˚') {
       e.preventDefault()
+      storeOldActiveNode()
       sendKey('ArrowUp', {keyCode: 38, which:38})
       return
     } else if(e.key === '∆') {
       e.preventDefault()
+      storeOldActiveNode()
       sendKey('ArrowDown', {keyCode: 40, which:40})
       return
     }
 
     return true
   })
+  document.addEventListener('keydown', e => {
+    if(e.key === 'ArrowLeft' ||
+       e.key === 'ArrowRight' ||
+       e.key === 'ArrowUp' ||
+       e.key === 'ArrowDown') {
+      storeOldActiveNode()
+      return
+    }
+  }, true)
 
   mPopup.addEventListener('keydown', e => {
     function sort(liEls) {
