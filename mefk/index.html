@@ -536,7 +536,7 @@
       <table border="1" cellpadding="5">
         <tr><th>Shortcut</th><th>Action</th></tr>
         <tr><td>Ctrl + a</td><td>Focus the node</td></tr>
-        <tr><td>Ctrl + b</td><td>Go back</td></tr>
+        <tr><td>Ctrl + [,]</td><td>Go back/forward</td></tr>
         <tr><td>Ctrl + q</td><td>Toggle notes</td></tr>
         <tr><td>Ctrl + f</td><td>Find & Focus</td></tr>
         <tr><td>Ctrl + n</td><td>New mind map</td></tr>
@@ -780,6 +780,8 @@
   let recentJumps = JSON.parse(localStorage.getItem("recentNodeJumps") || "[]");
   let activeNode = null
   let oldActiveNodeList = []
+  let oldActiveNodeIndex = 0
+  let needStockOldActiveNode = false
 
   applyTheme()
   activateRootNode()
@@ -905,11 +907,13 @@
         return;
       }
 
-      storeOldActiveNode()
       // ノードを選択＆スクロール
       mind.selectNode(domNode);
       document.getElementsByClassName('map-canvas')[0]?.focus()
       domNode.scrollIntoView({ block: "nearest", inline: "nearest" });
+
+      needStockOldActiveNode = true
+      storeOldActiveNode()
 
       addToRecent(node);
       closeMPopup();
@@ -1003,20 +1007,29 @@
   closeMPopupBtn.onclick = closeMPopup;
 
   function storeOldActiveNode() {
+    if(needStockOldActiveNode === false) return
+    needStockOldActiveNode = false
     if(!activeNode) return
     if(oldActiveNodeList.length > 0) {
       if(oldActiveNodeList[oldActiveNodeList.length - 1] == activeNode) return
     }
 
+    if(oldActiveNodeList.length - 1 > oldActiveNodeIndex) {
+      let dec = (oldActiveNodeList.length - 1) - oldActiveNodeIndex
+      while(dec > 0) {
+        dec--
+        oldActiveNodeList.pop()
+        oldActiveNodeIndex--
+      }
+    }
+
     oldActiveNodeList.push(activeNode)
+    oldActiveNodeIndex = oldActiveNodeList.length - 1
   }
   function activate() {
     try {
       if(activeNode) {
         mind.selectNode(activeNode)
-        document.getElementsByClassName('map-canvas')[0]?.focus()
-      } else if(oldActiveNodeList.length > 0) {
-        mind.selectNode(oldActiveNodeList.pop())
         document.getElementsByClassName('map-canvas')[0]?.focus()
       }
     } catch(e) {
@@ -1026,19 +1039,33 @@
 
   function backToOldNode() {
     try {
-      if(oldActiveNodeList.length > 0) {
-        mind.selectNode(oldActiveNodeList.pop())
-        document.getElementsByClassName('map-canvas')[0]?.focus()
-      }
+      oldActiveNodeIndex--
+      oldActiveNodeIndex = oldActiveNodeIndex < 0 ? oldActiveNodeList.length - 1: oldActiveNodeIndex
+      mind.selectNode(oldActiveNodeList[oldActiveNodeIndex])
+      document.getElementsByClassName('map-canvas')[0]?.focus()
+    } catch(e) {
+      activateRootNode()
+    }
+  }
+
+  function forwardToOldNode() {
+    try {
+      oldActiveNodeIndex++
+      oldActiveNodeIndex = oldActiveNodeIndex > oldActiveNodeList.length - 1 ? 0: oldActiveNodeIndex
+      mind.selectNode(oldActiveNodeList[oldActiveNodeIndex])
+      document.getElementsByClassName('map-canvas')[0]?.focus()
     } catch(e) {
       activateRootNode()
     }
   }
 
   function activateRootNode() {
-    mind.selectNode(mind.findEle('root'))
     activeNode = mind.findEle('root')
+    mind.selectNode(activeNode)
     document.getElementsByClassName('map-canvas')[0]?.focus()
+    oldActiveNodeList.length = 0
+    oldActiveNodeList.push(activeNode)
+    oldActiveNodeIndex = 0
   }
 
   function openBrowser() {
@@ -1054,7 +1081,8 @@
 
   // ノード選択イベント
   mind.bus.addListener('selectNode', node => {
-    activeNode = mind.currentNode
+    activeNode = MindElixir.E(node.id)
+    storeOldActiveNode()
     setNote()
   })
 
@@ -1070,7 +1098,6 @@
       op.obj.label = getDefautText(op?.obj?.label, 'Custom Link')
       mind.refresh()
     }
-    activeNode = mind.currentNode
     setNote()
   })
 
@@ -1479,9 +1506,15 @@
       return
     }
 
-    if ((ctrl && e.key === 'b')) {
+    if ((ctrl && e.key === '[')) {
       e.preventDefault()
       backToOldNode()
+      return
+    }
+
+    if ((ctrl && e.key === ']')) {
+      e.preventDefault()
+      forwardToOldNode()
       return
     }
 
@@ -1522,22 +1555,22 @@
 
     if(e.key === '˙') {
       e.preventDefault()
-      storeOldActiveNode()
+      needStockOldActiveNode = true
       sendKey('ArrowLeft', {keyCode: 37, which:37})
       return
     } else if(e.key === '¬') {
       e.preventDefault()
-      storeOldActiveNode()
+      needStockOldActiveNode = true
       sendKey('ArrowRight', {keyCode: 39, which:39})
       return
     } else if(e.key === '˚') {
       e.preventDefault()
-      storeOldActiveNode()
+      needStockOldActiveNode = true
       sendKey('ArrowUp', {keyCode: 38, which:38})
       return
     } else if(e.key === '∆') {
       e.preventDefault()
-      storeOldActiveNode()
+      needStockOldActiveNode = true
       sendKey('ArrowDown', {keyCode: 40, which:40})
       return
     }
@@ -1549,7 +1582,7 @@
        e.key === 'ArrowRight' ||
        e.key === 'ArrowUp' ||
        e.key === 'ArrowDown') {
-      storeOldActiveNode()
+      needStockOldActiveNode = true
       return
     }
   }, true)
