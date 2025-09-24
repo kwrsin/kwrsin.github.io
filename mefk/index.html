@@ -1454,7 +1454,7 @@
     let existingOverlay = document.getElementById("noteOverlay");
     if (existingOverlay) return true;
 
-    if (ctrl && e.key === 'q') {
+    if (e.ctrlKey && e.key === 'q') {
       e.preventDefault()
       toggleNote()
       setNote()
