@@ -1,0 +1,1 @@
+class e extends Phaser.GameObjects.Sprite{constructor(e,a){super(e,a.position.x,a.position.y,a.type),this.createAnims(a),e.layer_background.add(this),e.flagman=this}createAnims(e){this.anims.create({key:"flag_on",frames:this.anims.generateFrameNumbers(e.type,{frames:[1,2,3,4]}),frameRate:6,repeat:-1})}flagOn(){this.play("flag_on")}}export{e as default};

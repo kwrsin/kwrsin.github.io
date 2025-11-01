@@ -1,0 +1,1 @@
+const e="effect_trash";class t extends Phaser.GameObjects.Sprite{constructor(t,s){super(t,s.x,s.y,e),t.layer_objects.add(this),this.play({key:e}),this.once("animationcomplete",(()=>{this.destroy()}))}}export{t as default};

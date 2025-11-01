@@ -1,0 +1,1 @@
+var e=Object.defineProperty;class t extends Phaser.GameObjects.Container{constructor(){var t;super(...arguments),((t,s,a)=>{s in t?e(t,s,{enumerable:!0,configurable:!0,writable:!0,value:a}):t[s]=a})(this,"symbol"!=typeof(t="commands")?t+"":t,{})}preUpdate(e,t){this.scene.player!=this&&this.think();let s=this.commands[this.state];s&&s(this,t)}think(){}}export{t as C};

@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ACROSS RIDER — Game Manual</title>
+  <style>
+    body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Hiragino Kaku Gothic ProN", "Noto Sans", sans-serif; background:#0b0f14; color:#e6eef6; margin:0; padding:24px; }
+    .container { max-width:900px; margin:0 auto; background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02)); border-radius:12px; padding:28px; box-shadow: 0 6px 30px rgba(0,0,0,0.6); }
+    h1,h2,h3 { color:#fff; margin-top:0 }
+    h1 { font-size:28px }
+    h2 { font-size:20px; margin-top:22px }
+    h3 { font-size:16px }
+    p { line-height:1.5; color:#d7e6f5 }
+    ul { margin:8px 0 16px 20px }
+    li { margin:6px 0 }
+    .title {text-align: center; font-size: 52px; }
+    .status-grid { display:grid; grid-template-columns: repeat(2, 1fr); gap:12px; }
+    .stat { background:rgba(255,255,255,0.02); padding:10px; border-radius:8px }
+    .note { font-size:14px; color:#a8bdcf }
+    .small { font-size:13px; color:#b7c9db }
+    .banner { display: block; margin: 0 auto; border-radius: 10px; width: 40%; object-fit: contain }
+    .item { display: block; text-align: center; }
+    .desc { display: block; text-align: center; margin-top: 5px; }
+    .icon { display: block; margin: 5px auto; width: 32px; height: auto; }
+    footer { margin-top:20px; font-size:12px; color:#7f98ad }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 class="title">ACROSS RIDER</h1>
+    <img src="/assets/images/banners/top.png" class="banner">
+    <h2>Synopsis</h2>
+    <p>
+      The protagonist decides to earn prize money from motorbike races to make his girlfriend happy. However,
+      naive and inexperienced, he signs a contract with a shady agent and ends up entering races. What will the outcome be...?
+    </p>
+
+    <hr />
+
+    <h2>Rules</h2>
+    <p>
+      Finish each stage within the time limit and place in the top 3 to succeed.
+    </p>
+
+    <hr />
+
+    <h2>Controls & Interface</h2>
+
+    <h3>Title Screen</h3>
+    <p>
+      Use the left and right cursor buttons to choose between <strong>EASY</strong> and <strong>HARD</strong> modes, and press the confirm button to start the game.
+    </p>
+
+    <h3>Game Screen</h3>
+
+    <h4>Status</h4>
+    <div class="status-grid">
+      <div class="stat">① <strong>Coins</strong>: Number of coins</div>
+      <div class="stat">② <strong>Time</strong>: Countdown timer</div>
+      <div class="stat">③ <strong>Fuel</strong>: Remaining fuel</div>
+      <div class="stat">④ <strong>Karma</strong>: Difficulty increases</div>
+      <div class="stat">⑤ <strong>Jewels</strong>: A happy ending?</div>
+      <div class="stat">⑥ <strong>Attack</strong>: Consumes one per battle</div>
+      <div class="stat">⑦ <strong>Guard</strong>: Consumes one per battle</div>
+    </div>
+    <div>
+      <img src="/assets/images/banners/status.png" class="banner">
+    </div>
+    <h4>Controller</h4>
+    <ul>
+      <li><strong>Cursor Up / Down</strong>: Move the player up and down.</li>
+      <li><strong>Confirm Button</strong>: Move forward while accelerating.</li>
+    </ul>
+    <div>
+      <img src="/assets/images/banners/controller.png" class="banner">
+    </div>
+
+    <h4>Actions</h4>
+    <ul>
+      <li><strong>Attack</strong>: Ram into enemies to battle.</li>
+      <li><strong>Guard</strong>: Automatically triggers attack evasion during battles.</li>
+    </ul>
+
+    <hr />
+
+    <h2>Characters</h2>
+    <ul>
+      <li><strong>Protagonist</strong>: The player character.</li>
+      <li><strong>Agent</strong>: Supports race entries (a shady agent).</li>
+      <li><strong>Girlfriend</strong>: The protagonist's girlfriend.</li>
+      <li><strong>The Chutars</strong>: Rival racers.</li>
+    </ul>
+
+    <hr />
+
+    <h2>Stages</h2>
+    <ul>
+      <li><strong>Beginner Course</strong>: Easy course for Beginners.</li>
+      <li><strong>God wind</strong>: Watch out for sudden gusts of wind!?</li>
+      <li><strong>Dirty Party</strong>: An orderly-down-town?</li>
+      <li><strong>Death Trains</strong>: Safety first.</li>
+      <li><strong>Holy Power</strong>: Be respectful!</li>
+    </ul>
+
+    <hr />
+
+    <h2>Items</h2>
+    <div class="status-grid">
+      <div class="stat">
+        <strong class="item">Coins</strong>
+        <img src="assets/images/banners/items/coin.png"/ class="icon">
+        <div class="desc">Used to buy items.</div>
+      </div>
+      <div class="stat">
+        <strong class="item">Fuel</strong>
+        <img src="assets/images/banners/items/fuel.png"/ class="icon">
+        <div class="desc">Refill fuel.<br/> Costs 5 coins.</div>
+      </div>
+      <div class="stat">
+        <strong class="item">Speed</strong>
+        <img src="assets/images/banners/items/speed.png"/ class="icon">
+        <div class="desc">Doubles acceleration.<br/> Costs 5 coins.</div>
+      </div>
+      <div class="stat">
+        <strong class="item">Attack</strong>
+        <img src="assets/images/banners/items/attack.png"/ class="icon">
+        <div class="desc">Increases attack power.<br/> Costs 3 coins.</div>
+      </div>
+      <div class="stat">
+        <strong class="item">Guard</strong>
+        <img src="assets/images/banners/items/guard.png"/ class="icon">
+        <div class="desc">Raises attack evasion rate.<br/> Costs 3 coins.</div>
+      </div>
+      <div class="stat">
+        <strong class="item">Jewel</strong>
+        <img src="assets/images/banners/items/jewel.png"/ class="icon">
+        <div class="desc">It will make you happy.</div>
+      </div>
+      <div class="stat">
+        <strong class="item">Bad Ring</strong>
+        <img src="assets/images/banners/items/bad_ring.png"/ class="icon">
+        <div class="desc">+1 up karma.</div>
+      </div>
+      <div class="stat">
+        <strong class="item">Balance Scale</strong>
+        <img src="assets/images/banners/items/scale_balance.png"/ class="icon">
+        <div class="desc">zero karma.</div>
+      </div>
+    </div>
+    <footer>
+      <p class="small">This manual is maintained by kwrsin.</p>
+    </footer>
+  </div>
+</body>
+</html>

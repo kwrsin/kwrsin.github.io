@@ -1,0 +1,1 @@
+const e="splash";class s extends Phaser.GameObjects.Sprite{constructor(s,t){super(s,t.x+t.body.width/2,t.y+t.bike.y-t.body.height,e),s.layer_objects.add(this),s.anims.exists(e)||s.anims.createFromAseprite(e),this.play({key:e}),s.sound.play(e),this.once("animationcomplete",(()=>{this.destroy()}))}}export{s as default};
