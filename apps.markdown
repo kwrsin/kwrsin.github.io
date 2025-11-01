@@ -8,6 +8,7 @@ Feel free to contact me, if you have any questions or comments.
 
 # Games
 
+- <a href="/games/AcrossRider/" target="_blank" rel="noopener noreferrer">Across Rider</a>
 - <a href="/games/FlappyChart/" target="_blank" rel="noopener noreferrer">Flappy Chart</a>
 - <a href="/games/PirateTacticsR/" target="_blank" rel="noopener noreferrer">PirateTacticsR</a>
 
