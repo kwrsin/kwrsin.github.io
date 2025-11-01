@@ -1,0 +1,1 @@
+import{c as e}from"./index-BnogHGos.js";import t from"./marks-B8NY5kcH.js";import"./phaser-Co6Ukw23.js";class r extends t{createObject(e,t){return e.scene.add.image(0,0,t.type).setOrigin(0,.5)}isHit(t){return t.parentContainer.state===e.ST_RUNNING}apply(e){e.parentContainer.slowdown=.6}}export{r as default};
