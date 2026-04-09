@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MUSCLE REVENGER - Manual</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background-color: #111;
+            color: #eee;
+            line-height: 1.6;
+            padding: 20px;
+            margin: 0;
+            max-width: 800px; /* PCで見やすいように幅を制限 */
+            margin: 0 auto;
+        }
+
+        h1, h2 {
+            color: #ff4444;
+            border-bottom: 2px solid #333;
+            padding-bottom: 5px;
+        }
+
+        /* 全般的な画像の共通設定 */
+        img {
+            display: block;
+            margin: 10px 0;
+        }
+
+        /* アイキャッチやコントローラーなどの大きな画像 */
+        .hero-img {
+            width: 100%;
+            max-width: 600px; /* 必要以上に大きくならないように制限 */
+            height: auto;
+            background: #333;
+            margin: 20px auto;
+        }
+
+        /* アイテム・スコア画像 (32px固定) */
+        .pixel-art {
+            width: 32px;
+            height: 32px;
+            /* 画像を拡大させない */
+            object-fit: contain;
+            /* ドット絵をくっきり表示させる (ブラウザ対応) */
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+            background: transparent;
+            display: inline-block; /* テキストの横に並べるため */
+            vertical-align: middle;
+            margin-right: 10px;
+        }
+
+        ul {
+            padding-left: 20px;
+            list-style: none; /* カスタムスタイルにするため一旦解除 */
+        }
+
+        li {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center; /* 画像とテキストの縦中央を揃える */
+        }
+
+        .center {
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* スマホ向けの微調整 */
+        @media (max-width: 480px) {
+            body {
+                padding: 15px;
+            }
+            h1 { font-size: 1.5rem; }
+            h2 { font-size: 1.2rem; }
+        }
+    </style>
+</head>
+<body>
+
+<h1>MUSCLE REVENGER - Game Manual</h1>
+
+<img class="hero-img" src="assets/images/help/title.png" alt="Game Eyecatcher">
+
+<h2>Story</h2>
+<p>
+Match, a justice-driven professional wrestler, is suddenly attacked by a mysterious figure while training with his teammates in a gym.
+After a fierce battle, he loses consciousness. When he awakens to the sound of sirens, all of his teammates have been killed.
+Police arrive and, for some reason, arrest Match as the suspect, taking away his trademark mask.
+</p>
+
+<p>
+Despite insisting on his innocence, Match is imprisoned. He soon realizes the incident was a setup.
+Behind it all is a ruthless prison warden who fabricated the case for his own promotion.
+Discovering that his stolen mask holds a hidden secret, Match decides to escape prison,
+avenge his friends, and prove his innocence.
+</p>
+
+<h2>Game Rules</h2>
+<p>
+In each stage, avoid interference from guards within the time limit,
+collect the key, and reach the exit to clear the stage.
+</p>
+
+<h2>Controls</h2>
+
+<img class="hero-img" src="assets/images/help/controller.png" alt="Controller Image">
+
+<ul style="list-style: disc;"> <li style="display: list-item;"><strong>Cursor [PC KEYBORD]:</strong> Move the player up, down, left, and right</li>
+    <li style="display: list-item;"><strong>Item Button [PC KEYBORD => b]:</strong> Use collected items</li>
+    <li style="display: list-item;"><strong>Jump Button [PC KEYBORD => space]:</strong> Make the player jump & game start</li>
+</ul>
+
+<h2>Characters</h2>
+<ul style="list-style: disc;">
+    <li style="display: list-item;">Player (Match)</li>
+    <li style="display: list-item;">Guard</li>
+    <li style="display: list-item;">Guard Boss</li>
+</ul>
+
+<h2>Items</h2>
+
+<ul>
+    <li>
+        <img class="pixel-art" src="assets/images/help/protein_a.png" alt="Protein A">
+        <span><strong>Protein A:</strong> Restores health</span>
+    </li>
+    <li>
+        <img class="pixel-art" src="assets/images/help/protein_b.png" alt="Protein B">
+        <span><strong>Protein B:</strong> Increases speed</span>
+    </li>
+    <li>
+        <img class="pixel-art" src="assets/images/help/time_extension.png" alt="Time Extension">
+        <span><strong>Time Extension:</strong> Adds time to the countdown timer</span>
+    </li>
+    <li>
+        <img class="pixel-art" src="assets/images/help/1up.png" alt="1UP">
+        <span><strong>1UP:</strong> Increases remaining life by 1</span>
+    </li>
+    <li>
+        <img class="pixel-art" src="assets/images/help/purplekey.png" alt="Purple Key">
+        <span><strong>Purple Key:</strong> Open the Purple Door</span>
+    </li>
+    <li>
+        <img class="pixel-art" src="assets/images/help/dumbbell.png" alt="Bumbbell">
+        <span><strong>Bumbbell:</strong> ???</span>
+    </li>
+    <li>
+        <img class="pixel-art" src="assets/images/help/mask.png" alt="Mask">
+        <span><strong>Mask:</strong> ???</span>
+    </li>
+</ul>
+
+<h2>Score Items</h2>
+
+<ul>
+    <li><img class="pixel-art" src="assets/images/help/cherry.png" alt="Cherry"> <span>Cherry: 100 pts</span></li>
+    <li><img class="pixel-art" src="assets/images/help/watermelon.png" alt="Watermelon"> <span>Watermelon: 150 pts</span></li>
+    <li><img class="pixel-art" src="assets/images/help/melon.png" alt="Melon"> <span>Melon: 200 pts</span></li>
+    <li><img class="pixel-art" src="assets/images/help/strawberry.png" alt="Strawberry"> <span>Strawberry: 250 pts</span></li>
+    <li><img class="pixel-art" src="assets/images/help/pineapple.png" alt="Pineapple"> <span>Pineapple: 300 pts</span></li>
+    <li><img class="pixel-art" src="assets/images/help/orange.png" alt="Orange"> <span>Orange: 350 pts</span></li>
+    <li><img class="pixel-art" src="assets/images/help/banana.png" alt="Banana"> <span>Banana: 600 pts</span></li>
+</ul>
+
+</body>
+</html>

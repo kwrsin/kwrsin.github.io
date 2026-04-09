@@ -1,0 +1,23 @@
+<font>
+	<info face="red-nums-export" size="16" />
+	<common lineHeight="16" scaleW="41" scaleH="51" pages="1" />
+	<pages>
+		<page id="0" file="red-nums-export.png" />
+	</pages>
+	<chars count="12">
+		<char id="48" x="12" y="0" width="10" height="16" xoffset="0" yoffset="0" xadvance="11" /><!-- 0 -->
+		<char id="49" x="33" y="17" width="7" height="16" xoffset="0" yoffset="0" xadvance="8" /><!-- 1 -->
+		<char id="50" x="23" y="0" width="10" height="16" xoffset="0" yoffset="0" xadvance="11" /><!-- 2 -->
+		<char id="51" x="22" y="17" width="10" height="16" xoffset="0" yoffset="0" xadvance="11" /><!-- 3 -->
+		<char id="52" x="0" y="0" width="11" height="16" xoffset="0" yoffset="0" xadvance="12" /><!-- 4 -->
+		<char id="53" x="22" y="34" width="10" height="16" xoffset="0" yoffset="0" xadvance="11" /><!-- 5 -->
+		<char id="54" x="11" y="17" width="10" height="16" xoffset="0" yoffset="0" xadvance="11" /><!-- 6 -->
+		<char id="55" x="11" y="34" width="10" height="16" xoffset="0" yoffset="0" xadvance="11" /><!-- 7 -->
+		<char id="56" x="0" y="34" width="10" height="16" xoffset="0" yoffset="0" xadvance="11" /><!-- 8 -->
+		<char id="57" x="0" y="17" width="10" height="16" xoffset="0" yoffset="0" xadvance="11" /><!-- 9 -->
+		<char id="32" x="0" y="0" width="0" height="0" xoffset="0" yoffset="0" xadvance="0" /><!--   -->
+		<char id="9" x="0" y="0" width="0" height="0" xoffset="0" yoffset="0" xadvance="0" /><!-- 	 -->
+	</chars>
+	<kernings count="0">
+	</kernings>
+</font>

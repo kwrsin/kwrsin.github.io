@@ -1,0 +1,83 @@
+{ "frames": {
+   "0": {
+    "frame": { "x": 0, "y": 0, "w": 19, "h": 36 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 19, "h": 36 },
+    "sourceSize": { "w": 19, "h": 36 },
+    "duration": 100
+   },
+   "1": {
+    "frame": { "x": 19, "y": 0, "w": 19, "h": 36 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 19, "h": 36 },
+    "sourceSize": { "w": 19, "h": 36 },
+    "duration": 100
+   },
+   "2": {
+    "frame": { "x": 38, "y": 0, "w": 19, "h": 36 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 19, "h": 36 },
+    "sourceSize": { "w": 19, "h": 36 },
+    "duration": 100
+   },
+   "3": {
+    "frame": { "x": 57, "y": 0, "w": 19, "h": 36 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 19, "h": 36 },
+    "sourceSize": { "w": 19, "h": 36 },
+    "duration": 100
+   },
+   "4": {
+    "frame": { "x": 76, "y": 0, "w": 19, "h": 36 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 19, "h": 36 },
+    "sourceSize": { "w": 19, "h": 36 },
+    "duration": 100
+   },
+   "5": {
+    "frame": { "x": 95, "y": 0, "w": 19, "h": 36 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 19, "h": 36 },
+    "sourceSize": { "w": 19, "h": 36 },
+    "duration": 100
+   },
+   "6": {
+    "frame": { "x": 114, "y": 0, "w": 19, "h": 36 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 19, "h": 36 },
+    "sourceSize": { "w": 19, "h": 36 },
+    "duration": 100
+   },
+   "7": {
+    "frame": { "x": 133, "y": 0, "w": 19, "h": 36 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 19, "h": 36 },
+    "sourceSize": { "w": 19, "h": 36 },
+    "duration": 100
+   }
+ },
+ "meta": {
+  "app": "https://www.aseprite.org/",
+  "version": "1.3.16.1-x64",
+  "image": "superkey.png",
+  "format": "I8",
+  "size": { "w": 152, "h": 36 },
+  "scale": "1",
+  "frameTags": [
+   { "name": "superkey-superkey", "from": 0, "to": 7, "direction": "forward", "color": "#000000ff" }
+  ],
+  "layers": [
+   { "name": "superkey", "opacity": 255, "blendMode": "normal" }
+  ],
+  "slices": [
+  ]
+ }
+}
