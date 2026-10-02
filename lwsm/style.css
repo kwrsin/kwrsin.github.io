@@ -7,11 +7,12 @@ body{margin:0;padding:max(8px,env(safe-area-inset-top)) max(8px,env(safe-area-in
 #content{position:relative;height:100%;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--paper);color:var(--ink)}
 #bar{position:absolute;z-index:2;top:0;left:0;right:0;padding:12px 14px;background:inherit;color:inherit;border-bottom:1px solid var(--line);transition:transform .2s}
 #bar.hide{transform:translateY(-101%)}
-.tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.tools{display:flex;flex-wrap:nowrap;gap:8px;align-items:center;overflow-x:auto}
+.tools button{display:grid;place-items:center;width:42px;height:42px;padding:0;flex:0 0 auto}
 button{font:inherit;line-height:1.2;color:inherit;background:transparent;border:1.5px solid currentColor;border-radius:4px;padding:7px 14px;cursor:pointer}
 button:hover{background:color-mix(in srgb,currentColor 12%,transparent)}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-input[type=color]{width:34px;height:34px;padding:2px;border:1.5px solid currentColor;border-radius:4px;background:transparent;cursor:pointer}
+input[type=color]{width:42px;height:42px;flex:0 0 auto;padding:2px;border:1.5px solid currentColor;border-radius:4px;background:transparent;cursor:pointer}
 .sw{position:relative;display:inline-block;margin-left:4px}
 .sw input{position:absolute;opacity:0;inset:0;width:100%;height:100%;margin:0;cursor:pointer}
 .sw span{display:block;width:46px;height:26px;border-radius:13px;background:#8a948f;position:relative;transition:background .15s}
@@ -49,5 +50,5 @@ dialog input:not([type=checkbox]){width:100%;font:inherit;color:inherit;backgrou
 #ul li span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #ul li button{border:0;padding:2px 8px;border-radius:50%}
 .foot{margin-top:14px;text-align:right}
-@media(max-width:520px){button{padding:7px 10px}.grid{grid-template-columns:1fr auto}.grid label{grid-column:1/-1;margin-bottom:-6px}}
+@media(max-width:520px){#bar{padding:8px}.tools{gap:4px}.tools button,input[type=color]{flex:1 1 0;min-width:36px;width:auto;height:44px}.sw{flex:0 0 auto;margin-left:2px}.sw span{width:42px}.sw input:checked+span::after{left:19px}.x{padding:8px 12px}.grid{grid-template-columns:1fr auto}.grid label{grid-column:1/-1;margin-bottom:-6px}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
