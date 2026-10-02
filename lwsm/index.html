@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Light Weight Simple Memo</title>
+<meta name="description" content="Light Weight Simple Memo is a fast, offline-ready memo pad for Markdown and HTML. Keep many memos, auto-save, preview, find and replace.">
+<meta name="robots" content="index,follow">
+<meta name="theme-color" content="#2f9e6b">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Light Weight Simple Memo">
+<meta property="og:description" content="A fast, offline-ready memo pad for Markdown and HTML.">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon.svg">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/marked@15.0.12/marked.min.js" defer></script>
+<script src="app.js" defer></script>
+</head>
+<body>
+<main id="content">
+  <header id="bar">
+    <h1 class="sr">Light Weight Simple Memo</h1>
+    <div class="tools">
+      <button id="bNew" title="New (Ctrl+N)">New</button>
+      <button id="bImp" title="Import (Ctrl+O)">Import</button>
+      <button id="bExp" title="Export (Ctrl+E)">Export</button>
+      <button id="bFind" title="Find (Ctrl+F)">Find</button>
+      <button id="bList" title="List (F10)">List</button>
+      <label class="sw" title="Preview / Edit (F2)"><input type="checkbox" id="sw" aria-label="Preview"><span></span></label>
+      <input type="color" id="bg" title="Background color" aria-label="Background color">
+      <button id="bRst" title="Reset background" aria-label="Reset background">↺</button>
+    </div>
+  </header>
+  <textarea id="ed" spellcheck="false" placeholder="Start typing…" aria-label="Memo" hidden></textarea>
+  <article id="pv" aria-label="Preview"></article>
+</main>
+
+<dialog id="dFind" aria-label="Find and replace">
+  <button class="x" id="xF" aria-label="Close">✕</button>
+  <div class="grid">
+    <label for="kw">Keyword</label><input id="kw" autocomplete="off"><button id="bDoFind">Find</button>
+    <label for="rp">Replacement</label><input id="rp" autocomplete="off"><button id="bDoRep">Replace</button>
+    <label for="all">All</label><input type="checkbox" id="all">
+  </div>
+  <p id="st" role="status"></p>
+</dialog>
+
+<dialog id="dList" aria-label="Memo list">
+  <button class="x" id="xL" aria-label="Close">✕</button>
+  <label class="fr">Filter <input id="fl" autocomplete="off"></label>
+  <ul id="ul"></ul>
+  <div class="foot"><button id="bDelAll">Delete all</button></div>
+</dialog>
+</body>
+</html>

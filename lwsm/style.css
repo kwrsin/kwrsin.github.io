@@ -1,0 +1,53 @@
+:root{--bg:#eef1ef;--paper:#fff;--ink:#16201b;--line:#bfc8c3;--accent:#2f9e6b;--link:#1b6fb5;--hl:#fff7a8;color-scheme:light}
+@media(prefers-color-scheme:dark){:root{--bg:#0e1311;--paper:#171d1a;--ink:#e6ece8;--line:#34403a;--accent:#4cc38a;--link:#7db8ee;--hl:#4b4716;color-scheme:dark}}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;padding:max(8px,env(safe-area-inset-top)) max(8px,env(safe-area-inset-right)) max(8px,env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-left));background:var(--bg);color:var(--ink);font:16px/1.7 system-ui,-apple-system,"Hiragino Sans","Yu Gothic UI","Noto Sans JP",sans-serif}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);margin:0}
+#content{position:relative;height:100%;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--paper);color:var(--ink)}
+#bar{position:absolute;z-index:2;top:0;left:0;right:0;padding:12px 14px;background:inherit;color:inherit;border-bottom:1px solid var(--line);transition:transform .2s}
+#bar.hide{transform:translateY(-101%)}
+.tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+button{font:inherit;line-height:1.2;color:inherit;background:transparent;border:1.5px solid currentColor;border-radius:4px;padding:7px 14px;cursor:pointer}
+button:hover{background:color-mix(in srgb,currentColor 12%,transparent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+input[type=color]{width:34px;height:34px;padding:2px;border:1.5px solid currentColor;border-radius:4px;background:transparent;cursor:pointer}
+.sw{position:relative;display:inline-block;margin-left:4px}
+.sw input{position:absolute;opacity:0;inset:0;width:100%;height:100%;margin:0;cursor:pointer}
+.sw span{display:block;width:46px;height:26px;border-radius:13px;background:#8a948f;position:relative;transition:background .15s}
+.sw span::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:left .15s}
+.sw input:checked+span{background:var(--accent)}
+.sw input:checked+span::after{left:23px}
+.sw input:focus-visible+span{outline:2px solid var(--accent);outline-offset:2px}
+#ed,#pv{position:absolute;inset:0;width:100%;height:100%;overflow:auto;padding:calc(var(--hh,64px) + 16px) clamp(14px,4vw,40px) 40px}
+#ed{border:0;resize:none;background:transparent;color:inherit;font:inherit;line-height:1.7}
+#ed:focus{outline:0}
+#ed[hidden],#pv[hidden]{display:none}
+#pv{overflow-wrap:anywhere}
+#pv:empty::before{content:"Nothing here yet. Press F2 to edit.";opacity:.55}
+#pv>*{max-width:76ch}
+#pv a{color:var(--link)}
+#pv img{max-width:100%}
+#pv pre,#pv code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.92em}
+#pv pre{padding:12px;overflow:auto;background:color-mix(in srgb,currentColor 9%,transparent);border-radius:6px}
+#pv code{background:color-mix(in srgb,currentColor 9%,transparent);padding:.1em .3em;border-radius:3px}
+#pv pre code{background:none;padding:0}
+#pv blockquote{margin-left:0;padding-left:14px;border-left:3px solid var(--accent);opacity:.85}
+#pv table{border-collapse:collapse}#pv th,#pv td{border:1px solid var(--line);padding:4px 10px}
+dialog{width:min(520px,calc(100vw - 24px));border:1.5px solid var(--ink);border-radius:8px;background:var(--paper);color:var(--ink);padding:44px 22px 22px}
+dialog::backdrop{background:rgba(0,0,0,.5)}
+dialog input:not([type=checkbox]){width:100%;font:inherit;color:inherit;background:transparent;border:1.5px solid var(--ink);border-radius:4px;padding:6px 10px}
+.x{position:absolute;top:10px;right:12px;border:0;padding:4px 10px;font-size:1.1rem}
+.grid{display:grid;grid-template-columns:auto 1fr auto;gap:12px 12px;align-items:center}
+.grid input[type=checkbox]{width:20px;height:20px;accent-color:var(--accent);justify-self:start}
+#st{min-height:1.5em;margin:12px 0 0;opacity:.75}
+.fr{display:flex;gap:12px;align-items:center;margin-bottom:14px}
+#ul{list-style:none;margin:0;padding:4px;border:1.5px solid var(--line);border-radius:8px;max-height:50vh;overflow:auto;min-height:60px}
+#ul:empty::before{content:"No memos yet. Close this and start typing.";display:block;padding:12px;opacity:.6}
+#ul li{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:4px;cursor:pointer}
+#ul li.on{background:var(--hl)}
+#ul li span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#ul li button{border:0;padding:2px 8px;border-radius:50%}
+.foot{margin-top:14px;text-align:right}
+@media(max-width:520px){button{padding:7px 10px}.grid{grid-template-columns:1fr auto}.grid label{grid-column:1/-1;margin-bottom:-6px}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
