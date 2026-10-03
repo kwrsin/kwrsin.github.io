@@ -7,6 +7,7 @@ body{margin:0;padding:max(8px,env(safe-area-inset-top)) max(8px,env(safe-area-in
 #content{position:relative;height:100%;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--paper);color:var(--ink)}
 #bar{position:absolute;z-index:2;top:0;left:0;right:0;padding:12px 14px;background:inherit;color:inherit;border-bottom:1px solid var(--line);transition:transform .2s}
 #bar.hide{transform:translateY(-101%)}
+#ttl{text-align:center;font-weight:600;line-height:1.5;min-height:1.5em;margin:0 0 8px;padding:0 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tools{display:flex;flex-wrap:nowrap;gap:8px;align-items:center;overflow-x:auto}
 .btn{text-decoration:none}
 .tools button,.tools .btn{display:grid;place-items:center;width:42px;height:42px;padding:0;flex:0 0 auto}
@@ -42,7 +43,9 @@ dialog input:not([type=checkbox]){width:100%;font:inherit;color:inherit;backgrou
 .x{position:absolute;top:10px;right:12px;border:0;padding:4px 10px;font-size:1.1rem}
 .grid{display:grid;grid-template-columns:auto 1fr auto;gap:12px 12px;align-items:center}
 .grid .wide{grid-column:2/4}
-.grid input[type=checkbox]{width:20px;height:20px;accent-color:var(--accent);justify-self:start}
+.grid input[type=checkbox]{width:20px;height:20px;margin:0;accent-color:var(--accent)}
+.chk{display:flex;gap:10px;align-items:center;cursor:pointer}
+.grid .chk{margin-bottom:0}
 #st{min-height:1.5em;margin:12px 0 0;opacity:.75}
 .fr{display:flex;gap:12px;align-items:center;margin-bottom:14px}
 #ul{list-style:none;margin:0;padding:4px;border:1.5px solid var(--line);border-radius:8px;max-height:50vh;overflow:auto;min-height:60px}
