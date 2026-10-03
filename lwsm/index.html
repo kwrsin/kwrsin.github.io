@@ -22,10 +22,10 @@
   <header id="bar">
     <h1 class="sr">Light Weight Simple Memo</h1>
     <div class="tools">
-      <button id="bNew" title="New (Ctrl+N)" aria-label="New"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M12 12v6M9 15h6"/></svg></button>
+      <button id="bNew" title="New (F11)" aria-label="New"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M12 12v6M9 15h6"/></svg></button>
       <button id="bImp" title="Import (Ctrl+O)" aria-label="Import"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg></button>
       <button id="bExp" title="Export (Ctrl+S)" aria-label="Export"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3M7 8l5-5 5 5M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg></button>
-      <button id="bFind" title="Find (Ctrl+F)" aria-label="Find"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.5-4.5"/></svg></button>
+      <button id="bFind" title="Find (F9)" aria-label="Find"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.5-4.5"/></svg></button>
       <button id="bList" title="List (F10)" aria-label="List"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3.5 6h.01M3.5 12h.01M3.5 18h.01"/></svg></button>
       <button id="bPrev" title="Previous memo (Alt+[)" aria-label="Previous memo"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
       <button id="bNext" title="Next memo (Alt+])" aria-label="Next memo"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
@@ -42,9 +42,10 @@
 <dialog id="dFind" aria-label="Find and replace">
   <button class="x" id="xF" aria-label="Close">✕</button>
   <div class="grid">
-    <label for="kw">Keyword</label><input id="kw" autocomplete="off"><button id="bDoFind">Find</button>
+    <label for="kw">Keyword</label><input id="kw" class="wide" autocomplete="off" placeholder="Enter = find next">
     <label for="rp">Replacement</label><input id="rp" autocomplete="off"><button id="bDoRep">Replace</button>
     <label for="all">All</label><input type="checkbox" id="all">
+    <label for="cs">Case sensitive</label><input type="checkbox" id="cs">
   </div>
   <p id="st" role="status"></p>
 </dialog>

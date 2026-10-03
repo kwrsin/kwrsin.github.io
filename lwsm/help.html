@@ -32,6 +32,8 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;padding:12px;border:1px solid va
 <li>The <b>switch</b> in the header toggles between <b>Preview</b> (on) and <b>Edit</b> (off). The app opens the last memo you used, in preview.</li>
 <li>Memos can be written in <b>Markdown</b> or <b>HTML</b>. A memo that starts with an HTML tag is treated as HTML. In preview, scripts, styles, and event attributes are removed for safety.</li>
 <li>Links in the preview open in a <b>new tab</b>.</li>
+<li><b>Drag and drop</b> Markdown, HTML, or text files onto the window to open them as new memos.</li>
+<li>On narrow screens the header buttons do not wrap; <b>swipe the header sideways</b> to reach all of them.</li>
 <li><b>Title</b>: the first line that has visible text (Markdown or HTML marks are stripped). An imported memo uses its <b>file name</b> instead. The title is also shown in the browser tab. A memo with no visible text is not saved.</li>
 <li>The color button changes the memo's <b>background color</b>; the circular arrow resets it.</li>
 <li>Each memo has an internal ID, used for editing and deleting.</li>
@@ -42,9 +44,9 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;padding:12px;border:1px solid va
 <table>
 <tr><th>Button</th><th>Action</th></tr>
 <tr><td>New (file with plus)</td><td>Start a new memo.</td></tr>
-<tr><td>Import (arrow down)</td><td>Open a .md, .markdown, .txt, .html, or .htm file as a new memo.</td></tr>
+<tr><td>Import (arrow down)</td><td>Open one or more .md, .markdown, .txt, .html, or .htm files as new memos. You can also drag and drop files onto the window.</td></tr>
 <tr><td>Export (arrow up)</td><td>Download the current memo as .md or .html.</td></tr>
-<tr><td>Find (magnifier)</td><td>Find and replace. Tick <b>All</b> to replace every match at once.</td></tr>
+<tr><td>Find (magnifier)</td><td>Find and replace (see below).</td></tr>
 <tr><td>List (lines)</td><td>Open the memo list.</td></tr>
 <tr><td>&lt; &nbsp; &gt;</td><td>Go to the previous / next memo. Wraps around at both ends.</td></tr>
 <tr><td>? (circle)</td><td>Open this page.</td></tr>
@@ -53,15 +55,24 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;padding:12px;border:1px solid va
 <h2>Keyboard shortcuts</h2>
 <table>
 <tr><th>Key</th><th>Action</th></tr>
-<tr><td><kbd>Ctrl</kbd>+<kbd>N</kbd></td><td>New</td></tr>
+<tr><td><kbd>F11</kbd></td><td>New</td></tr>
 <tr><td><kbd>Ctrl</kbd>+<kbd>O</kbd></td><td>Import from file</td></tr>
 <tr><td><kbd>Ctrl</kbd>+<kbd>S</kbd></td><td>Export</td></tr>
-<tr><td><kbd>Ctrl</kbd>+<kbd>F</kbd></td><td>Find / replace</td></tr>
+<tr><td><kbd>F9</kbd></td><td>Find / replace (while it is open, focuses the Keyword box)</td></tr>
 <tr><td><kbd>F10</kbd></td><td>Memo list</td></tr>
 <tr><td><kbd>F2</kbd></td><td>Switch preview / edit</td></tr>
 <tr><td><kbd>Alt</kbd>+<kbd>]</kbd> / <kbd>Alt</kbd>+<kbd>[</kbd></td><td>Next / previous memo</td></tr>
 </table>
-<p>On macOS, <kbd>Ctrl</kbd> can be replaced by <kbd>Cmd</kbd>. Some browsers reserve shortcuts such as <kbd>Ctrl</kbd>+<kbd>N</kbd>; they work reliably when the app is installed as a PWA.</p>
+<p>On macOS, <kbd>Ctrl</kbd> can be replaced by <kbd>Cmd</kbd>. On a Mac or laptop the F-keys may need <kbd>Fn</kbd> to be held. In a normal browser tab, <kbd>F11</kbd> may toggle full screen and some other shortcuts may be reserved by the browser; they work most reliably when the app is installed as a PWA.</p>
+
+<h2>Find and replace</h2>
+<ul>
+<li>Type a keyword and press <kbd>Enter</kbd> to find the next match (it wraps around). The match is selected in the editor; the app switches to edit mode if needed.</li>
+<li><b>Replace</b> replaces the selected match with the Replacement text and jumps to the next one. If nothing is selected, it just finds the next match.</li>
+<li><b>All</b>: Replace changes every match at once.</li>
+<li><b>Case sensitive</b>: when ticked, upper and lower case letters are treated as different. This applies to finding and replacing.</li>
+<li><kbd>Esc</kbd> or the &#10005; button closes the dialog.</li>
+</ul>
 
 <h2>Memo list</h2>
 <ul>

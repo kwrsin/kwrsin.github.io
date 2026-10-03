@@ -2,7 +2,7 @@
 const $=id=>document.getElementById(id);
 const KM='lwsm.memos',KC='lwsm.cur';
 const ed=$('ed'),pv=$('pv'),sw=$('sw'),bg=$('bg'),bar=$('bar'),box=$('content');
-const dF=$('dFind'),kw=$('kw'),rp=$('rp'),all=$('all'),st=$('st');
+const dF=$('dFind'),kw=$('kw'),rp=$('rp'),all=$('all'),cs=$('cs'),st=$('st');
 const dL=$('dList'),fl=$('fl'),ul=$('ul');
 let memos=[],cur,preview=true,timer,sel=0,view=[];
 try{memos=JSON.parse(localStorage.getItem(KM)||'[]')}catch(e){}
@@ -40,9 +40,13 @@ const doNew=()=>{save();load(newMemo(),false);ed.focus()};
 
 /* import / export */
 const fi=document.createElement('input');fi.type='file';fi.accept='.md,.markdown,.txt,.html,.htm,text/*';
-fi.onchange=async()=>{const f=fi.files[0];fi.value='';if(!f)return;const t=await f.text();
-  if(!title(t)){alert('This file has no visible text, so it was not imported.');return}
+fi.multiple=true;
+const importFile=async f=>{
+  if(!/\.(md|markdown|txt|html?)$/i.test(f.name)&&!(f.type||'').startsWith('text/')){alert('Only Markdown, HTML, and text files can be opened: '+f.name);return}
+  const t=await f.text();
+  if(!title(t)){alert('This file has no visible text, so it was not imported: '+f.name);return}
   save();const m=newMemo();m.text=t;m.name=f.name.replace(/\.[^.]+$/,'');cur=m;save();load(m,true)};
+fi.onchange=async()=>{const fs=[...fi.files];fi.value='';for(const f of fs)await importFile(f)};
 const doImport=()=>fi.click();
 const doExport=()=>{if(!title(cur.text)){alert('Add some text before exporting.');return}save();
   const h=isHtml(cur.text),a=document.createElement('a');
@@ -54,14 +58,14 @@ const stat=t=>st.textContent=t;
 const openFind=()=>{if(!preview){const s=ed.value.slice(ed.selectionStart,ed.selectionEnd);if(s&&!s.includes('\n'))kw.value=s}
   if(!dF.open)dF.showModal();kw.focus();kw.select()};
 const find=()=>{const k=kw.value;if(!k)return false;if(preview)setMode(false);
-  const t=ed.value.toLowerCase(),q=k.toLowerCase();let i=t.indexOf(q,ed.selectionEnd);if(i<0)i=t.indexOf(q);
+  const t=cs.checked?ed.value:ed.value.toLowerCase(),q=cs.checked?k:k.toLowerCase();let i=t.indexOf(q,ed.selectionEnd);if(i<0)i=t.indexOf(q);
   if(i<0){stat('Not found');return false}
   ed.setSelectionRange(i,i+k.length);const ln=ed.value.slice(0,i).split('\n').length-1;
   ed.scrollTop=Math.max(0,ln*parseFloat(getComputedStyle(ed).lineHeight)-ed.clientHeight/2);stat('Found');return true};
 const replace=()=>{const k=kw.value;if(!k)return;if(preview)setMode(false);const r=rp.value;
-  if(all.checked){let n=0;ed.value=ed.value.replace(new RegExp(k.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'gi'),()=>(n++,r));stat(n+' replaced');changed();return}
+  if(all.checked){let n=0;ed.value=ed.value.replace(new RegExp(k.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),cs.checked?'g':'gi'),()=>(n++,r));stat(n+' replaced');changed();return}
   const a=ed.selectionStart,b=ed.selectionEnd;
-  if(a!==b&&ed.value.slice(a,b).toLowerCase()===k.toLowerCase()){ed.setRangeText(r,a,b,'end');changed()}
+  if(a!==b&&(cs.checked?ed.value.slice(a,b)===k:ed.value.slice(a,b).toLowerCase()===k.toLowerCase())){ed.setRangeText(r,a,b,'end');changed()}
   find()};
 
 /* list */
@@ -88,7 +92,7 @@ bg.addEventListener('input',()=>{cur.bg=bg.value;applyBg();changed()});
 $('bRst').onclick=()=>{cur.bg='';applyBg();changed()};
 $('bNew').onclick=doNew;$('bImp').onclick=doImport;$('bExp').onclick=doExport;$('bPrev').onclick=()=>rotate(-1);$('bNext').onclick=()=>rotate(1);$('bFind').onclick=openFind;$('bList').onclick=openList;
 $('xF').onclick=()=>dF.close();$('xL').onclick=()=>dL.close();
-$('bDoFind').onclick=find;$('bDoRep').onclick=replace;$('bDelAll').onclick=delAll;
+$('bDoRep').onclick=replace;$('bDelAll').onclick=delAll;
 kw.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.isComposing){e.preventDefault();find()}});
 rp.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.isComposing){e.preventDefault();replace()}});
 fl.addEventListener('input',()=>{sel=0;drawList()});
@@ -103,9 +107,9 @@ dL.addEventListener('keydown',e=>{if(e.isComposing)return;const k=e.key,inF=docu
 const kc={'[':'BracketLeft',']':'BracketRight'};
 if(navigator.keyboard&&navigator.keyboard.getLayoutMap)navigator.keyboard.getLayoutMap().then(m=>{for(const[c,v]of m)if(v==='['||v===']')kc[v]=c}).catch(()=>{});
 document.addEventListener('keydown',e=>{if(dL.open)return;const c=e.ctrlKey||e.metaKey,k=e.key.toLowerCase();
-  if(dF.open){if(c&&k==='f'){e.preventDefault();kw.focus();kw.select()}return}
+  if(dF.open){if(e.key==='F9'){e.preventDefault();kw.focus();kw.select()}return}
   const run=f=>{e.preventDefault();f()},al=e.altKey&&!c,kb=x=>e.key===x||e.code===kc[x];
-  if(c&&k==='n')run(doNew);else if(c&&k==='o')run(doImport);else if(c&&k==='s')run(doExport);else if(c&&k==='f')run(openFind);
+  if(e.key==='F11')run(doNew);else if(c&&k==='o')run(doImport);else if(c&&k==='s')run(doExport);else if(e.key==='F9')run(openFind);
   else if(al&&kb(']'))run(()=>rotate(1));else if(al&&kb('['))run(()=>rotate(-1));else if(e.key==='F10')run(openList);else if(e.key==='F2')run(()=>setMode(!preview,true))});
 pv.addEventListener('click',e=>{const a=e.target.closest('a[href]');if(!a||(a.getAttribute('href')||'').startsWith('#'))return;
   e.preventDefault();window.open(a.href,'_blank','noopener,noreferrer')});
@@ -114,6 +118,14 @@ ed.addEventListener('scroll',onScroll);pv.addEventListener('scroll',onScroll);
 const flush=()=>{if(cur&&!ed.hidden)cur.text=ed.value;if(cur)save()};
 addEventListener('pagehide',flush);document.addEventListener('visibilitychange',()=>{if(document.hidden)flush()});
 new ResizeObserver(()=>box.style.setProperty('--hh',bar.offsetHeight+'px')).observe(bar);
+
+/* drag & drop files */
+let dc=0;const hasF=e=>e.dataTransfer&&[...e.dataTransfer.types].includes('Files');
+addEventListener('dragenter',e=>{if(!hasF(e))return;e.preventDefault();dc++;document.body.classList.add('drop')});
+addEventListener('dragover',e=>{if(hasF(e)){e.preventDefault();e.dataTransfer.dropEffect='copy'}});
+addEventListener('dragleave',e=>{if(hasF(e)&&--dc<=0){dc=0;document.body.classList.remove('drop')}});
+addEventListener('drop',async e=>{if(!hasF(e))return;e.preventDefault();dc=0;document.body.classList.remove('drop');
+  const fs=[...e.dataTransfer.files];if(dL.open)dL.close();if(dF.open)dF.close();for(const f of fs)await importFile(f)});
 
 /* start: last used memo, in preview */
 const last=memos.find(m=>m.id===localStorage.getItem(KC))||memos.slice().sort((a,b)=>b.updated-a.updated)[0];
