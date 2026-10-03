@@ -86,7 +86,7 @@ ed.addEventListener('input',changed);
 sw.addEventListener('change',()=>setMode(sw.checked,true));
 bg.addEventListener('input',()=>{cur.bg=bg.value;applyBg();changed()});
 $('bRst').onclick=()=>{cur.bg='';applyBg();changed()};
-$('bNew').onclick=doNew;$('bImp').onclick=doImport;$('bExp').onclick=doExport;$('bFind').onclick=openFind;$('bList').onclick=openList;
+$('bNew').onclick=doNew;$('bImp').onclick=doImport;$('bExp').onclick=doExport;$('bPrev').onclick=()=>rotate(-1);$('bNext').onclick=()=>rotate(1);$('bFind').onclick=openFind;$('bList').onclick=openList;
 $('xF').onclick=()=>dF.close();$('xL').onclick=()=>dL.close();
 $('bDoFind').onclick=find;$('bDoRep').onclick=replace;$('bDelAll').onclick=delAll;
 kw.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.isComposing){e.preventDefault();find()}});
@@ -99,11 +99,14 @@ dL.addEventListener('keydown',e=>{if(e.isComposing)return;const k=e.key,inF=docu
   else if(e.ctrlKey&&k==='p'||k==='ArrowUp')mv(-1);
   else if(k==='Delete'&&(!inF||fl.selectionStart===fl.value.length)){e.preventDefault();if(view[sel])del(view[sel])}
   else if((k===' '&&(!inF||!fl.value))||k==='Enter'){e.preventDefault();if(view[sel])openMemo(view[sel])}});
+/* bracket keys differ by keyboard layout and Option on macOS, so map by layout */
+const kc={'[':'BracketLeft',']':'BracketRight'};
+if(navigator.keyboard&&navigator.keyboard.getLayoutMap)navigator.keyboard.getLayoutMap().then(m=>{for(const[c,v]of m)if(v==='['||v===']')kc[v]=c}).catch(()=>{});
 document.addEventListener('keydown',e=>{if(dL.open)return;const c=e.ctrlKey||e.metaKey,k=e.key.toLowerCase();
   if(dF.open){if(c&&k==='f'){e.preventDefault();kw.focus();kw.select()}return}
-  const run=f=>{e.preventDefault();f()};
-  if(c&&k==='n')run(doNew);else if(c&&k==='o')run(doImport);else if(c&&k==='e')run(doExport);else if(c&&k==='f')run(openFind);
-  else if(c&&e.key===']')run(()=>rotate(1));else if(c&&e.key==='[')run(()=>rotate(-1));else if(e.key==='F10')run(openList);else if(e.key==='F2')run(()=>setMode(!preview,true))});
+  const run=f=>{e.preventDefault();f()},al=e.altKey&&!c,kb=x=>e.key===x||e.code===kc[x];
+  if(c&&k==='n')run(doNew);else if(c&&k==='o')run(doImport);else if(c&&k==='s')run(doExport);else if(c&&k==='f')run(openFind);
+  else if(al&&kb(']'))run(()=>rotate(1));else if(al&&kb('['))run(()=>rotate(-1));else if(e.key==='F10')run(openList);else if(e.key==='F2')run(()=>setMode(!preview,true))});
 pv.addEventListener('click',e=>{const a=e.target.closest('a[href]');if(!a||(a.getAttribute('href')||'').startsWith('#'))return;
   e.preventDefault();window.open(a.href,'_blank','noopener,noreferrer')});
 let ly=0;const onScroll=e=>{const y=e.target.scrollTop;if(y>ly+8&&y>60)bar.classList.add('hide');else if(y<ly-8||y<=0)bar.classList.remove('hide');ly=y};

@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Help - Light Weight Simple Memo</title>
+<meta name="description" content="How to use Light Weight Simple Memo, plus open-source licenses and credits.">
+<meta name="theme-color" content="#2f9e6b">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<style>
+:root{--bg:#eef1ef;--paper:#fff;--ink:#16201b;--line:#bfc8c3;--accent:#2f9e6b;--link:#1b6fb5;color-scheme:light}
+@media(prefers-color-scheme:dark){:root{--bg:#0e1311;--paper:#171d1a;--ink:#e6ece8;--line:#34403a;--accent:#4cc38a;--link:#7db8ee;color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;padding:16px;background:var(--bg);color:var(--ink);font:16px/1.7 system-ui,-apple-system,"Hiragino Sans","Yu Gothic UI",sans-serif}
+main{max-width:780px;margin:0 auto;padding:8px clamp(16px,4vw,36px) 32px;background:var(--paper);border:1px solid var(--line);border-radius:8px}
+h1{font-size:1.6rem;margin:.9em 0 .2em}h2{font-size:1.2rem;margin:1.8em 0 .4em;padding-bottom:.2em;border-bottom:2px solid var(--accent)}
+a{color:var(--link)}
+table{border-collapse:collapse;width:100%}th,td{border:1px solid var(--line);padding:5px 10px;text-align:left;vertical-align:top}
+kbd{font:.9em ui-monospace,Menlo,Consolas,monospace;border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;padding:0 .4em;white-space:nowrap}
+pre{white-space:pre-wrap;overflow-wrap:anywhere;padding:12px;border:1px solid var(--line);border-radius:6px;font-size:.85rem;line-height:1.5}
+.sub{opacity:.7;margin:0}
+</style>
+</head>
+<body>
+<main>
+<h1>Light Weight Simple Memo</h1>
+<p class="sub">A lightweight memo pad for Markdown and HTML. Works offline as an installable app (PWA).</p>
+
+<h2>Basics</h2>
+<ul>
+<li>Type in the editor. Every change is <b>saved automatically</b> in your browser (local storage on this device). Nothing is sent to a server.</li>
+<li>The <b>switch</b> in the header toggles between <b>Preview</b> (on) and <b>Edit</b> (off). The app opens the last memo you used, in preview.</li>
+<li>Memos can be written in <b>Markdown</b> or <b>HTML</b>. A memo that starts with an HTML tag is treated as HTML. In preview, scripts, styles, and event attributes are removed for safety.</li>
+<li>Links in the preview open in a <b>new tab</b>.</li>
+<li><b>Title</b>: the first line that has visible text (Markdown or HTML marks are stripped). An imported memo uses its <b>file name</b> instead. The title is also shown in the browser tab. A memo with no visible text is not saved.</li>
+<li>The color button changes the memo's <b>background color</b>; the circular arrow resets it.</li>
+<li>Each memo has an internal ID, used for editing and deleting.</li>
+<li>The header hides while you scroll down and returns when you scroll up.</li>
+</ul>
+
+<h2>Header buttons</h2>
+<table>
+<tr><th>Button</th><th>Action</th></tr>
+<tr><td>New (file with plus)</td><td>Start a new memo.</td></tr>
+<tr><td>Import (arrow down)</td><td>Open a .md, .markdown, .txt, .html, or .htm file as a new memo.</td></tr>
+<tr><td>Export (arrow up)</td><td>Download the current memo as .md or .html.</td></tr>
+<tr><td>Find (magnifier)</td><td>Find and replace. Tick <b>All</b> to replace every match at once.</td></tr>
+<tr><td>List (lines)</td><td>Open the memo list.</td></tr>
+<tr><td>&lt; &nbsp; &gt;</td><td>Go to the previous / next memo. Wraps around at both ends.</td></tr>
+<tr><td>? (circle)</td><td>Open this page.</td></tr>
+</table>
+
+<h2>Keyboard shortcuts</h2>
+<table>
+<tr><th>Key</th><th>Action</th></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>N</kbd></td><td>New</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>O</kbd></td><td>Import from file</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>S</kbd></td><td>Export</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>F</kbd></td><td>Find / replace</td></tr>
+<tr><td><kbd>F10</kbd></td><td>Memo list</td></tr>
+<tr><td><kbd>F2</kbd></td><td>Switch preview / edit</td></tr>
+<tr><td><kbd>Alt</kbd>+<kbd>]</kbd> / <kbd>Alt</kbd>+<kbd>[</kbd></td><td>Next / previous memo</td></tr>
+</table>
+<p>On macOS, <kbd>Ctrl</kbd> can be replaced by <kbd>Cmd</kbd>. Some browsers reserve shortcuts such as <kbd>Ctrl</kbd>+<kbd>N</kbd>; they work reliably when the app is installed as a PWA.</p>
+
+<h2>Memo list</h2>
+<ul>
+<li>Memos are sorted by most recently used. The <b>Filter</b> box narrows the list as you type.</li>
+<li><kbd>Ctrl</kbd>+<kbd>N</kbd> (or <kbd>&darr;</kbd>) next item, <kbd>Ctrl</kbd>+<kbd>P</kbd> (or <kbd>&uarr;</kbd>) previous item.</li>
+<li><kbd>Space</kbd> or <kbd>Enter</kbd> opens the selected memo and closes the list. While the Filter box has text, <kbd>Space</kbd> types a space; use <kbd>Enter</kbd>.</li>
+<li><kbd>Delete</kbd> deletes the selected memo after confirmation. The &times; button on a row does the same; <b>Delete all</b> removes every memo.</li>
+<li><kbd>Esc</kbd> or the &#10005; button closes the list. The same applies to Find.</li>
+</ul>
+
+<h2>Open-source licenses</h2>
+<p>This app uses <a href="https://github.com/markedjs/marked" target="_blank" rel="noopener">marked</a> to render Markdown. It is loaded from the jsDelivr CDN and cached for offline use.</p>
+<pre>The MIT License (MIT)
+
+Copyright (c) 2018+, MarkedJS (https://github.com/markedjs/marked)
+Copyright (c) 2011-2018, Christopher Jeffrey (https://github.com/chjj/)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.</pre>
+
+<h2>Credits</h2>
+<p>Created by <b>kwrsin</b> + <b>Claude</b> (Anthropic).</p>
+</main>
+</body>
+</html>
