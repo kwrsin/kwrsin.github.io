@@ -56,12 +56,24 @@ const doExport=()=>{if(!title(cur.text)){alert('Add some text before exporting.'
 /* find & replace */
 const stat=t=>st.textContent=t;
 const openFind=()=>{if(!preview){const s=ed.value.slice(ed.selectionStart,ed.selectionEnd);if(s&&!s.includes('\n'))kw.value=s}
-  if(!dF.open)dF.showModal();kw.focus();kw.select()};
+  if(!dF.open)dF.show();kw.focus();kw.select()};
+/* y position of a character offset inside the textarea (accounts for soft wraps) */
+const yOf=i=>{const cs=getComputedStyle(ed),m=document.createElement('div');
+  m.style.cssText='position:absolute;visibility:hidden;top:0;left:0;box-sizing:border-box;white-space:pre-wrap;overflow-wrap:break-word;width:'+ed.clientWidth+'px';
+  ['fontFamily','fontSize','fontWeight','lineHeight','letterSpacing','paddingLeft','paddingRight','tabSize'].forEach(p=>m.style[p]=cs[p]);
+  m.textContent=ed.value.slice(0,i);const s=document.createElement('span');s.textContent='|';m.append(s);document.body.append(m);
+  const y=s.offsetTop+(parseFloat(cs.paddingTop)||0);m.remove();return y};
+/* select the hit in the editor so it is highlighted, keep the dialog open, scroll the hit below the dialog */
+const showHit=(i,len)=>{
+  if(matchMedia('(pointer:coarse)').matches)ed.readOnly=true;  /* no soft keyboard while searching */
+  ed.focus({preventScroll:true});ed.setSelectionRange(i,i+len);
+  const db=dF.open?dF.getBoundingClientRect().bottom-ed.getBoundingClientRect().top:0;
+  const want=Math.min(Math.max(db+28,ed.clientHeight*.4),ed.clientHeight-120);
+  ed.scrollTop=Math.max(0,yOf(i)-want)};
 const find=()=>{const k=kw.value;if(!k)return false;if(preview)setMode(false);
   const t=cs.checked?ed.value:ed.value.toLowerCase(),q=cs.checked?k:k.toLowerCase();let i=t.indexOf(q,ed.selectionEnd);if(i<0)i=t.indexOf(q);
   if(i<0){stat('Not found');return false}
-  ed.setSelectionRange(i,i+k.length);const ln=ed.value.slice(0,i).split('\n').length-1;
-  ed.scrollTop=Math.max(0,ln*parseFloat(getComputedStyle(ed).lineHeight)-ed.clientHeight/2);stat('Found');return true};
+  showHit(i,k.length);stat('Found');return true};
 const replace=()=>{const k=kw.value;if(!k)return;if(preview)setMode(false);const r=rp.value;
   if(all.checked){let n=0;ed.value=ed.value.replace(new RegExp(k.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),cs.checked?'g':'gi'),()=>(n++,r));stat(n+' replaced');changed();return}
   const a=ed.selectionStart,b=ed.selectionEnd;
@@ -87,15 +99,16 @@ const delAll=()=>{if(!memos.length||!confirm('Delete all '+memos.length+' memos?
 
 /* events */
 ed.addEventListener('input',changed);
-ed.addEventListener('focus',()=>document.body.classList.add('editing'));
-ed.addEventListener('blur',()=>document.body.classList.remove('editing'));
+ed.addEventListener('focus',()=>{if(!ed.readOnly)document.body.classList.add('editing')});
+ed.addEventListener('blur',()=>{ed.readOnly=false;document.body.classList.remove('editing')});
+ed.addEventListener('pointerdown',()=>{if(ed.readOnly){ed.readOnly=false;ed.blur()}});
 $('done').onclick=()=>ed.blur();
 sw.addEventListener('change',()=>setMode(sw.checked,true));
 bg.addEventListener('input',()=>{cur.bg=bg.value;applyBg();changed()});
 $('bRst').onclick=()=>{cur.bg='';applyBg();changed()};
 $('bNew').onclick=doNew;$('bImp').onclick=doImport;$('bExp').onclick=doExport;$('bPrev').onclick=()=>rotate(-1);$('bNext').onclick=()=>rotate(1);$('bFind').onclick=openFind;$('bList').onclick=openList;
 $('xF').onclick=()=>dF.close();$('xL').onclick=()=>dL.close();
-$('bDoRep').onclick=replace;$('bDelAll').onclick=delAll;
+$('bDoFind').onclick=find;$('bDoRep').onclick=replace;$('bDelAll').onclick=delAll;
 kw.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.isComposing){e.preventDefault();find()}});
 rp.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.isComposing){e.preventDefault();replace()}});
 fl.addEventListener('input',()=>{sel=0;drawList()});
@@ -110,7 +123,7 @@ dL.addEventListener('keydown',e=>{if(e.isComposing)return;const k=e.key,inF=docu
 const kc={'[':'BracketLeft',']':'BracketRight'};
 if(navigator.keyboard&&navigator.keyboard.getLayoutMap)navigator.keyboard.getLayoutMap().then(m=>{for(const[c,v]of m)if(v==='['||v===']')kc[v]=c}).catch(()=>{});
 document.addEventListener('keydown',e=>{if(dL.open)return;const c=e.ctrlKey||e.metaKey,k=e.key.toLowerCase();
-  if(dF.open){if(e.key==='F9'){e.preventDefault();kw.focus();kw.select()}return}
+  if(dF.open){if(e.key==='F9'){e.preventDefault();kw.focus();kw.select()}else if(e.key==='Escape'){e.preventDefault();dF.close()}return}
   const run=f=>{e.preventDefault();f()},al=e.altKey&&!c,kb=x=>e.key===x||e.code===kc[x];
   if(e.key==='F11')run(doNew);else if(c&&k==='o')run(doImport);else if(c&&k==='s')run(doExport);else if(e.key==='F9')run(openFind);
   else if(al&&kb(']'))run(()=>rotate(1));else if(al&&kb('['))run(()=>rotate(-1));else if(e.key==='F10')run(openList);else if(e.key==='F2')run(()=>setMode(!preview,true))});
