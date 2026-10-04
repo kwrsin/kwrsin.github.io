@@ -18,3 +18,4 @@ Feel free to contact me, if you have any questions or comments.
 
 - <a href="/mefk/" target="_blank" rel="noopener noreferrer">MIND ELIXIR for Kwrsin(Simple Mind Map Tool)</a>
 - <a href="https://github.com/kwrsin/mini-local-filemanager" target="_blank" rel="noopener noreferrer">Mini Local File Manager</a>
+- <a href="/lwsm/" target="_blank" rel="noopener noreferrer">Light Weight Simple Memo</a>
