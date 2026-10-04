@@ -4,7 +4,7 @@ const KM='lwsm.memos',KC='lwsm.cur';
 const ed=$('ed'),pv=$('pv'),sw=$('sw'),bg=$('bg'),bar=$('bar'),box=$('content');
 const dF=$('dFind'),kw=$('kw'),rp=$('rp'),all=$('all'),cs=$('cs'),st=$('st');
 const dL=$('dList'),fl=$('fl'),ul=$('ul');
-let memos=[],cur,preview=true,timer,sel=0,view=[];
+let ly=0,memos=[],cur,preview=true,timer,sel=0,view=[];
 try{memos=JSON.parse(localStorage.getItem(KM)||'[]')}catch(e){}
 
 const newMemo=()=>({id:crypto.randomUUID?crypto.randomUUID():Date.now()+'-'+Math.random().toString(36).slice(2),text:'',bg:'',updated:Date.now()});
@@ -32,7 +32,7 @@ const render=t=>clean(isHtml(t)?t:(window.marked?marked.parse(t,{gfm:true,breaks
 const applyBg=()=>{const c=cur.bg;box.style.background=c;box.style.color=c?fg(c):'';box.style.setProperty('--link',c?fg(c):'');
   bg.value=c||(matchMedia('(prefers-color-scheme:dark)').matches?'#171d1a':'#ffffff')};
 const setMode=(p,focus)=>{preview=p;if(p)pv.innerHTML=render(cur.text);sw.checked=p;ed.hidden=p;pv.hidden=!p;bar.classList.remove('hide');if(!p&&focus)ed.focus()};
-const load=(m,p)=>{cur=m;setTitle();ed.value=m.text;applyBg();setMode(p);try{localStorage.setItem(KC,m.id)}catch(e){}};
+const load=(m,p)=>{cur=m;setTitle();ed.value=m.text;applyBg();ed.hidden=pv.hidden=false;ed.scrollTop=pv.scrollTop=0;ly=0;setMode(p);try{localStorage.setItem(KC,m.id)}catch(e){}};
 const rotate=d=>{save();if(!memos.length)return;const i=memos.findIndex(m=>m.id===cur.id);
   const n=memos[i<0?(d>0?0:memos.length-1):(i+d+memos.length)%memos.length];
   if(n.id===cur.id)return;n.updated=Date.now();load(n,preview);persist()};
@@ -87,6 +87,9 @@ const delAll=()=>{if(!memos.length||!confirm('Delete all '+memos.length+' memos?
 
 /* events */
 ed.addEventListener('input',changed);
+ed.addEventListener('focus',()=>document.body.classList.add('editing'));
+ed.addEventListener('blur',()=>document.body.classList.remove('editing'));
+$('done').onclick=()=>ed.blur();
 sw.addEventListener('change',()=>setMode(sw.checked,true));
 bg.addEventListener('input',()=>{cur.bg=bg.value;applyBg();changed()});
 $('bRst').onclick=()=>{cur.bg='';applyBg();changed()};
@@ -113,7 +116,7 @@ document.addEventListener('keydown',e=>{if(dL.open)return;const c=e.ctrlKey||e.m
   else if(al&&kb(']'))run(()=>rotate(1));else if(al&&kb('['))run(()=>rotate(-1));else if(e.key==='F10')run(openList);else if(e.key==='F2')run(()=>setMode(!preview,true))});
 pv.addEventListener('click',e=>{const a=e.target.closest('a[href]');if(!a||(a.getAttribute('href')||'').startsWith('#'))return;
   e.preventDefault();window.open(a.href,'_blank','noopener,noreferrer')});
-let ly=0;const onScroll=e=>{const y=e.target.scrollTop;if(y>ly+8&&y>60)bar.classList.add('hide');else if(y<ly-8||y<=0)bar.classList.remove('hide');ly=y};
+const onScroll=e=>{const y=e.target.scrollTop;if(y>ly+8&&y>60)bar.classList.add('hide');else if(y<ly-8||y<=0)bar.classList.remove('hide');ly=y};
 ed.addEventListener('scroll',onScroll);pv.addEventListener('scroll',onScroll);
 const flush=()=>{if(cur&&!ed.hidden)cur.text=ed.value;if(cur)save()};
 addEventListener('pagehide',flush);document.addEventListener('visibilitychange',()=>{if(document.hidden)flush()});
