@@ -144,6 +144,23 @@ addEventListener('dragleave',e=>{if(hasF(e)&&--dc<=0){dc=0;document.body.classLi
 addEventListener('drop',async e=>{if(!hasF(e))return;e.preventDefault();dc=0;document.body.classList.remove('drop');
   const fs=[...e.dataTransfer.files];if(dL.open)dL.close();if(dF.open)dF.close();for(const f of fs)await importFile(f)});
 
+/* swipe left/right in preview (touch only): next / previous memo */
+let sx=0,sy=0,dx=0,sm=null;
+const inHScroll=el=>{for(;el&&el!==pv;el=el.parentElement)if(el.scrollWidth>el.clientWidth+1&&/auto|scroll/.test(getComputedStyle(el).overflowX))return true;return false};
+const back=()=>{pv.style.transition='transform .18s';pv.style.transform=''};
+pv.addEventListener('touchstart',e=>{dx=0;sm=null;const t=e.touches[0];
+  if(!preview||memos.length<2||e.touches.length!==1||t.clientX<24||t.clientX>innerWidth-24||pv.scrollWidth>pv.clientWidth+1||inHScroll(e.target)){sm='x';return}
+  sx=t.clientX;sy=t.clientY},{passive:true});
+pv.addEventListener('touchmove',e=>{if(sm==='x'||sm==='v')return;const t=e.touches[0];dx=t.clientX-sx;const dy=t.clientY-sy;
+  if(!sm){if(Math.abs(dx)<10&&Math.abs(dy)<10)return;sm=Math.abs(dx)>Math.abs(dy)*1.5?'h':'v';if(sm==='h')pv.style.transition='none'}
+  if(sm==='h'){e.preventDefault();pv.style.transform='translateX('+dx+'px)'}},{passive:false});
+pv.addEventListener('touchend',()=>{const h=sm==='h';sm=null;if(!h)return;
+  const w=pv.clientWidth;if(Math.abs(dx)<Math.min(110,w*.25)){back();return}
+  const d=dx<0?1:-1;pv.style.transition='transform .14s ease-in';pv.style.transform='translateX('+(-d*w)+'px)';
+  setTimeout(()=>{rotate(d);pv.style.transition='none';pv.style.transform='translateX('+(d*w)+'px)';void pv.offsetWidth;
+    pv.style.transition='transform .18s ease-out';pv.style.transform=''},150)});
+pv.addEventListener('touchcancel',()=>{if(sm==='h')back();sm=null});
+
 /* start: last used memo, in preview */
 const last=memos.find(m=>m.id===localStorage.getItem(KC))||memos.slice().sort((a,b)=>b.updated-a.updated)[0];
 if(last)load(last,true);else{load(newMemo(),false);ed.focus()}
