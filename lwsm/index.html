@@ -57,6 +57,13 @@
   <p id="st" role="status"></p>
 </dialog>
 
+<dialog id="dTitle" aria-label="Rename memo">
+  <button class="x" id="xT" aria-label="Close">✕</button>
+  <label class="fr">Title <input id="ti" maxlength="80" autocomplete="off"></label>
+  <p class="hint">Leave empty to use the first line of the memo.</p>
+  <div class="foot"><button id="bTi">Save</button></div>
+</dialog>
+
 <dialog id="dList" aria-label="Memo list">
   <button class="x" id="xL" aria-label="Close">✕</button>
   <label class="fr">Filter <input id="fl" autocomplete="off"></label>

@@ -7,7 +7,7 @@ body{margin:0;padding:max(8px,env(safe-area-inset-top)) max(8px,env(safe-area-in
 #content{position:relative;height:100%;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--paper);color:var(--ink)}
 #bar{position:absolute;z-index:2;top:0;left:0;right:0;padding:12px 14px;background:inherit;color:inherit;border-bottom:1px solid var(--line);transition:transform .2s}
 #bar.hide{transform:translateY(-101%)}
-#ttl{text-align:center;font-weight:600;line-height:1.5;min-height:1.5em;margin:0 0 8px;padding:0 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#ttl{cursor:pointer;user-select:none;-webkit-user-select:none;touch-action:manipulation;text-align:center;font-weight:600;line-height:1.5;min-height:1.5em;margin:0 0 8px;padding:0 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tools{display:flex;flex-wrap:nowrap;gap:8px;align-items:center;overflow-x:auto}
 .btn{text-decoration:none}
 .tools button,.tools .btn{display:grid;place-items:center;width:42px;height:42px;padding:0;flex:0 0 auto}
@@ -38,6 +38,8 @@ input[type=color]{width:42px;height:42px;flex:0 0 auto;padding:2px;border:1.5px 
 #pv blockquote{margin-left:0;padding-left:14px;border-left:3px solid var(--accent);opacity:.85}
 #pv table{border-collapse:collapse}#pv th,#pv td{border:1px solid var(--line);padding:4px 10px}
 dialog{width:min(520px,calc(100vw - 24px));border:1.5px solid var(--ink);border-radius:8px;background:var(--paper);color:var(--ink);padding:44px 22px 22px}
+#dTitle{position:fixed;top:12px;bottom:auto}
+.hint{margin:10px 0 0;font-size:.85rem;opacity:.7}
 #dFind{position:fixed;top:12px;bottom:auto;z-index:10;box-shadow:0 6px 24px rgba(0,0,0,.35)}
 dialog::backdrop{background:rgba(0,0,0,.5)}
 dialog input:not([type=checkbox]){width:100%;font:inherit;color:inherit;background:transparent;border:1.5px solid var(--ink);border-radius:4px;padding:6px 10px}

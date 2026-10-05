@@ -3,6 +3,7 @@ const $=id=>document.getElementById(id);
 const KM='lwsm.memos',KC='lwsm.cur';
 const ed=$('ed'),pv=$('pv'),sw=$('sw'),bg=$('bg'),bar=$('bar'),box=$('content');
 const dF=$('dFind'),kw=$('kw'),rp=$('rp'),all=$('all'),cs=$('cs'),st=$('st');
+const dT=$('dTitle'),ti=$('ti'),tt=$('ttl');
 const dL=$('dList'),fl=$('fl'),ul=$('ul');
 let ly=0,memos=[],cur,preview=true,timer,sel=0,view=[];
 try{memos=JSON.parse(localStorage.getItem(KM)||'[]')}catch(e){}
@@ -12,7 +13,7 @@ const strip=l=>l.replace(/<[^>]*>/g,'').replace(/^[\s#>*\-+`_~|=]+/,'').trim();
 const title=t=>{for(const l of t.split('\n')){const s=strip(l);if(s)return s.slice(0,80)}return''};
 const ttl=m=>m.name||title(m.text);
 const BASE='Light Weight Simple Memo';
-const setTitle=()=>{const t=cur&&ttl(cur);document.title=t?t+' - '+BASE:BASE;const h=$('ttl');h.textContent=t||'Untitled';h.title=t||'';h.style.opacity=t?'':'.5'};
+const setTitle=()=>{const t=cur&&ttl(cur);document.title=t?t+' - '+BASE:BASE;const h=$('ttl');h.textContent=t||'Untitled';h.title=t?t+'\n(Double-click to rename)':'';h.style.opacity=t?'':'.5'};
 const isHtml=t=>/^\s*<(!doctype|html|head|body|[a-z][\w-]*)[\s>\/]/i.test(t);
 const fg=c=>{const n=parseInt(c.slice(1),16);return((n>>16)*299+(n>>8&255)*587+(n&255)*114)/1000>150?'#111':'#f2f2f2'};
 const esc=t=>t.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
@@ -123,7 +124,7 @@ dL.addEventListener('keydown',e=>{if(e.isComposing)return;const k=e.key,inF=docu
 /* bracket keys differ by keyboard layout and Option on macOS, so map by layout */
 const kc={'[':'BracketLeft',']':'BracketRight'};
 if(navigator.keyboard&&navigator.keyboard.getLayoutMap)navigator.keyboard.getLayoutMap().then(m=>{for(const[c,v]of m)if(v==='['||v===']')kc[v]=c}).catch(()=>{});
-document.addEventListener('keydown',e=>{if(dL.open)return;const c=e.ctrlKey||e.metaKey,k=e.key.toLowerCase();
+document.addEventListener('keydown',e=>{if(dL.open||dT.open)return;const c=e.ctrlKey||e.metaKey,k=e.key.toLowerCase();
   if(dF.open){if(e.key==='F9'){e.preventDefault();kw.focus();kw.select()}else if(e.key==='Escape'){e.preventDefault();dF.close()}return}
   const run=f=>{e.preventDefault();f()},al=e.altKey&&!c,kb=x=>e.key===x||e.code===kc[x];
   if(e.key==='F11')run(doNew);else if(c&&k==='o')run(doImport);else if(c&&k==='s')run(doExport);else if(e.key==='F9')run(openFind);
@@ -143,6 +144,16 @@ addEventListener('dragover',e=>{if(hasF(e)){e.preventDefault();e.dataTransfer.dr
 addEventListener('dragleave',e=>{if(hasF(e)&&--dc<=0){dc=0;document.body.classList.remove('drop')}});
 addEventListener('drop',async e=>{if(!hasF(e))return;e.preventDefault();dc=0;document.body.classList.remove('drop');
   const fs=[...e.dataTransfer.files];if(dL.open)dL.close();if(dF.open)dF.close();for(const f of fs)await importFile(f)});
+
+/* rename: double-click / double-tap the title */
+const openTitle=()=>{if(dT.open)return;if(!title(cur.text)){alert('Type some text first, then rename the memo.');return}ti.value=ttl(cur);dT.showModal();ti.focus();ti.select()};
+const saveTitle=()=>{const v=ti.value.trim().replace(/\s+/g,' ').slice(0,80);if(v)cur.name=v;else delete cur.name;setTitle();save();dT.close()};
+tt.addEventListener('dblclick',openTitle);
+let tapT=0,tapX=0,tapY=0;
+tt.addEventListener('pointerup',e=>{if(e.pointerType!=='touch')return;const n=Date.now();
+  if(n-tapT<350&&Math.abs(e.clientX-tapX)<30&&Math.abs(e.clientY-tapY)<30){tapT=0;openTitle()}else{tapT=n;tapX=e.clientX;tapY=e.clientY}});
+$('bTi').onclick=saveTitle;$('xT').onclick=()=>dT.close();
+ti.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.isComposing){e.preventDefault();saveTitle()}});
 
 /* swipe left/right in preview (touch only): next / previous memo */
 let sx=0,sy=0,dx=0,sm=null;
