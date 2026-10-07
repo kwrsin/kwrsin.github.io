@@ -126,6 +126,7 @@ dL.addEventListener('keydown',e=>{if(e.isComposing)return;const k=e.key,inF=docu
 const kc={'[':'BracketLeft',']':'BracketRight'};
 if(navigator.keyboard&&navigator.keyboard.getLayoutMap)navigator.keyboard.getLayoutMap().then(m=>{for(const[c,v]of m)if(v==='['||v===']')kc[v]=c}).catch(()=>{});
 document.addEventListener('keydown',e=>{if(dL.open||dT.open)return;const c=e.ctrlKey||e.metaKey,k=e.key.toLowerCase();
+  if(e.altKey&&!c&&(e.code==='Comma'||e.code==='Period')){e.preventDefault();fsStep(e.code==='Comma'?-1:1);return}
   if(dS.open){if(e.key==='Escape'){e.preventDefault();dS.close()}return}
   if(dF.open){if(e.key==='F9'){e.preventDefault();kw.focus();kw.select()}else if(e.key==='Escape'){e.preventDefault();dF.close()}return}
   const run=f=>{e.preventDefault();f()},al=e.altKey&&!c,kb=x=>e.key===x||e.code===kc[x];
@@ -183,6 +184,9 @@ const openSet=()=>{if(!dS.open)dS.show();fsr.focus()};
 fsr.addEventListener('input',()=>{fsLv=+fsr.value;applyFs(true)});
 $('bFsR').onclick=()=>{fsLv=3;applyFs(true)};
 $('bSet').onclick=openSet;$('xS').onclick=()=>dS.close();
+const toast=$('toast');let toastT;
+const fsStep=d=>{const n=Math.max(1,Math.min(5,fsLv+d));fsLv=n;applyFs(true);
+  toast.textContent='Text size: '+FN[n-1]+' ('+FS[n-1]+'px)';toast.classList.add('on');clearTimeout(toastT);toastT=setTimeout(()=>toast.classList.remove('on'),1200)};
 applyFs();
 
 /* start: last used memo, in preview */

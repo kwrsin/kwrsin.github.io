@@ -71,4 +71,6 @@ body.drop #content::after{content:"Drop a file to open it";position:absolute;ins
 #fo{opacity:.75}
 #ed,#pv{font-size:var(--fs,16px)}
 @supports(-webkit-touch-callout:none){#ed{font-size:max(var(--fs,16px),16px)}}
+#toast{position:fixed;top:calc(env(safe-area-inset-top,0px) + 16px);left:50%;transform:translateX(-50%);z-index:20;padding:8px 16px;border-radius:20px;background:var(--ink);color:var(--paper);font-size:.9rem;opacity:0;pointer-events:none;transition:opacity .2s}
+#toast.on{opacity:.92}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
