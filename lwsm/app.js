@@ -3,6 +3,7 @@ const $=id=>document.getElementById(id);
 const KM='lwsm.memos',KC='lwsm.cur';
 const ed=$('ed'),pv=$('pv'),sw=$('sw'),bg=$('bg'),bar=$('bar'),box=$('content');
 const dF=$('dFind'),kw=$('kw'),rp=$('rp'),all=$('all'),cs=$('cs'),st=$('st');
+const dS=$('dSet'),fsr=$('fs');
 const dT=$('dTitle'),ti=$('ti'),tt=$('ttl');
 const dL=$('dList'),fl=$('fl'),ul=$('ul');
 let ly=0,memos=[],cur,preview=true,timer,sel=0,view=[];
@@ -125,6 +126,7 @@ dL.addEventListener('keydown',e=>{if(e.isComposing)return;const k=e.key,inF=docu
 const kc={'[':'BracketLeft',']':'BracketRight'};
 if(navigator.keyboard&&navigator.keyboard.getLayoutMap)navigator.keyboard.getLayoutMap().then(m=>{for(const[c,v]of m)if(v==='['||v===']')kc[v]=c}).catch(()=>{});
 document.addEventListener('keydown',e=>{if(dL.open||dT.open)return;const c=e.ctrlKey||e.metaKey,k=e.key.toLowerCase();
+  if(dS.open){if(e.key==='Escape'){e.preventDefault();dS.close()}return}
   if(dF.open){if(e.key==='F9'){e.preventDefault();kw.focus();kw.select()}else if(e.key==='Escape'){e.preventDefault();dF.close()}return}
   const run=f=>{e.preventDefault();f()},al=e.altKey&&!c,kb=x=>e.key===x||e.code===kc[x];
   if(e.key==='F11')run(doNew);else if(c&&k==='o')run(doImport);else if(c&&k==='s')run(doExport);else if(e.key==='F9')run(openFind);
@@ -171,6 +173,17 @@ pv.addEventListener('touchend',()=>{const h=sm==='h';sm=null;if(!h)return;
   setTimeout(()=>{rotate(d);pv.style.transition='none';pv.style.transform='translateX('+(d*w)+'px)';void pv.offsetWidth;
     pv.style.transition='transform .18s ease-out';pv.style.transform=''},150)});
 pv.addEventListener('touchcancel',()=>{if(sm==='h')back();sm=null});
+
+/* settings: memo text size (5 levels, remembered) */
+const FS=[12,14,16,20,24],FN=['Extra small','Small','Medium','Large','Extra large'],KF='lwsm.fs';
+let fsLv=3;try{const v=+localStorage.getItem(KF);if(v>=1&&v<=5)fsLv=v}catch(e){}
+const applyFs=(keep)=>{document.documentElement.style.setProperty('--fs',FS[fsLv-1]+'px');fsr.value=fsLv;$('fo').textContent=FN[fsLv-1]+' ('+FS[fsLv-1]+'px)';
+  if(keep)try{localStorage.setItem(KF,fsLv)}catch(e){}};
+const openSet=()=>{if(!dS.open)dS.show();fsr.focus()};
+fsr.addEventListener('input',()=>{fsLv=+fsr.value;applyFs(true)});
+$('bFsR').onclick=()=>{fsLv=3;applyFs(true)};
+$('bSet').onclick=openSet;$('xS').onclick=()=>dS.close();
+applyFs();
 
 /* start: last used memo, in preview */
 const last=memos.find(m=>m.id===localStorage.getItem(KC))||memos.slice().sort((a,b)=>b.updated-a.updated)[0];
