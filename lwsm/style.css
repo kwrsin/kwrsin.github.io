@@ -38,7 +38,8 @@ input[type=color]{width:42px;height:42px;flex:0 0 auto;padding:2px;border:1.5px 
 #pv blockquote{margin-left:0;padding-left:14px;border-left:3px solid var(--accent);opacity:.85}
 #pv table{border-collapse:collapse}#pv th,#pv td{border:1px solid var(--line);padding:4px 10px}
 dialog{width:min(520px,calc(100vw - 24px));border:1.5px solid var(--ink);border-radius:8px;background:var(--paper);color:var(--ink);padding:44px 22px 22px}
-#dTitle{position:fixed;top:12px;bottom:auto}
+#dTitle,#dTags,#dMng,#dRest{position:fixed;top:12px;bottom:auto}
+dialog{max-height:calc(100dvh - 24px)}
 .hint{margin:10px 0 0;font-size:.85rem;opacity:.7}
 #dFind,#dSet{position:fixed;top:12px;bottom:auto;z-index:10;box-shadow:0 6px 24px rgba(0,0,0,.35)}
 dialog::backdrop{background:rgba(0,0,0,.5)}
@@ -73,4 +74,17 @@ body.drop #content::after{content:"Drop a file to open it";position:absolute;ins
 @supports(-webkit-touch-callout:none){#ed{font-size:max(var(--fs,16px),16px)}}
 #toast{position:fixed;top:calc(env(safe-area-inset-top,0px) + 16px);left:50%;transform:translateX(-50%);z-index:20;padding:8px 16px;border-radius:20px;background:var(--ink);color:var(--paper);font-size:.9rem;opacity:0;pointer-events:none;transition:opacity .2s}
 #toast.on{opacity:.92}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 12px}
+.chips:empty{display:none}
+.chip{border-radius:14px;padding:3px 10px;font-size:.85rem;border-width:1px}
+.chip.on{background:var(--accent);border-color:var(--accent);color:#fff}
+#tl{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px}
+#tl .chip{flex:0 0 auto}
+.mrow{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--line)}
+.mrow span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mrow button{padding:4px 10px;font-size:.85rem}
+.btns{display:flex;flex-wrap:wrap;gap:8px}
+.foot button+button{margin-left:8px}
+#ul li b{font-weight:400}
+#ul li i{font-style:normal;font-size:.8rem;opacity:.65;margin-left:.6em}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}

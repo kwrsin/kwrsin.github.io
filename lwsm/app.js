@@ -4,9 +4,10 @@ const KM='lwsm.memos',KC='lwsm.cur';
 const ed=$('ed'),pv=$('pv'),sw=$('sw'),bg=$('bg'),bar=$('bar'),box=$('content');
 const dF=$('dFind'),kw=$('kw'),rp=$('rp'),all=$('all'),cs=$('cs'),st=$('st');
 const dS=$('dSet'),fsr=$('fs');
+const dG=$('dTags'),gc=$('gc'),gs=$('gs'),gi=$('gi'),dM=$('dMng'),mg=$('mg'),dR=$('dRest'),tl=$('tl');
 const dT=$('dTitle'),ti=$('ti'),tt=$('ttl');
 const dL=$('dList'),fl=$('fl'),ul=$('ul');
-let ly=0,memos=[],cur,preview=true,timer,sel=0,view=[];
+let ly=0,memos=[],cur,tagSel=new Set(),rest=null,preview=true,timer,sel=0,view=[];
 try{memos=JSON.parse(localStorage.getItem(KM)||'[]')}catch(e){}
 
 const newMemo=()=>({id:crypto.randomUUID?crypto.randomUUID():Date.now()+'-'+Math.random().toString(36).slice(2),text:'',bg:'',updated:Date.now()});
@@ -41,9 +42,10 @@ const rotate=d=>{save();if(!memos.length)return;const i=memos.findIndex(m=>m.id=
 const doNew=()=>{save();load(newMemo(),false);ed.focus()};
 
 /* import / export */
-const fi=document.createElement('input');fi.type='file';fi.accept='.md,.markdown,.txt,.html,.htm,text/*';
+const fi=document.createElement('input');fi.type='file';fi.accept='.md,.markdown,.txt,.html,.htm,.json,text/*';
 fi.multiple=true;
 const importFile=async f=>{
+  if(/\.json$/i.test(f.name)){const p=parseBackup(await f.text());if(!p){alert('This is not a valid LWSM backup file: '+f.name);return}startRestore(p);return}
   if(!/\.(md|markdown|txt|html?)$/i.test(f.name)&&!(f.type||'').startsWith('text/')){alert('Only Markdown, HTML, and text files can be opened: '+f.name);return}
   const t=await f.text();
   if(!title(t)){alert('This file has no visible text, so it was not imported: '+f.name);return}
@@ -83,12 +85,12 @@ const replace=()=>{const k=kw.value;if(!k)return;if(preview)setMode(false);const
   find()};
 
 /* list */
-const drawList=()=>{const q=fl.value.trim().toLowerCase();
-  view=memos.slice().sort((a,b)=>b.updated-a.updated).filter(m=>!q||ttl(m).toLowerCase().includes(q)||m.text.toLowerCase().includes(q));
+const drawList=()=>{const q=fl.value.trim().toLowerCase();drawTagBar();
+  view=memos.slice().sort((a,b)=>b.updated-a.updated).filter(m=>(!q||ttl(m).toLowerCase().includes(q)||m.text.toLowerCase().includes(q))&&[...tagSel].every(k=>hasTag(m,k)));
   sel=Math.max(0,Math.min(sel,view.length-1));ul.innerHTML='';
   view.forEach((m,i)=>{const li=document.createElement('li');if(i===sel)li.className='on';
-    li.innerHTML='<span></span><button tabindex="-1" aria-label="Delete memo">×</button>';
-    li.firstChild.textContent=ttl(m);li.onclick=()=>openMemo(m);
+    li.innerHTML='<span><b></b><i></i></span><button tabindex="-1" aria-label="Delete memo">×</button>';
+    li.firstChild.firstChild.textContent=ttl(m);li.firstChild.lastChild.textContent=(m.tags||[]).map(t=>'#'+t).join(' ');li.onclick=()=>openMemo(m);
     li.lastChild.onclick=e=>{e.stopPropagation();del(m)};ul.append(li)});
   const on=ul.querySelector('.on');if(on)on.scrollIntoView({block:'nearest'})};
 const openList=()=>{save();fl.value='';sel=0;drawList();if(!dL.open)dL.showModal();fl.focus()};
@@ -116,7 +118,8 @@ kw.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.isComposing){e.preventD
 rp.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.isComposing){e.preventDefault();replace()}});
 fl.addEventListener('input',()=>{sel=0;drawList()});
 dL.addEventListener('close',()=>{if(!preview)ed.focus()});
-dL.addEventListener('keydown',e=>{if(e.isComposing)return;const k=e.key,inF=document.activeElement===fl;
+dL.addEventListener('keydown',e=>{if(e.isComposing)return;
+  if(e.altKey&&/^Digit[0-9]$/.test(e.code)){e.preventDefault();const d=+e.code.slice(5);if(d===0)tagSel.clear();else{const t=allTags()[d-1];if(t)toggleTag(t.t)}sel=0;drawList();return}const k=e.key,inF=document.activeElement===fl;
   const mv=d=>{e.preventDefault();if(view.length){sel=(sel+d+view.length)%view.length;drawList()}};
   if(e.ctrlKey&&k==='n'||k==='ArrowDown')mv(1);
   else if(e.ctrlKey&&k==='p'||k==='ArrowUp')mv(-1);
@@ -125,13 +128,13 @@ dL.addEventListener('keydown',e=>{if(e.isComposing)return;const k=e.key,inF=docu
 /* bracket keys differ by keyboard layout and Option on macOS, so map by layout */
 const kc={'[':'BracketLeft',']':'BracketRight'};
 if(navigator.keyboard&&navigator.keyboard.getLayoutMap)navigator.keyboard.getLayoutMap().then(m=>{for(const[c,v]of m)if(v==='['||v===']')kc[v]=c}).catch(()=>{});
-document.addEventListener('keydown',e=>{if(dL.open||dT.open)return;const c=e.ctrlKey||e.metaKey,k=e.key.toLowerCase();
+document.addEventListener('keydown',e=>{if(dL.open||dT.open||dG.open||dM.open||dR.open)return;const c=e.ctrlKey||e.metaKey,k=e.key.toLowerCase();
   if(e.altKey&&!c&&(e.code==='Comma'||e.code==='Period')){e.preventDefault();fsStep(e.code==='Comma'?-1:1);return}
   if(dS.open){if(e.key==='Escape'){e.preventDefault();dS.close()}return}
   if(dF.open){if(e.key==='F9'){e.preventDefault();kw.focus();kw.select()}else if(e.key==='Escape'){e.preventDefault();dF.close()}return}
-  const run=f=>{e.preventDefault();f()},al=e.altKey&&!c,kb=x=>e.key===x||e.code===kc[x];
+  const run=f=>{e.preventDefault();f()},al=e.altKey&&!c,ak=x=>al&&e.code===x,kb=x=>e.key===x||e.code===kc[x];
   if(e.key==='F11')run(doNew);else if(c&&k==='o')run(doImport);else if(c&&k==='s')run(doExport);else if(e.key==='F9')run(openFind);
-  else if(al&&kb(']'))run(()=>rotate(1));else if(al&&kb('['))run(()=>rotate(-1));else if(al&&e.key==='Delete')run(doDelete);else if(al&&(k==='r'||e.code==='KeyR'))run(openTitle);else if(e.key==='F10')run(openList);else if(e.key==='F2')run(()=>setMode(!preview,true))});
+  else if(al&&kb(']'))run(()=>rotate(1));else if(al&&kb('['))run(()=>rotate(-1));else if(al&&e.key==='Delete')run(doDelete);else if(al&&(k==='r'||e.code==='KeyR'))run(openTitle);else if(ak('KeyT'))run(openTags);else if(ak('KeyM'))run(openMng);else if(ak('KeyB'))run(doBackup);else if(ak('KeyO'))run(openRestore);else if(e.key==='F10')run(openList);else if(e.key==='F2')run(()=>setMode(!preview,true))});
 pv.addEventListener('click',e=>{const a=e.target.closest('a[href]');if(!a||(a.getAttribute('href')||'').startsWith('#'))return;
   e.preventDefault();window.open(a.href,'_blank','noopener,noreferrer')});
 const onScroll=e=>{const y=e.target.scrollTop;if(y>ly+8&&y>60)bar.classList.add('hide');else if(y<ly-8||y<=0)bar.classList.remove('hide');ly=y};
@@ -147,6 +150,76 @@ addEventListener('dragover',e=>{if(hasF(e)){e.preventDefault();e.dataTransfer.dr
 addEventListener('dragleave',e=>{if(hasF(e)&&--dc<=0){dc=0;document.body.classList.remove('drop')}});
 addEventListener('drop',async e=>{if(!hasF(e))return;e.preventDefault();dc=0;document.body.classList.remove('drop');
   const fs=[...e.dataTransfer.files];if(dL.open)dL.close();if(dF.open)dF.close();for(const f of fs)await importFile(f)});
+
+/* ---- tags ---- */
+const norm=t=>t.trim().replace(/\s+/g,' ').slice(0,30);
+const hasTag=(m,t)=>(m.tags||[]).some(x=>x.toLowerCase()===t.toLowerCase());
+const allTags=()=>{const c=new Map();for(const m of memos)for(const t of m.tags||[]){const k=t.toLowerCase(),e=c.get(k);e?e.n++:c.set(k,{t,n:1})}return[...c.values()].sort((a,b)=>a.t.localeCompare(b.t))};
+const chip=(label,cls,fn)=>{const b=document.createElement('button');b.type='button';b.className='chip'+(cls?' '+cls:'');b.textContent=label;b.onclick=fn;return b};
+const toggleTag=t=>{const k=t.toLowerCase();tagSel.has(k)?tagSel.delete(k):tagSel.add(k)};
+const drawTagBar=()=>{const ts=allTags();for(const k of [...tagSel])if(!ts.some(x=>x.t.toLowerCase()===k))tagSel.delete(k);tl.innerHTML='';
+  ts.forEach((x,i)=>{const on=tagSel.has(x.t.toLowerCase());const b=chip((i<9?(i+1)+' ':'')+x.t,on?'on':'',()=>{toggleTag(x.t);sel=0;drawList()});
+    b.tabIndex=-1;b.setAttribute('aria-pressed',on);if(i<9)b.title='Alt+'+(i+1);tl.append(b)})};
+const drawTags=()=>{gc.innerHTML='';gs.innerHTML='';
+  (cur.tags||[]).forEach(t=>gc.append(chip('#'+t+' ✕','on',()=>{cur.tags=cur.tags.filter(x=>x!==t);if(!cur.tags.length)delete cur.tags;save();drawTags();gi.focus()})));
+  allTags().filter(x=>!hasTag(cur,x.t)).forEach(x=>gs.append(chip('+ '+x.t,'',()=>addTag(x.t))))};
+const addTag=raw=>{const cand=raw.split(/[,、，]/).map(norm).filter(Boolean);
+  if(cand.length){cur.tags=cur.tags||[];const ex=allTags();
+    for(const c of cand){if(cur.tags.length>=20)break;if(hasTag(cur,c))continue;const f=ex.find(x=>x.t.toLowerCase()===c.toLowerCase());cur.tags.push(f?f.t:c)}
+    save()}
+  gi.value='';drawTags();gi.focus()};
+const openTags=()=>{if(dG.open)return;if(!title(cur.text)){alert('Type some text first, then add tags.');return}
+  save();gi.value='';drawTags();dG.showModal();gi.focus()};
+const drawMng=()=>{const ts=allTags();mg.innerHTML='';
+  if(!ts.length){const p=document.createElement('p');p.className='hint';p.textContent='No tags yet.';mg.append(p);return}
+  ts.forEach(({t,n})=>{const r=document.createElement('div');r.className='mrow';const s=document.createElement('span');s.textContent='#'+t+' ('+n+')';
+    const rb=document.createElement('button'),db=document.createElement('button');rb.textContent='Rename';db.textContent='Delete';
+    rb.onclick=()=>renameTag(t);db.onclick=()=>deleteTag(t,n);r.append(s,rb,db);mg.append(r)})};
+const renameTag=old=>{let v=prompt('New name for tag "'+old+'"',old);if(v===null)return;v=norm(v);if(!v||v===old)return;
+  const ex=allTags().find(x=>x.t.toLowerCase()===v.toLowerCase()&&x.t.toLowerCase()!==old.toLowerCase());
+  if(ex){v=ex.t;if(!confirm('Tag "'+v+'" already exists. Merge "'+old+'" into it?'))return}
+  for(const m of memos){if(!hasTag(m,old))continue;const out=[];
+    for(const x of m.tags){const y=x.toLowerCase()===old.toLowerCase()?v:x;if(!out.some(z=>z.toLowerCase()===y.toLowerCase()))out.push(y)}m.tags=out}
+  tagSel.delete(old.toLowerCase());persist();drawMng();drawList()};
+const deleteTag=(name,n)=>{if(!confirm('Remove tag "'+name+'" from '+n+' memo'+(n>1?'s':'')+'?'))return;
+  for(const m of memos)if(m.tags){m.tags=m.tags.filter(x=>x.toLowerCase()!==name.toLowerCase());if(!m.tags.length)delete m.tags}
+  tagSel.delete(name.toLowerCase());persist();drawMng();drawList()};
+const openMng=()=>{if(dM.open)return;save();drawMng();dM.showModal()};
+
+/* ---- backup / restore ---- */
+const stamp=()=>{const d=new Date(),p=n=>String(n).padStart(2,'0');return d.getFullYear()+p(d.getMonth()+1)+p(d.getDate())+'-'+p(d.getHours())+p(d.getMinutes())+p(d.getSeconds())};
+const doBackup=()=>{save();const data={app:'lwsm',version:1,exported:new Date().toISOString(),settings:{fontLevel:fsLv},memos};
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,1)],{type:'application/json'}));
+  a.download='lwsm-backup-'+stamp()+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);say('Backup saved ('+memos.length+' memos)',2000)};
+const parseBackup=t=>{let d;try{d=JSON.parse(t)}catch(e){return null}
+  if(!d||d.app!=='lwsm'||!Array.isArray(d.memos))return null;const ms=[];
+  for(const m of d.memos){if(!m||typeof m.id!=='string'||typeof m.text!=='string')continue;
+    const o={id:m.id.slice(0,80),text:m.text,bg:/^#[0-9a-f]{6}$/i.test(m.bg)?m.bg:'',updated:Number.isFinite(m.updated)?m.updated:Date.now()};
+    if(typeof m.name==='string'&&m.name.trim())o.name=m.name.trim().slice(0,80);
+    if(Array.isArray(m.tags)){const tg=[];for(const x of m.tags){if(typeof x!=='string')continue;const n=norm(x);if(n&&!tg.some(z=>z.toLowerCase()===n.toLowerCase()))tg.push(n)}if(tg.length)o.tags=tg}
+    if(title(o.text))ms.push(o)}
+  return{memos:ms,fontLevel:d.settings&&d.settings.fontLevel,exported:d.exported}};
+const startRestore=p=>{if(!p.memos.length){alert('This backup has no memos.');return}rest=p;
+  const dt=new Date(p.exported),n=p.memos.length;
+  $('rs').textContent=n+' memo'+(n>1?'s':'')+' in this backup'+(isNaN(dt)?'':' (made '+dt.toLocaleString()+')')+'. You have '+memos.length+' now.';
+  if(!dR.open)dR.showModal()};
+const doMerge=()=>{if(!rest)return;save();let a=0,u=0;
+  for(const m of rest.memos){const i=memos.findIndex(x=>x.id===m.id);if(i<0){memos.push(m);a++}else if(m.updated>memos[i].updated){memos[i]=m;u++}}
+  const keep=memos.find(x=>x.id===cur.id)||memos.slice().sort((x,y)=>y.updated-x.updated)[0];
+  load(keep,true);persist();rest=null;dR.close();say('Merged: '+a+' added, '+u+' updated',2500)};
+const doReplace=()=>{if(!rest)return;
+  if(!confirm('Replace ALL current memos ('+memos.length+') with the backup ('+rest.memos.length+')?\nA backup of the current memos is downloaded first.'))return;
+  if(memos.length)doBackup();
+  memos=rest.memos;const n=memos.length;if(Number.isInteger(rest.fontLevel)&&rest.fontLevel>=1&&rest.fontLevel<=5){fsLv=rest.fontLevel;applyFs(true)}
+  tagSel.clear();load(memos.slice().sort((x,y)=>y.updated-x.updated)[0],true);persist();rest=null;dR.close();say('Restored '+n+' memos',2500)};
+const ri=document.createElement('input');ri.type='file';ri.accept='.json,application/json';
+ri.onchange=async()=>{const f=ri.files[0];ri.value='';if(!f)return;const p=parseBackup(await f.text());if(!p){alert('This is not a valid LWSM backup file.');return}startRestore(p)};
+const openRestore=()=>ri.click();
+$('bTag').onclick=openTags;$('xG').onclick=()=>dG.close();$('bGa').onclick=()=>addTag(gi.value);
+gi.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.isComposing){e.preventDefault();addTag(gi.value)}});
+$('xM').onclick=()=>dM.close();$('xR').onclick=()=>dR.close();
+$('bTagM').onclick=openMng;$('bBk').onclick=doBackup;$('bRs').onclick=openRestore;
+$('bMerge').onclick=doMerge;$('bRepl').onclick=doReplace;
 
 /* rename: double-click / double-tap the title */
 const openTitle=()=>{if(dT.open)return;if(!title(cur.text)){alert('Type some text first, then rename the memo.');return}ti.value=ttl(cur);dT.showModal();ti.focus();ti.select()};
@@ -185,8 +258,8 @@ fsr.addEventListener('input',()=>{fsLv=+fsr.value;applyFs(true)});
 $('bFsR').onclick=()=>{fsLv=3;applyFs(true)};
 $('bSet').onclick=openSet;$('xS').onclick=()=>dS.close();
 const toast=$('toast');let toastT;
-const fsStep=d=>{const n=Math.max(1,Math.min(5,fsLv+d));fsLv=n;applyFs(true);
-  toast.textContent='Text size: '+FN[n-1]+' ('+FS[n-1]+'px)';toast.classList.add('on');clearTimeout(toastT);toastT=setTimeout(()=>toast.classList.remove('on'),1200)};
+const say=(t,ms)=>{toast.textContent=t;toast.classList.add('on');clearTimeout(toastT);toastT=setTimeout(()=>toast.classList.remove('on'),ms||1200)};
+const fsStep=d=>{const n=Math.max(1,Math.min(5,fsLv+d));fsLv=n;applyFs(true);say('Text size: '+FN[n-1]+' ('+FS[n-1]+'px)')};
 applyFs();
 
 /* start: last used memo, in preview */

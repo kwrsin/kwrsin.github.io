@@ -37,7 +37,8 @@
       <label class="sw" title="Preview / Edit (F2)"><input type="checkbox" id="sw" aria-label="Preview"><span></span></label>
       <input type="color" id="bg" title="Background color" aria-label="Background color">
       <button id="bRst" title="Reset background" aria-label="Reset background"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg></button>
-    <button id="bSet" title="Settings (text size: Alt+&lt; / Alt+&gt;)" aria-label="Settings"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 19L8.5 5 14 19M5 14.5h7M15.5 19l3-8 3 8M16.6 16.5h3.8"/></svg></button>
+    <button id="bTag" title="Tags (Alt+T)" aria-label="Tags"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><path d="M7 7h.01"/></svg></button>
+      <button id="bSet" title="Settings (text size: Alt+&lt; / Alt+&gt;)" aria-label="Settings"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 19L8.5 5 14 19M5 14.5h7M15.5 19l3-8 3 8M16.6 16.5h3.8"/></svg></button>
       <button id="bDel" title="Delete memo (Alt+Delete)" aria-label="Delete memo"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></svg></button>
       <a id="bHelp" class="btn" href="help.html" target="_blank" rel="noopener" title="Help" aria-label="Help (opens in a new tab)"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7M12 17h.01"/></svg></a>
     </div>
@@ -68,6 +69,10 @@
     <div class="sl"><span class="s1" aria-hidden="true">A</span><input type="range" id="fs" min="1" max="5" step="1"><span class="s2" aria-hidden="true">A</span></div>
     <output id="fo" for="fs"></output>
   </div>
+  <div class="row">
+    <span>Tags &amp; backup</span>
+    <div class="btns"><button id="bTagM" title="Alt+M">Manage tags</button><button id="bBk" title="Alt+B">Backup</button><button id="bRs" title="Alt+O">Restore</button></div>
+  </div>
   <div class="foot"><button id="bFsR">Reset</button></div>
 </dialog>
 
@@ -78,9 +83,33 @@
   <div class="foot"><button id="bTi">Save</button></div>
 </dialog>
 
+<dialog id="dTags" aria-label="Tags">
+  <button class="x" id="xG" aria-label="Close">✕</button>
+  <h2 class="dh">Tags</h2>
+  <div id="gc" class="chips" aria-label="Tags on this memo"></div>
+  <div class="fr"><input id="gi" maxlength="30" autocomplete="off" placeholder="New tag (Enter to add)" aria-label="New tag"><button id="bGa">Add</button></div>
+  <p class="hint">Click a suggestion to add it. Separate several tags with commas.</p>
+  <div id="gs" class="chips"></div>
+</dialog>
+
+<dialog id="dMng" aria-label="Manage tags">
+  <button class="x" id="xM" aria-label="Close">✕</button>
+  <h2 class="dh">Manage tags</h2>
+  <div id="mg"></div>
+</dialog>
+
+<dialog id="dRest" aria-label="Restore">
+  <button class="x" id="xR" aria-label="Close">✕</button>
+  <h2 class="dh">Restore</h2>
+  <p id="rs"></p>
+  <p class="hint"><b>Merge</b> keeps your current memos and adds the backup's memos. If both have the same memo, the newer one wins. <b>Replace all</b> discards the current memos (a backup of them is downloaded first).</p>
+  <div class="foot"><button id="bMerge">Merge</button><button id="bRepl">Replace all</button></div>
+</dialog>
+
 <dialog id="dList" aria-label="Memo list">
   <button class="x" id="xL" aria-label="Close">✕</button>
   <label class="fr">Filter <input id="fl" autocomplete="off"></label>
+  <div id="tl" class="chips" role="group" aria-label="Filter by tags"></div>
   <ul id="ul"></ul>
   <div class="foot"><button id="bDelAll">Delete all</button></div>
 </dialog>
