@@ -26,6 +26,7 @@
   <header id="bar">
     <h1 class="sr">Light Weight Simple Memo</h1>
     <div id="ttl" aria-live="polite"></div>
+    <div id="tgs"></div>
     <div class="tools">
       <button id="bNew" title="New (F11)" aria-label="New"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M12 12v6M9 15h6"/></svg></button>
       <button id="bImp" title="Import (Ctrl+O)" aria-label="Import"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg></button>
@@ -39,6 +40,7 @@
       <button id="bRst" title="Reset background" aria-label="Reset background"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg></button>
     <button id="bTag" title="Tags (Alt+T)" aria-label="Tags"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><path d="M7 7h.01"/></svg></button>
       <button id="bSet" title="Settings (text size: Alt+&lt; / Alt+&gt;)" aria-label="Settings"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 19L8.5 5 14 19M5 14.5h7M15.5 19l3-8 3 8M16.6 16.5h3.8"/></svg></button>
+      <button id="bGear" title="Backup &amp; Restore (Alt+D)" aria-label="Backup and Restore"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
       <button id="bDel" title="Delete memo (Alt+Delete)" aria-label="Delete memo"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></svg></button>
       <a id="bHelp" class="btn" href="help.html" target="_blank" rel="noopener" title="Help" aria-label="Help (opens in a new tab)"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7M12 17h.01"/></svg></a>
     </div>
@@ -70,8 +72,8 @@
     <output id="fo" for="fs"></output>
   </div>
   <div class="row">
-    <span>Tags &amp; backup</span>
-    <div class="btns"><button id="bTagM" title="Alt+M">Manage tags</button><button id="bBk" title="Alt+B">Backup</button><button id="bRs" title="Alt+O">Restore</button></div>
+    <span>Tags</span>
+    <div class="btns"><button id="bTagM" title="Alt+M">Manage tags</button></div>
   </div>
   <div class="foot"><button id="bFsR">Reset</button></div>
 </dialog>
@@ -81,6 +83,14 @@
   <label class="fr">Title <input id="ti" maxlength="80" autocomplete="off"></label>
   <p class="hint">Leave empty to use the first line of the memo.</p>
   <div class="foot"><button id="bTi">Save</button></div>
+</dialog>
+
+<dialog id="dData" aria-label="Backup and Restore">
+  <button class="x" id="xD" aria-label="Close">✕</button>
+  <h2 class="dh">Backup &amp; Restore</h2>
+  <p id="dn"></p>
+  <div class="btns"><button id="bBk" title="Alt+B">Backup</button><button id="bRs" title="Alt+O">Restore</button></div>
+  <p class="hint"><b>Backup</b> downloads all memos (with tags) as one .json file. <b>Restore</b> reads a backup file and lets you merge it into the current memos or replace them.</p>
 </dialog>
 
 <dialog id="dTags" aria-label="Tags">

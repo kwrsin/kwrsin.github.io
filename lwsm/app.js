@@ -4,7 +4,7 @@ const KM='lwsm.memos',KC='lwsm.cur';
 const ed=$('ed'),pv=$('pv'),sw=$('sw'),bg=$('bg'),bar=$('bar'),box=$('content');
 const dF=$('dFind'),kw=$('kw'),rp=$('rp'),all=$('all'),cs=$('cs'),st=$('st');
 const dS=$('dSet'),fsr=$('fs');
-const dG=$('dTags'),gc=$('gc'),gs=$('gs'),gi=$('gi'),dM=$('dMng'),mg=$('mg'),dR=$('dRest'),tl=$('tl');
+const dD=$('dData'),dG=$('dTags'),gc=$('gc'),gs=$('gs'),gi=$('gi'),dM=$('dMng'),mg=$('mg'),dR=$('dRest'),tl=$('tl');
 const dT=$('dTitle'),ti=$('ti'),tt=$('ttl');
 const dL=$('dList'),fl=$('fl'),ul=$('ul');
 let ly=0,memos=[],cur,tagSel=new Set(),rest=null,preview=true,timer,sel=0,view=[];
@@ -15,7 +15,8 @@ const strip=l=>l.replace(/<[^>]*>/g,'').replace(/^[\s#>*\-+`_~|=]+/,'').trim();
 const title=t=>{for(const l of t.split('\n')){const s=strip(l);if(s)return s.slice(0,80)}return''};
 const ttl=m=>m.name||title(m.text);
 const BASE='Light Weight Simple Memo';
-const setTitle=()=>{const t=cur&&ttl(cur);document.title=t?t+' - '+BASE:BASE;const h=$('ttl');h.textContent=t||'Untitled';h.title=t?t+'\n(Double-click or Alt+R to rename)':'';h.style.opacity=t?'':'.5'};
+const setTitle=()=>{const t=cur&&ttl(cur);document.title=t?t+' - '+BASE:BASE;const h=$('ttl');h.textContent=t||'Untitled';h.title=t?t+'\n(Double-click or Alt+R to rename)':'';h.style.opacity=t?'':'.5';
+  const g=$('tgs'),tg=(cur&&cur.tags)||[];g.textContent=tg.map(x=>'#'+x).join(' ');g.title=tg.length?'Tags: '+tg.join(', ')+' (click to edit)':''};
 const isHtml=t=>/^\s*<(!doctype|html|head|body|[a-z][\w-]*)[\s>\/]/i.test(t);
 const fg=c=>{const n=parseInt(c.slice(1),16);return((n>>16)*299+(n>>8&255)*587+(n&255)*114)/1000>150?'#111':'#f2f2f2'};
 const esc=t=>t.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
@@ -128,13 +129,13 @@ dL.addEventListener('keydown',e=>{if(e.isComposing)return;
 /* bracket keys differ by keyboard layout and Option on macOS, so map by layout */
 const kc={'[':'BracketLeft',']':'BracketRight'};
 if(navigator.keyboard&&navigator.keyboard.getLayoutMap)navigator.keyboard.getLayoutMap().then(m=>{for(const[c,v]of m)if(v==='['||v===']')kc[v]=c}).catch(()=>{});
-document.addEventListener('keydown',e=>{if(dL.open||dT.open||dG.open||dM.open||dR.open)return;const c=e.ctrlKey||e.metaKey,k=e.key.toLowerCase();
+document.addEventListener('keydown',e=>{if(dL.open||dT.open||dG.open||dM.open||dR.open||dD.open)return;const c=e.ctrlKey||e.metaKey,k=e.key.toLowerCase();
   if(e.altKey&&!c&&(e.code==='Comma'||e.code==='Period')){e.preventDefault();fsStep(e.code==='Comma'?-1:1);return}
   if(dS.open){if(e.key==='Escape'){e.preventDefault();dS.close()}return}
   if(dF.open){if(e.key==='F9'){e.preventDefault();kw.focus();kw.select()}else if(e.key==='Escape'){e.preventDefault();dF.close()}return}
   const run=f=>{e.preventDefault();f()},al=e.altKey&&!c,ak=x=>al&&e.code===x,kb=x=>e.key===x||e.code===kc[x];
   if(e.key==='F11')run(doNew);else if(c&&k==='o')run(doImport);else if(c&&k==='s')run(doExport);else if(e.key==='F9')run(openFind);
-  else if(al&&kb(']'))run(()=>rotate(1));else if(al&&kb('['))run(()=>rotate(-1));else if(al&&e.key==='Delete')run(doDelete);else if(al&&(k==='r'||e.code==='KeyR'))run(openTitle);else if(ak('KeyT'))run(openTags);else if(ak('KeyM'))run(openMng);else if(ak('KeyB'))run(doBackup);else if(ak('KeyO'))run(openRestore);else if(e.key==='F10')run(openList);else if(e.key==='F2')run(()=>setMode(!preview,true))});
+  else if(al&&kb(']'))run(()=>rotate(1));else if(al&&kb('['))run(()=>rotate(-1));else if(al&&e.key==='Delete')run(doDelete);else if(al&&(k==='r'||e.code==='KeyR'))run(openTitle);else if(ak('KeyT'))run(openTags);else if(ak('KeyM'))run(openMng);else if(ak('KeyB'))run(doBackup);else if(ak('KeyO'))run(openRestore);else if(ak('KeyD'))run(openData);else if(e.key==='F10')run(openList);else if(e.key==='F2')run(()=>setMode(!preview,true))});
 pv.addEventListener('click',e=>{const a=e.target.closest('a[href]');if(!a||(a.getAttribute('href')||'').startsWith('#'))return;
   e.preventDefault();window.open(a.href,'_blank','noopener,noreferrer')});
 const onScroll=e=>{const y=e.target.scrollTop;if(y>ly+8&&y>60)bar.classList.add('hide');else if(y<ly-8||y<=0)bar.classList.remove('hide');ly=y};
@@ -160,7 +161,7 @@ const toggleTag=t=>{const k=t.toLowerCase();tagSel.has(k)?tagSel.delete(k):tagSe
 const drawTagBar=()=>{const ts=allTags();for(const k of [...tagSel])if(!ts.some(x=>x.t.toLowerCase()===k))tagSel.delete(k);tl.innerHTML='';
   ts.forEach((x,i)=>{const on=tagSel.has(x.t.toLowerCase());const b=chip((i<9?(i+1)+' ':'')+x.t,on?'on':'',()=>{toggleTag(x.t);sel=0;drawList()});
     b.tabIndex=-1;b.setAttribute('aria-pressed',on);if(i<9)b.title='Alt+'+(i+1);tl.append(b)})};
-const drawTags=()=>{gc.innerHTML='';gs.innerHTML='';
+const drawTags=()=>{setTitle();gc.innerHTML='';gs.innerHTML='';
   (cur.tags||[]).forEach(t=>gc.append(chip('#'+t+' ✕','on',()=>{cur.tags=cur.tags.filter(x=>x!==t);if(!cur.tags.length)delete cur.tags;save();drawTags();gi.focus()})));
   allTags().filter(x=>!hasTag(cur,x.t)).forEach(x=>gs.append(chip('+ '+x.t,'',()=>addTag(x.t))))};
 const addTag=raw=>{const cand=raw.split(/[,、，]/).map(norm).filter(Boolean);
@@ -180,10 +181,10 @@ const renameTag=old=>{let v=prompt('New name for tag "'+old+'"',old);if(v===null
   if(ex){v=ex.t;if(!confirm('Tag "'+v+'" already exists. Merge "'+old+'" into it?'))return}
   for(const m of memos){if(!hasTag(m,old))continue;const out=[];
     for(const x of m.tags){const y=x.toLowerCase()===old.toLowerCase()?v:x;if(!out.some(z=>z.toLowerCase()===y.toLowerCase()))out.push(y)}m.tags=out}
-  tagSel.delete(old.toLowerCase());persist();drawMng();drawList()};
+  tagSel.delete(old.toLowerCase());persist();setTitle();drawMng();drawList()};
 const deleteTag=(name,n)=>{if(!confirm('Remove tag "'+name+'" from '+n+' memo'+(n>1?'s':'')+'?'))return;
   for(const m of memos)if(m.tags){m.tags=m.tags.filter(x=>x.toLowerCase()!==name.toLowerCase());if(!m.tags.length)delete m.tags}
-  tagSel.delete(name.toLowerCase());persist();drawMng();drawList()};
+  tagSel.delete(name.toLowerCase());persist();setTitle();drawMng();drawList()};
 const openMng=()=>{if(dM.open)return;save();drawMng();dM.showModal()};
 
 /* ---- backup / restore ---- */
@@ -202,7 +203,7 @@ const parseBackup=t=>{let d;try{d=JSON.parse(t)}catch(e){return null}
 const startRestore=p=>{if(!p.memos.length){alert('This backup has no memos.');return}rest=p;
   const dt=new Date(p.exported),n=p.memos.length;
   $('rs').textContent=n+' memo'+(n>1?'s':'')+' in this backup'+(isNaN(dt)?'':' (made '+dt.toLocaleString()+')')+'. You have '+memos.length+' now.';
-  if(!dR.open)dR.showModal()};
+  if(dD.open)dD.close();if(!dR.open)dR.showModal()};
 const doMerge=()=>{if(!rest)return;save();let a=0,u=0;
   for(const m of rest.memos){const i=memos.findIndex(x=>x.id===m.id);if(i<0){memos.push(m);a++}else if(m.updated>memos[i].updated){memos[i]=m;u++}}
   const keep=memos.find(x=>x.id===cur.id)||memos.slice().sort((x,y)=>y.updated-x.updated)[0];
@@ -215,7 +216,8 @@ const doReplace=()=>{if(!rest)return;
 const ri=document.createElement('input');ri.type='file';ri.accept='.json,application/json';
 ri.onchange=async()=>{const f=ri.files[0];ri.value='';if(!f)return;const p=parseBackup(await f.text());if(!p){alert('This is not a valid LWSM backup file.');return}startRestore(p)};
 const openRestore=()=>ri.click();
-$('bTag').onclick=openTags;$('xG').onclick=()=>dG.close();$('bGa').onclick=()=>addTag(gi.value);
+const openData=()=>{if(dD.open)return;save();const n=memos.length;$('dn').textContent=n+' memo'+(n===1?'':'s')+' saved on this device.';dD.showModal()};
+$('bTag').onclick=openTags;$('tgs').addEventListener('click',openTags);$('bGear').onclick=openData;$('xD').onclick=()=>dD.close();$('xG').onclick=()=>dG.close();$('bGa').onclick=()=>addTag(gi.value);
 gi.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.isComposing){e.preventDefault();addTag(gi.value)}});
 $('xM').onclick=()=>dM.close();$('xR').onclick=()=>dR.close();
 $('bTagM').onclick=openMng;$('bBk').onclick=doBackup;$('bRs').onclick=openRestore;

@@ -54,7 +54,8 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;padding:12px;border:1px solid va
 <tr><td>List (lines)</td><td>Open the memo list. <kbd>F10</kbd></td></tr>
 <tr><td>&lt; &nbsp; &gt;</td><td>Go to the previous / next memo. Wraps around at both ends. <kbd>Alt</kbd>+<kbd>[</kbd> / <kbd>Alt</kbd>+<kbd>]</kbd></td></tr>
 <tr><td>Tags (tag)</td><td>Add or remove tags on the current memo. <kbd>Alt</kbd>+<kbd>T</kbd></td></tr>
-<tr><td>Settings (Aa)</td><td>Open the settings pop-up. Use the slider to set the <b>memo text size</b> in 5 steps. The setting is remembered. <kbd>Alt</kbd>+<kbd>&lt;</kbd> / <kbd>Alt</kbd>+<kbd>&gt;</kbd> change it without opening the pop-up. Settings also has <b>Manage tags</b>, <b>Backup</b>, and <b>Restore</b>. Press <kbd>Esc</kbd> or &#10005; to close.</td></tr>
+<tr><td>Settings (Aa)</td><td>Open the settings pop-up. Use the slider to set the <b>memo text size</b> in 5 steps. The setting is remembered. <kbd>Alt</kbd>+<kbd>&lt;</kbd> / <kbd>Alt</kbd>+<kbd>&gt;</kbd> change it without opening the pop-up. Settings also has <b>Manage tags</b>. Press <kbd>Esc</kbd> or &#10005; to close.</td></tr>
+<tr><td>Backup &amp; Restore (gear)</td><td>Open the Backup &amp; Restore screen. <kbd>Alt</kbd>+<kbd>D</kbd></td></tr>
 <tr><td>Delete (trash can)</td><td>Delete the current memo after confirmation. <kbd>Alt</kbd>+<kbd>Delete</kbd></td></tr>
 <tr><td>? (circle)</td><td>Open this page.</td></tr>
 </table>
@@ -72,6 +73,7 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;padding:12px;border:1px solid va
 <tr><td><kbd>Alt</kbd>+<kbd>&lt;</kbd> / <kbd>Alt</kbd>+<kbd>&gt;</kbd></td><td>Make the memo text smaller / larger (5 steps). Same as the key without Shift: <kbd>Alt</kbd>+<kbd>,</kbd> / <kbd>Alt</kbd>+<kbd>.</kbd></td></tr>
 <tr><td><kbd>Alt</kbd>+<kbd>T</kbd></td><td>Tags of the current memo</td></tr>
 <tr><td><kbd>Alt</kbd>+<kbd>M</kbd></td><td>Manage tags (rename / delete)</td></tr>
+<tr><td><kbd>Alt</kbd>+<kbd>D</kbd></td><td>Backup &amp; Restore screen (gear button)</td></tr>
 <tr><td><kbd>Alt</kbd>+<kbd>B</kbd></td><td>Backup all memos</td></tr>
 <tr><td><kbd>Alt</kbd>+<kbd>O</kbd></td><td>Restore from a backup file</td></tr>
 <tr><td><kbd>Alt</kbd>+<kbd>1</kbd>&ndash;<kbd>9</kbd>, <kbd>Alt</kbd>+<kbd>0</kbd></td><td>In the memo list: toggle tag filter 1&ndash;9 / clear tag filter</td></tr>
@@ -103,14 +105,15 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;padding:12px;border:1px solid va
 <h2>Tags</h2>
 <ul>
 <li>Press the <b>tag button</b> (<kbd>Alt</kbd>+<kbd>T</kbd>) to add tags to the current memo. Type a tag and press <kbd>Enter</kbd> (separate several with commas), or click a suggestion made from tags you already use. Click a tag chip to remove it. A memo can have up to 20 tags; a tag can have up to 30 characters. Tags are not case sensitive. A memo needs some text before it can be tagged.</li>
+<li>The tags of the current memo are shown <b>under the title</b> in the header. Click them to edit the tags.</li>
 <li>In the <b>memo list</b>, the tag chips are shown above the list. Click chips to filter: only memos that have <b>all</b> the selected tags are shown (AND). The Filter box still works together with the tags. Press <kbd>Alt</kbd>+<kbd>1</kbd> to <kbd>Alt</kbd>+<kbd>9</kbd> to toggle the numbered chips, and <kbd>Alt</kbd>+<kbd>0</kbd> to clear the tag selection.</li>
 <li><b>Manage tags</b> (<kbd>Alt</kbd>+<kbd>M</kbd>, or Settings &rarr; Manage tags) lists every tag with its memo count. <b>Rename</b> changes a tag in all memos (renaming to an existing tag merges them). <b>Delete</b> removes the tag from all memos; the memos themselves are kept.</li>
 </ul>
 
 <h2>Backup and restore</h2>
 <ul>
-<li><b>Backup</b> (<kbd>Alt</kbd>+<kbd>B</kbd>, or Settings &rarr; Backup) downloads one .json file with <b>all memos</b> (text, title, background color, tags, ID) and the text size setting.</li>
-<li><b>Restore</b> (<kbd>Alt</kbd>+<kbd>O</kbd>, or Settings &rarr; Restore) reads a backup file. You can also drag and drop the .json file onto the window, or open it with Import. Then choose:
+<li><b>Backup</b> (<kbd>Alt</kbd>+<kbd>B</kbd>, or the gear button &rarr; Backup) downloads one .json file with <b>all memos</b> (text, title, background color, tags, ID) and the text size setting.</li>
+<li><b>Restore</b> (<kbd>Alt</kbd>+<kbd>O</kbd>, or the gear button &rarr; Restore) reads a backup file. You can also drag and drop the .json file onto the window, or open it with Import. Then choose:
 <ul>
 <li><b>Merge</b>: keep your current memos and add the ones from the backup. If a memo exists in both (same ID), the newer one is kept.</li>
 <li><b>Replace all</b>: discard the current memos and use the backup. A backup of the current memos is downloaded first, and you are asked to confirm.</li>
