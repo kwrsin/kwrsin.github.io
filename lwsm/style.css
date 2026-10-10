@@ -31,6 +31,7 @@ input[type=color]{width:42px;height:42px;flex:0 0 auto;padding:2px;border:1.5px 
 #pv>*{max-width:76ch}
 #pv a{color:var(--link)}
 #pv img{max-width:100%}
+#pv iframe{display:block;width:100%;max-width:640px;height:auto;aspect-ratio:16/9;border:0;border-radius:6px;margin:1em 0;background:#000}
 #pv pre,#pv code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.92em}
 #pv pre{padding:12px;overflow:auto;background:color-mix(in srgb,currentColor 9%,transparent);border-radius:6px}
 #pv code{background:color-mix(in srgb,currentColor 9%,transparent);padding:.1em .3em;border-radius:3px}

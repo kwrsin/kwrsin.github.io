@@ -30,8 +30,9 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;padding:12px;border:1px solid va
 <ul>
 <li>Type in the editor. Every change is <b>saved automatically</b> in your browser (local storage on this device). Nothing is sent to a server.</li>
 <li>The <b>switch</b> in the header toggles between <b>Preview</b> (on) and <b>Edit</b> (off). The app opens the last memo you used, in preview.</li>
-<li>Memos can be written in <b>Markdown</b> or <b>HTML</b>. A memo that starts with an HTML tag is treated as HTML. In preview, scripts, styles, and event attributes are removed for safety.</li>
+<li>Memos can be written in <b>Markdown</b> or <b>HTML</b>. A memo that starts with an HTML tag is treated as HTML. In preview, scripts, styles, and event attributes are removed for safety. <code>iframe</code> tags are removed too, except YouTube embeds (see below).</li>
 <li>Links in the preview open in a <b>new tab</b>.</li>
+<li><b>YouTube videos</b>: paste the embed code from YouTube (Share &rarr; Embed, an <code>&lt;iframe ... src="https://www.youtube.com/embed/..."&gt;</code> tag) into a memo. The video player is shown in preview, resized to the screen width (16:9) and loaded from <code>youtube-nocookie.com</code>. Only YouTube <code>/embed/</code> iframes are allowed; iframes from any other site are removed. A video needs an internet connection to play, and YouTube can see that you opened it. A code sample inside a Markdown code block (<code>```</code>) is shown as plain text.</li>
 <li>On a touch screen, in <b>preview</b> mode, <b>swipe left or right</b> to go to the next or previous memo (it wraps around). Swipes that start at the very edge of the screen, or on content that scrolls sideways, are ignored. Swiping is off while editing.</li>
 <li><b>Drag and drop</b> Markdown, HTML, or text files onto the window to open them as new memos.</li>
 <li>On narrow screens the header buttons do not wrap; <b>swipe the header sideways</b> to reach all of them.</li>
