@@ -52,7 +52,7 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;padding:12px;border:1px solid va
 <tr><td>Export (arrow up)</td><td>Download the current memo as .md or .html. <kbd>Ctrl</kbd>+<kbd>S</kbd></td></tr>
 <tr><td>Find (magnifier)</td><td>Find and replace (see below). <kbd>F9</kbd></td></tr>
 <tr><td>List (lines)</td><td>Open the memo list. <kbd>F10</kbd></td></tr>
-<tr><td>&lt; &nbsp; &gt;</td><td>Go to the previous / next memo. Wraps around at both ends. <kbd>Alt</kbd>+<kbd>[</kbd> / <kbd>Alt</kbd>+<kbd>]</kbd></td></tr>
+<tr><td>&lt; &nbsp; &gt;</td><td>Go to the previous / next memo. Wraps around at both ends. Only memos matching the tag filter are used when a filter is set. <kbd>Alt</kbd>+<kbd>[</kbd> / <kbd>Alt</kbd>+<kbd>]</kbd></td></tr>
 <tr><td>Tags (tag)</td><td>Add or remove tags on the current memo. <kbd>Alt</kbd>+<kbd>T</kbd></td></tr>
 <tr><td>Settings (Aa)</td><td>Open the settings pop-up. Use the slider to set the <b>memo text size</b> in 5 steps. The setting is remembered. <kbd>Alt</kbd>+<kbd>&lt;</kbd> / <kbd>Alt</kbd>+<kbd>&gt;</kbd> change it without opening the pop-up. Settings also has <b>Manage tags</b>. Press <kbd>Esc</kbd> or &#10005; to close.</td></tr>
 <tr><td>Backup &amp; Restore (gear)</td><td>Open the Backup &amp; Restore screen. <kbd>Alt</kbd>+<kbd>D</kbd></td></tr>
@@ -107,6 +107,7 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;padding:12px;border:1px solid va
 <li>Press the <b>tag button</b> (<kbd>Alt</kbd>+<kbd>T</kbd>) to add tags to the current memo. Type a tag and press <kbd>Enter</kbd> (separate several with commas), or click a suggestion made from tags you already use. Click a tag chip to remove it. A memo can have up to 20 tags; a tag can have up to 30 characters. Tags are not case sensitive. A memo needs some text before it can be tagged.</li>
 <li>The tags of the current memo are shown <b>under the title</b> in the header. Click them to edit the tags.</li>
 <li>In the <b>memo list</b>, the tag chips are shown above the list. Click chips to filter: only memos that have <b>all</b> the selected tags are shown (AND). The Filter box still works together with the tags. Press <kbd>Alt</kbd>+<kbd>1</kbd> to <kbd>Alt</kbd>+<kbd>9</kbd> to toggle the numbered chips, and <kbd>Alt</kbd>+<kbd>0</kbd> to clear the tag selection.</li>
+<li>The tag selection also controls <b>switching memos</b>: the <b>&lt;</b> / <b>&gt;</b> buttons, <kbd>Alt</kbd>+<kbd>[</kbd> / <kbd>Alt</kbd>+<kbd>]</kbd>, and the preview swipe move only through memos that have all the selected tags (still wrapping around). While a filter is active, <b>Filter: #tag</b> is shown under the title; press its &#10005; to clear it. The filter is reset when you reload or reopen the app. If the current memo does not match, it stays on screen until you switch; the next switch goes to the first (or last) matching memo.</li>
 <li><b>Manage tags</b> (<kbd>Alt</kbd>+<kbd>M</kbd>, or Settings &rarr; Manage tags) lists every tag with its memo count. <b>Rename</b> changes a tag in all memos (renaming to an existing tag merges them). <b>Delete</b> removes the tag from all memos; the memos themselves are kept.</li>
 </ul>
 
