@@ -172,7 +172,11 @@ const onScroll=e=>{const y=e.target.scrollTop;if(y>ly+8&&y>60)bar.classList.add(
 ed.addEventListener('scroll',onScroll);pv.addEventListener('scroll',onScroll);
 const flush=()=>{if(cur&&!ed.hidden)cur.text=ed.value;if(cur)save()};
 addEventListener('pagehide',flush);document.addEventListener('visibilitychange',()=>{if(document.hidden)flush()});
-new ResizeObserver(()=>box.style.setProperty('--hh',bar.offsetHeight+'px')).observe(bar);
+/* header buttons: hidden scrollbar, soft fade at the edge that still has more buttons */
+const tools=document.querySelector('.tools');
+const updTools=()=>{const max=tools.scrollWidth-tools.clientWidth;tools.classList.toggle('mr',max>2&&tools.scrollLeft<max-2);tools.classList.toggle('ml',tools.scrollLeft>2)};
+tools.addEventListener('scroll',updTools,{passive:true});
+const ro=new ResizeObserver(()=>{box.style.setProperty('--hh',bar.offsetHeight+'px');updTools()});ro.observe(bar);ro.observe(tools);
 
 /* drag & drop files */
 let dc=0;const hasF=e=>e.dataTransfer&&[...e.dataTransfer.types].includes('Files');
