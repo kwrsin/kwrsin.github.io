@@ -94,4 +94,5 @@ body.drop #content::after{content:"Drop a file to open it";position:absolute;ins
 #flt[hidden]{display:none}
 #flt span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #flt button{padding:1px 8px;border-radius:12px;font-size:.8rem}
+button:disabled{opacity:.45;cursor:default}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
