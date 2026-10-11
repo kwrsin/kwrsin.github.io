@@ -225,9 +225,15 @@ const openMng=()=>{if(dM.open)return;save();drawMng();dM.showModal()};
 
 /* ---- backup / restore ---- */
 const stamp=()=>{const d=new Date(),p=n=>String(n).padStart(2,'0');return d.getFullYear()+p(d.getMonth()+1)+p(d.getDate())+'-'+p(d.getHours())+p(d.getMinutes())+p(d.getSeconds())};
-const doBackup=()=>{save();const data={app:'lwsm',version:1,exported:new Date().toISOString(),settings:{fontLevel:fsLv},memos};
+const fltText=()=>[...tagSel].map(k=>'#'+((allTags().find(x=>x.t.toLowerCase()===k)||{t:k}).t)).join(' ');
+const doBackup=all=>{save();const part=!all&&tagSel.size>0,list=part?pool():memos;
+  if(part&&!list.length){say('No memos match the tag filter',1800);return}
+  const data={app:'lwsm',version:1,exported:new Date().toISOString(),settings:{fontLevel:fsLv},memos:list};
+  if(part){data.partial=true;data.filter=[...tagSel].map(k=>(allTags().find(x=>x.t.toLowerCase()===k)||{t:k}).t)}
+  const slug=part?'-'+data.filter.join('+').replace(/[^\w\u3040-\u30ff\u3400-\u9fff+-]+/g,'_').slice(0,40):'';
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,1)],{type:'application/json'}));
-  a.download='lwsm-backup-'+stamp()+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);say('Backup saved ('+memos.length+' memos)',2000)};
+  a.download='lwsm-backup'+slug+'-'+stamp()+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+  say('Backup saved ('+(part?list.length+' of '+memos.length+' memos, '+fltText():list.length+' memos')+')',2500)};
 const parseBackup=t=>{let d;try{d=JSON.parse(t)}catch(e){return null}
   if(!d||d.app!=='lwsm'||!Array.isArray(d.memos))return null;const ms=[];
   for(const m of d.memos){if(!m||typeof m.id!=='string'||typeof m.text!=='string')continue;
@@ -235,28 +241,31 @@ const parseBackup=t=>{let d;try{d=JSON.parse(t)}catch(e){return null}
     if(typeof m.name==='string'&&m.name.trim())o.name=m.name.trim().slice(0,80);
     if(Array.isArray(m.tags)){const tg=[];for(const x of m.tags){if(typeof x!=='string')continue;const n=norm(x);if(n&&!tg.some(z=>z.toLowerCase()===n.toLowerCase()))tg.push(n)}if(tg.length)o.tags=tg}
     if(title(o.text))ms.push(o)}
-  return{memos:ms,fontLevel:d.settings&&d.settings.fontLevel,exported:d.exported}};
+  return{memos:ms,fontLevel:d.settings&&d.settings.fontLevel,exported:d.exported,partial:d.partial===true,filter:Array.isArray(d.filter)?d.filter.filter(x=>typeof x==='string').map(norm).filter(Boolean).slice(0,10):[]}};
 const startRestore=p=>{if(!p.memos.length){alert('This backup has no memos.');return}rest=p;
   const dt=new Date(p.exported),n=p.memos.length;
-  $('rs').textContent=n+' memo'+(n>1?'s':'')+' in this backup'+(isNaN(dt)?'':' (made '+dt.toLocaleString()+')')+'. You have '+memos.length+' now.';
+  $('rs').textContent=n+' memo'+(n>1?'s':'')+' in this backup'+(isNaN(dt)?'':' (made '+dt.toLocaleString()+')')+'. You have '+memos.length+' now.'+(p.partial?' This is a PARTIAL backup (only memos with tags: '+(p.filter.length?p.filter.map(t=>'#'+t).join(' '):'selected')+').':'');
   if(dD.open)dD.close();if(!dR.open)dR.showModal()};
 const doMerge=()=>{if(!rest)return;save();let a=0,u=0;
   for(const m of rest.memos){const i=memos.findIndex(x=>x.id===m.id);if(i<0){memos.push(m);a++}else if(m.updated>memos[i].updated){memos[i]=m;u++}}
   const keep=memos.find(x=>x.id===cur.id)||memos.slice().sort((x,y)=>y.updated-x.updated)[0];
   load(keep,true);persist();rest=null;dR.close();say('Merged: '+a+' added, '+u+' updated',2500)};
 const doReplace=()=>{if(!rest)return;
-  if(!confirm(memos.length?'Replace ALL current memos ('+memos.length+') with the backup ('+rest.memos.length+')?\nA backup of the current memos is downloaded first.':'Load the backup ('+rest.memos.length+' memos)?'))return;
-  if(memos.length)doBackup();
+  const ft=rest.filter&&rest.filter.length?' (tags: '+rest.filter.map(t=>'#'+t).join(' ')+')':'';
+  if(!confirm(!memos.length?'Load the backup ('+rest.memos.length+' memos)?':rest.partial?'This is a PARTIAL backup: it holds only some of your memos'+ft+'.\nReplacing ALL current memos ('+memos.length+') with these '+rest.memos.length+' will remove every other memo.\nA backup of the current memos is downloaded first.\n\nContinue?':'Replace ALL current memos ('+memos.length+') with the backup ('+rest.memos.length+')?\nA backup of the current memos is downloaded first.'))return;
+  if(memos.length)doBackup(true);
   memos=rest.memos;const n=memos.length;if(Number.isInteger(rest.fontLevel)&&rest.fontLevel>=1&&rest.fontLevel<=5){fsLv=rest.fontLevel;applyFs(true)}
   tagSel.clear();drawFlt();load(memos.slice().sort((x,y)=>y.updated-x.updated)[0],true);persist();rest=null;dR.close();say('Restored '+n+' memos',2500)};
 const ri=document.createElement('input');ri.type='file';ri.accept='.json,application/json';
 ri.onchange=async()=>{const f=ri.files[0];ri.value='';if(!f)return;const p=parseBackup(await f.text());if(!p){alert('This is not a valid LWSM backup file.');return}startRestore(p)};
 const openRestore=()=>ri.click();
-const openData=()=>{if(dD.open)return;save();const n=memos.length;$('dn').textContent=n+' memo'+(n===1?'':'s')+' saved on this device.';dD.showModal()};
+const openData=()=>{if(dD.open)return;save();const n=memos.length,k=pool().length,part=tagSel.size>0;
+  $('dn').textContent=part?'Backup will include '+k+' of '+n+' memos (tags: '+fltText()+'). Clear the tag filter to back up all memos.':n+' memo'+(n===1?'':'s')+' saved on this device.';
+  $('bBk').textContent=part?'Backup '+k+' of '+n:'Backup';dD.showModal()};
 $('fx').onclick=()=>{tagSel.clear();drawFlt();if(dL.open)drawList()};$('bTag').onclick=openTags;$('tgs').addEventListener('click',openTags);$('bGear').onclick=openData;$('xD').onclick=()=>dD.close();$('xG').onclick=()=>dG.close();$('bGa').onclick=()=>addTag(gi.value);
 gi.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.isComposing){e.preventDefault();addTag(gi.value)}});
 $('xM').onclick=()=>dM.close();$('xR').onclick=()=>dR.close();
-$('bTagM').onclick=openMng;$('bBk').onclick=doBackup;$('bRs').onclick=openRestore;
+$('bTagM').onclick=openMng;$('bBk').onclick=()=>doBackup();$('bRs').onclick=openRestore;
 $('bMerge').onclick=doMerge;$('bRepl').onclick=doReplace;
 
 /* rename: double-click / double-tap the title */

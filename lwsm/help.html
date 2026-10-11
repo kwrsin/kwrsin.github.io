@@ -116,12 +116,13 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;padding:12px;border:1px solid va
 
 <h2>Backup and restore</h2>
 <ul>
-<li><b>Backup</b> (<kbd>Alt</kbd>+<kbd>B</kbd>, or the floppy disk button &rarr; Backup) downloads one .json file with <b>all memos</b> (text, title, background color, tags, ID) and the text size setting.</li>
+<li><b>Backup</b> (<kbd>Alt</kbd>+<kbd>B</kbd>, or the floppy disk button &rarr; Backup) downloads one .json file with <b>all memos</b> (or only the memos matching the tag filter when one is active; see below) (text, title, background color, tags, ID) and the text size setting.</li>
 <li><b>Restore</b> (<kbd>Alt</kbd>+<kbd>O</kbd>, or the floppy disk button &rarr; Restore) reads a backup file. You can also drag and drop the .json file onto the window, or open it with Import. Then choose:
 <ul>
 <li><b>Merge</b>: keep your current memos and add the ones from the backup. If a memo exists in both (same ID), the newer one is kept.</li>
 <li><b>Replace all</b>: discard the current memos and use the backup. If you have any memos, a backup of them is downloaded first (so you can undo), and you are asked to confirm.</li>
 </ul></li>
+<li><b>Partial backup</b>: while a tag filter is active (<b>Filter: #tag</b> under the title), Backup saves only the memos that match it. The Backup screen shows how many memos will be saved, the file name contains the tags, and the file is marked as a partial backup. Clear the filter to back up everything. When you Restore a partial backup, the Restore screen says so, and <b>Replace all</b> asks for a stronger confirmation, because every memo that is not in the file would be removed. The automatic safety backup made before Replace all always contains all memos.</li>
 <li>Backups are made by hand and are a good way to move memos to another device or browser. Memos are stored in each browser separately, so back up now and then.</li>
 </ul>
 
