@@ -39,7 +39,7 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;padding:12px;border:1px solid va
 <li>On a phone in portrait orientation the header (title and buttons) <b>floats at the bottom</b> of the screen. It hides while you scroll down, comes back when you scroll up or switch memos, and hides while the keyboard is open. Tap the &#8964; button at the top right to close the keyboard.</li>
 <li><b>Title</b>: the first line that has visible text (Markdown or HTML marks are stripped). An imported memo uses its <b>file name</b> instead. The title is also shown in the browser tab. A memo with no visible text is not saved.</li>
 <li><b>Rename</b>: double-click (or double-tap) the title at the top of the header, or press <kbd>Alt</kbd>+<kbd>R</kbd>, type a new title, and press <kbd>Enter</kbd>. Your text is not changed. Leave the box empty to go back to the first-line title. A memo needs some text before it can be renamed.</li>
-<li>The <b>Aa</b> button opens Settings, where you can change the memo text size. (On iPhone the editor never goes below 16px, to stop Safari from zooming in when you type.)</li>
+<li>The <b>gear</b> button opens Settings, where you can change the memo text size. (On iPhone the editor never goes below 16px, to stop Safari from zooming in when you type.)</li>
 <li>The color button changes the memo's <b>background color</b>; the circular arrow resets it.</li>
 <li>Each memo has an internal ID, used for editing and deleting.</li>
 <li>The header hides while you scroll down and returns when you scroll up.</li>
@@ -55,8 +55,8 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;padding:12px;border:1px solid va
 <tr><td>List (lines)</td><td>Open the memo list. <kbd>F10</kbd></td></tr>
 <tr><td>&lt; &nbsp; &gt;</td><td>Go to the previous / next memo. Wraps around at both ends. Only memos matching the tag filter are used when a filter is set. <kbd>Alt</kbd>+<kbd>[</kbd> / <kbd>Alt</kbd>+<kbd>]</kbd></td></tr>
 <tr><td>Tags (tag)</td><td>Add or remove tags on the current memo. <kbd>Alt</kbd>+<kbd>T</kbd></td></tr>
-<tr><td>Settings (Aa)</td><td>Open the settings pop-up. Use the slider to set the <b>memo text size</b> in 5 steps. The setting is remembered. <kbd>Alt</kbd>+<kbd>&lt;</kbd> / <kbd>Alt</kbd>+<kbd>&gt;</kbd> change it without opening the pop-up. Settings also has <b>Manage tags</b>. Press <kbd>Esc</kbd> or &#10005; to close.</td></tr>
-<tr><td>Backup &amp; Restore (gear)</td><td>Open the Backup &amp; Restore screen. <kbd>Alt</kbd>+<kbd>D</kbd></td></tr>
+<tr><td>Settings (gear)</td><td>Open the settings pop-up. Use the slider to set the <b>memo text size</b> in 5 steps. The setting is remembered. <kbd>Alt</kbd>+<kbd>&lt;</kbd> / <kbd>Alt</kbd>+<kbd>&gt;</kbd> change it without opening the pop-up. Settings also has <b>Manage tags</b>. Press <kbd>Esc</kbd> or &#10005; to close.</td></tr>
+<tr><td>Backup &amp; Restore (floppy disk)</td><td>Open the Backup &amp; Restore screen. <kbd>Alt</kbd>+<kbd>D</kbd></td></tr>
 <tr><td>Delete (trash can)</td><td>Delete the current memo after confirmation. <kbd>Alt</kbd>+<kbd>Delete</kbd></td></tr>
 <tr><td>? (circle)</td><td>Open this page.</td></tr>
 </table>
@@ -74,7 +74,7 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;padding:12px;border:1px solid va
 <tr><td><kbd>Alt</kbd>+<kbd>&lt;</kbd> / <kbd>Alt</kbd>+<kbd>&gt;</kbd></td><td>Make the memo text smaller / larger (5 steps). Same as the key without Shift: <kbd>Alt</kbd>+<kbd>,</kbd> / <kbd>Alt</kbd>+<kbd>.</kbd></td></tr>
 <tr><td><kbd>Alt</kbd>+<kbd>T</kbd></td><td>Tags of the current memo</td></tr>
 <tr><td><kbd>Alt</kbd>+<kbd>M</kbd></td><td>Manage tags (rename / delete)</td></tr>
-<tr><td><kbd>Alt</kbd>+<kbd>D</kbd></td><td>Backup &amp; Restore screen (gear button)</td></tr>
+<tr><td><kbd>Alt</kbd>+<kbd>D</kbd></td><td>Backup &amp; Restore screen (floppy disk button)</td></tr>
 <tr><td><kbd>Alt</kbd>+<kbd>B</kbd></td><td>Backup all memos</td></tr>
 <tr><td><kbd>Alt</kbd>+<kbd>O</kbd></td><td>Restore from a backup file</td></tr>
 <tr><td><kbd>Alt</kbd>+<kbd>1</kbd>&ndash;<kbd>9</kbd>, <kbd>Alt</kbd>+<kbd>0</kbd></td><td>In the memo list: toggle tag filter 1&ndash;9 / clear tag filter</td></tr>
@@ -114,8 +114,8 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;padding:12px;border:1px solid va
 
 <h2>Backup and restore</h2>
 <ul>
-<li><b>Backup</b> (<kbd>Alt</kbd>+<kbd>B</kbd>, or the gear button &rarr; Backup) downloads one .json file with <b>all memos</b> (text, title, background color, tags, ID) and the text size setting.</li>
-<li><b>Restore</b> (<kbd>Alt</kbd>+<kbd>O</kbd>, or the gear button &rarr; Restore) reads a backup file. You can also drag and drop the .json file onto the window, or open it with Import. Then choose:
+<li><b>Backup</b> (<kbd>Alt</kbd>+<kbd>B</kbd>, or the floppy disk button &rarr; Backup) downloads one .json file with <b>all memos</b> (text, title, background color, tags, ID) and the text size setting.</li>
+<li><b>Restore</b> (<kbd>Alt</kbd>+<kbd>O</kbd>, or the floppy disk button &rarr; Restore) reads a backup file. You can also drag and drop the .json file onto the window, or open it with Import. Then choose:
 <ul>
 <li><b>Merge</b>: keep your current memos and add the ones from the backup. If a memo exists in both (same ID), the newer one is kept.</li>
 <li><b>Replace all</b>: discard the current memos and use the backup. A backup of the current memos is downloaded first, and you are asked to confirm.</li>
