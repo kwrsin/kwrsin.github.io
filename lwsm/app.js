@@ -225,7 +225,7 @@ const doMerge=()=>{if(!rest)return;save();let a=0,u=0;
   const keep=memos.find(x=>x.id===cur.id)||memos.slice().sort((x,y)=>y.updated-x.updated)[0];
   load(keep,true);persist();rest=null;dR.close();say('Merged: '+a+' added, '+u+' updated',2500)};
 const doReplace=()=>{if(!rest)return;
-  if(!confirm('Replace ALL current memos ('+memos.length+') with the backup ('+rest.memos.length+')?\nA backup of the current memos is downloaded first.'))return;
+  if(!confirm(memos.length?'Replace ALL current memos ('+memos.length+') with the backup ('+rest.memos.length+')?\nA backup of the current memos is downloaded first.':'Load the backup ('+rest.memos.length+' memos)?'))return;
   if(memos.length)doBackup();
   memos=rest.memos;const n=memos.length;if(Number.isInteger(rest.fontLevel)&&rest.fontLevel>=1&&rest.fontLevel<=5){fsLv=rest.fontLevel;applyFs(true)}
   tagSel.clear();drawFlt();load(memos.slice().sort((x,y)=>y.updated-x.updated)[0],true);persist();rest=null;dR.close();say('Restored '+n+' memos',2500)};
