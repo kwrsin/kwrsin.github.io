@@ -79,14 +79,14 @@ const openFind=()=>{if(!preview){const s=ed.value.slice(ed.selectionStart,ed.sel
   if(!dF.open)dF.show();kw.focus();kw.select()};
 /* y position of a character offset inside the textarea (accounts for soft wraps) */
 const yOf=i=>{const cs=getComputedStyle(ed),m=document.createElement('div');
-  m.style.cssText='position:absolute;visibility:hidden;top:0;left:0;box-sizing:border-box;white-space:pre-wrap;overflow-wrap:break-word;width:'+ed.clientWidth+'px';
+  m.style.cssText='position:absolute;visibility:hidden;top:0;left:0;box-sizing:border-box;white-space:pre-wrap;overflow-wrap:break-word;-webkit-text-size-adjust:100%;text-size-adjust:100%;width:'+ed.clientWidth+'px';
   ['fontFamily','fontSize','fontWeight','lineHeight','letterSpacing','paddingLeft','paddingRight','tabSize'].forEach(p=>m.style[p]=cs[p]);
   m.textContent=ed.value.slice(0,i);const s=document.createElement('span');s.textContent='|';m.append(s);document.body.append(m);
   const y=s.offsetTop+(parseFloat(cs.paddingTop)||0);m.remove();return y};
 /* select the hit in the editor so it is highlighted, keep the dialog open, scroll the hit below the dialog */
 /* yellow marker over the hit (stays until you type, click in the editor, or change memo / text size) */
 const drawHit=(i,len)=>{hitBox.textContent='';const cs=getComputedStyle(ed),m=document.createElement('div');
-  m.style.cssText='position:absolute;visibility:hidden;top:0;left:0;box-sizing:border-box;white-space:pre-wrap;overflow-wrap:break-word;width:'+ed.clientWidth+'px';
+  m.style.cssText='position:absolute;visibility:hidden;top:0;left:0;box-sizing:border-box;white-space:pre-wrap;overflow-wrap:break-word;-webkit-text-size-adjust:100%;text-size-adjust:100%;width:'+ed.clientWidth+'px';
   ['fontFamily','fontSize','fontWeight','lineHeight','letterSpacing','paddingLeft','paddingRight','tabSize'].forEach(p=>m.style[p]=cs[p]);
   m.append(document.createTextNode(ed.value.slice(0,i)));const s=document.createElement('span');s.textContent=ed.value.slice(i,i+len);m.append(s);document.body.append(m);
   const mr=m.getBoundingClientRect(),pt=parseFloat(cs.paddingTop)||0;
@@ -97,7 +97,7 @@ const showHit=(i,len)=>{
   if(matchMedia('(pointer:coarse)').matches)ed.readOnly=true;  /* no soft keyboard while searching */
   ed.focus({preventScroll:true});ed.setSelectionRange(i,i+len);
   const db=dF.open?dF.getBoundingClientRect().bottom-ed.getBoundingClientRect().top:0;
-  const want=Math.min(Math.max(db+28,ed.clientHeight*.4),ed.clientHeight-120);
+  const want=Math.min(Math.max(db+48,ed.clientHeight*.42),ed.clientHeight-120);
   ed.scrollTop=Math.max(0,yOf(i)-want);drawHit(i,len)};
 const find=()=>{const k=kw.value;if(!k)return false;if(preview)setMode(false);
   const t=cs.checked?ed.value:ed.value.toLowerCase(),q=cs.checked?k:k.toLowerCase();let i=t.indexOf(q,ed.selectionEnd);if(i<0)i=t.indexOf(q);
