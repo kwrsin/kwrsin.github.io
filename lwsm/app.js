@@ -45,7 +45,7 @@ const render=t=>clean(isHtml(t)?t:(window.marked?marked.parse(t,{gfm:true,breaks
 
 const applyBg=()=>{const c=cur.bg;box.style.background=c;box.style.color=c?fg(c):'';box.style.setProperty('--link',c?fg(c):'');
   bg.value=c||(matchMedia('(prefers-color-scheme:dark)').matches?'#171d1a':'#ffffff')};
-const setMode=(p,focus)=>{preview=p;if(p)pv.innerHTML=render(cur.text);sw.checked=p;ed.hidden=p;pv.hidden=!p;bar.classList.remove('hide');if(!p&&focus)ed.focus()};
+const setMode=(p,focus)=>{preview=p;if(p)pv.innerHTML=render(cur.text);sw.checked=p;ed.hidden=p;pv.hidden=!p;bar.classList.remove('hide');if(!p&&focus)ed.focus();if(p)pv.focus({preventScroll:true})};
 const load=(m,p)=>{cur=m;setTitle();ed.value=m.text;applyBg();ed.hidden=pv.hidden=false;ed.scrollTop=pv.scrollTop=0;ly=0;setMode(p);try{localStorage.setItem(KC,m.id)}catch(e){}};
 const pool=()=>memos.filter(m=>[...tagSel].every(k=>hasTag(m,k)));
 const canRotate=()=>{const p=pool();return p.length>1||(p.length===1&&p[0].id!==cur.id)};
@@ -148,7 +148,10 @@ $('bDoFind').onclick=find;$('bDoRep').onclick=replace;$('bDelAll').onclick=delAl
 kw.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.isComposing){e.preventDefault();find()}});
 rp.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.isComposing){e.preventDefault();replace()}});
 fl.addEventListener('input',()=>{sel=0;drawList()});
-dL.addEventListener('close',()=>{if(!preview)ed.focus()});
+/* give keyboard scrolling back to the memo after any dialog closes (not on touch edit: no soft keyboard) */
+const coarse=matchMedia('(pointer:coarse)').matches,dlgs=[dF,dS,dT,dG,dM,dR,dD,dL];
+const focusBody=()=>{if(dlgs.some(d=>d.open))return;if(preview)pv.focus({preventScroll:true});else if(!coarse)ed.focus({preventScroll:true})};
+dlgs.forEach(d=>d.addEventListener('close',focusBody));
 dL.addEventListener('keydown',e=>{if(e.isComposing)return;
   if(e.altKey&&/^Digit[0-9]$/.test(e.code)){e.preventDefault();const d=+e.code.slice(5);if(d===0)tagSel.clear();else{const t=allTags()[d-1];if(t)toggleTag(t.t)}sel=0;drawList();return}const k=e.key,inF=document.activeElement===fl;
   const mv=d=>{e.preventDefault();if(view.length){sel=(sel+d+view.length)%view.length;drawList()}};

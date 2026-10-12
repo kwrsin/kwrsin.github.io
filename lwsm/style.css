@@ -31,6 +31,7 @@ input[type=color]{width:42px;height:42px;flex:0 0 auto;padding:2px;border:1.5px 
 #ed:focus{outline:0}
 #ed[hidden],#pv[hidden]{display:none}
 #pv{overflow-wrap:anywhere}
+#pv:focus{outline:none}
 #pv:empty::before{content:"Nothing here yet. Press F2 to edit.";opacity:.55}
 #pv>*{max-width:76ch}
 #pv a{color:var(--link)}
