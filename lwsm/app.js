@@ -4,11 +4,11 @@ const KM='lwsm.memos',KC='lwsm.cur';
 const ed=$('ed'),pv=$('pv'),sw=$('sw'),bg=$('bg'),bar=$('bar'),box=$('content');
 const dF=$('dFind'),kw=$('kw'),rp=$('rp'),all=$('all'),cs=$('cs'),st=$('st');
 const dS=$('dSet'),fsr=$('fs');
-const hitBox=$('hit'),clearHit=()=>{hitBox.textContent=''};
+const hitBox=$('hit'),clearHit=()=>{hitBox.textContent='';hit=null};
 const dD=$('dData'),dG=$('dTags'),gc=$('gc'),gs=$('gs'),gi=$('gi'),dM=$('dMng'),mg=$('mg'),dR=$('dRest'),tl=$('tl');
 const dT=$('dTitle'),ti=$('ti'),tt=$('ttl');
 const dL=$('dList'),fl=$('fl'),ul=$('ul');
-let ly=0,memos=[],cur,tagSel=new Set(),rest=null,preview=true,timer,sel=0,view=[];
+let ly=0,hit=null,memos=[],cur,tagSel=new Set(),rest=null,preview=true,timer,sel=0,view=[];
 try{memos=JSON.parse(localStorage.getItem(KM)||'[]')}catch(e){}
 
 const newMemo=()=>({id:crypto.randomUUID?crypto.randomUUID():Date.now()+'-'+Math.random().toString(36).slice(2),text:'',bg:'',updated:Date.now()});
@@ -93,21 +93,20 @@ const drawHit=(i,len)=>{hitBox.textContent='';const cs=getComputedStyle(ed),m=do
   for(const r of (s.getClientRects?s.getClientRects():[])){const d=document.createElement('div');d.className='hit-rect';
     d.style.cssText='left:'+(r.left-mr.left-2)+'px;top:'+(r.top-mr.top+pt-1)+'px;width:'+(r.width+4)+'px;height:'+(r.height+2)+'px';hitBox.append(d)}
   m.remove();hitBox.style.transform='translateY('+(-ed.scrollTop)+'px)'};
-const showHit=(i,len)=>{
-  if(matchMedia('(pointer:coarse)').matches)ed.readOnly=true;  /* no soft keyboard while searching */
-  ed.focus({preventScroll:true});ed.setSelectionRange(i,i+len);
+const showHit=(i,len)=>{   /* no text selection: only the yellow marker; the hit is remembered for Replace */
   const db=dF.open?dF.getBoundingClientRect().bottom-ed.getBoundingClientRect().top:0;
-  const want=Math.min(Math.max(db+48,ed.clientHeight*.42),ed.clientHeight-120);
-  ed.scrollTop=Math.max(0,yOf(i)-want);drawHit(i,len)};
+  const vv=window.visualViewport,avail=Math.min(ed.clientHeight,(vv?vv.height:innerHeight)-ed.getBoundingClientRect().top);
+  const want=Math.max(db+24,Math.min(Math.max(db+48,avail*.42),avail-120));
+  ed.scrollTop=Math.max(0,yOf(i)-want);drawHit(i,len);hit={i,len}};
 const find=()=>{const k=kw.value;if(!k)return false;if(preview)setMode(false);
-  const t=cs.checked?ed.value:ed.value.toLowerCase(),q=cs.checked?k:k.toLowerCase();let i=t.indexOf(q,ed.selectionEnd);if(i<0)i=t.indexOf(q);
+  const t=cs.checked?ed.value:ed.value.toLowerCase(),q=cs.checked?k:k.toLowerCase();let i=t.indexOf(q,hit?hit.i+hit.len:ed.selectionEnd);if(i<0)i=t.indexOf(q);
   if(i<0){stat('Not found');clearHit();return false}
   const pos=[];for(let p=t.indexOf(q);p>=0;p=t.indexOf(q,p+q.length))pos.push(p);
   showHit(i,k.length);stat(pos.filter(x=>x<=i).length+' / '+pos.length);return true};
 const replace=()=>{const k=kw.value;if(!k)return;if(preview)setMode(false);const r=rp.value;
   if(all.checked){let n=0;ed.value=ed.value.replace(new RegExp(k.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),cs.checked?'g':'gi'),()=>(n++,r));stat(n+' replaced');changed();return}
-  const a=ed.selectionStart,b=ed.selectionEnd;
-  if(a!==b&&(cs.checked?ed.value.slice(a,b)===k:ed.value.slice(a,b).toLowerCase()===k.toLowerCase())){ed.setRangeText(r,a,b,'end');changed()}
+  if(hit){const a=hit.i,b=a+hit.len,s=ed.value.slice(a,b);
+    if(cs.checked?s===k:s.toLowerCase()===k.toLowerCase()){ed.setRangeText(r,a,b,'end');changed()}}
   find()};
 
 /* list */
@@ -169,7 +168,7 @@ fl.addEventListener('input',()=>{sel=0;drawList()});
 /* give keyboard scrolling back to the memo after any dialog closes (not on touch edit: no soft keyboard) */
 const coarse=matchMedia('(pointer:coarse)').matches,dlgs=[dF,dS,dT,dG,dM,dR,dD,dL];
 const focusBody=()=>{if(dlgs.some(d=>d.open))return;if(preview)pv.focus({preventScroll:true});else if(!coarse)ed.focus({preventScroll:true})};
-dlgs.filter(d=>d!==dF).forEach(d=>d.addEventListener('close',focusBody));  /* Find is excluded: refocusing would clear the highlighted hit */
+dlgs.forEach(d=>d.addEventListener('close',focusBody));
 dL.addEventListener('keydown',e=>{if(e.isComposing)return;
   if(e.altKey&&/^Digit[0-9]$/.test(e.code)){e.preventDefault();const d=+e.code.slice(5);if(d===0)tagSel.clear();else{const t=allTags()[d-1];if(t)toggleTag(t.t)}sel=0;drawList();return}const k=e.key,inF=document.activeElement===fl;
   const mv=d=>{e.preventDefault();if(view.length){sel=(sel+d+view.length)%view.length;drawList()}};
