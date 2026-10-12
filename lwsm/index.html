@@ -51,19 +51,19 @@
   <button id="done" aria-label="Close keyboard" title="Close keyboard"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
   <textarea id="ed" spellcheck="false" placeholder="Start typing…" aria-label="Memo" hidden></textarea>
   <article id="pv" aria-label="Preview" tabindex="0"></article>
+  <div id="hit" aria-hidden="true"></div>
 </main>
 
 <div id="toast" role="status" aria-live="polite"></div>
 
 <dialog id="dFind" aria-label="Find and replace">
   <button class="x" id="xF" aria-label="Close">✕</button>
-  <div class="grid">
-    <label for="kw">Keyword</label><input id="kw" autocomplete="off" placeholder="Enter = find next"><button id="bDoFind">Find</button>
-    <label for="rp">Replacement</label><input id="rp" autocomplete="off"><button id="bDoRep">Replace</button>
-    <label class="chk wide"><input type="checkbox" id="all"> All (replace every match)</label>
-    <label class="chk wide"><input type="checkbox" id="cs"> Case sensitive</label>
+  <div class="krow"><input id="kw" autocomplete="off" placeholder="Keyword (Enter = find next)" aria-label="Keyword"><button id="bDoFind">Find</button></div>
+  <div class="frow"><label class="chk"><input type="checkbox" id="cs"> Case sensitive</label><span id="st" role="status"></span><button id="bRpT" aria-expanded="false" aria-controls="rpx">Replace ▾</button></div>
+  <div id="rpx" hidden>
+    <div class="krow"><input id="rp" autocomplete="off" placeholder="Replacement" aria-label="Replacement"><button id="bDoRep">Replace</button></div>
+    <label class="chk"><input type="checkbox" id="all"> All (replace every match)</label>
   </div>
-  <p id="st" role="status"></p>
 </dialog>
 
 <dialog id="dSet" aria-label="Settings">

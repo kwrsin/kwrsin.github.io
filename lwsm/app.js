@@ -4,6 +4,7 @@ const KM='lwsm.memos',KC='lwsm.cur';
 const ed=$('ed'),pv=$('pv'),sw=$('sw'),bg=$('bg'),bar=$('bar'),box=$('content');
 const dF=$('dFind'),kw=$('kw'),rp=$('rp'),all=$('all'),cs=$('cs'),st=$('st');
 const dS=$('dSet'),fsr=$('fs');
+const hitBox=$('hit'),clearHit=()=>{hitBox.textContent=''};
 const dD=$('dData'),dG=$('dTags'),gc=$('gc'),gs=$('gs'),gi=$('gi'),dM=$('dMng'),mg=$('mg'),dR=$('dRest'),tl=$('tl');
 const dT=$('dTitle'),ti=$('ti'),tt=$('ttl');
 const dL=$('dList'),fl=$('fl'),ul=$('ul');
@@ -23,7 +24,7 @@ const esc=t=>t.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
 
 const persist=()=>{try{localStorage.setItem(KM,JSON.stringify(memos));localStorage.setItem(KC,cur.id)}catch(e){alert('Storage is full or unavailable.')}};
 const save=()=>{clearTimeout(timer);if(!title(cur.text))return false;cur.updated=Date.now();if(!memos.includes(cur)){const i=memos.findIndex(m=>m.id===cur.id);i<0?memos.push(cur):memos[i]=cur}persist();return true};
-const changed=()=>{cur.text=ed.value;setTitle();clearTimeout(timer);timer=setTimeout(save,400)};
+const changed=()=>{cur.text=ed.value;clearHit();setTitle();clearTimeout(timer);timer=setTimeout(save,400)};
 
 const YT=['www.youtube.com','youtube.com','www.youtube-nocookie.com','youtube-nocookie.com'];
 const clean=h=>{const d=new DOMParser().parseFromString(h,'text/html');
@@ -45,8 +46,8 @@ const render=t=>clean(isHtml(t)?t:(window.marked?marked.parse(t,{gfm:true,breaks
 
 const applyBg=()=>{const c=cur.bg;box.style.background=c;box.style.color=c?fg(c):'';box.style.setProperty('--link',c?fg(c):'');
   bg.value=c||(matchMedia('(prefers-color-scheme:dark)').matches?'#171d1a':'#ffffff')};
-const setMode=(p,focus)=>{preview=p;if(p)pv.innerHTML=render(cur.text);sw.checked=p;ed.hidden=p;pv.hidden=!p;bar.classList.remove('hide');if(!p&&focus)ed.focus();if(p)pv.focus({preventScroll:true})};
-const load=(m,p)=>{cur=m;setTitle();ed.value=m.text;applyBg();ed.hidden=pv.hidden=false;ed.scrollTop=pv.scrollTop=0;ly=0;setMode(p);try{localStorage.setItem(KC,m.id)}catch(e){}};
+const setMode=(p,focus)=>{preview=p;if(p)pv.innerHTML=render(cur.text);sw.checked=p;ed.hidden=p;pv.hidden=!p;bar.classList.remove('hide');if(!p&&focus)ed.focus();if(p){clearHit();pv.focus({preventScroll:true})}};
+const load=(m,p)=>{cur=m;clearHit();setTitle();ed.value=m.text;applyBg();ed.hidden=pv.hidden=false;ed.scrollTop=pv.scrollTop=0;ly=0;setMode(p);try{localStorage.setItem(KC,m.id)}catch(e){}};
 const pool=()=>memos.filter(m=>[...tagSel].every(k=>hasTag(m,k)));
 const canRotate=()=>{const p=pool();return p.length>1||(p.length===1&&p[0].id!==cur.id)};
 const rotate=d=>{save();const p=pool();
@@ -83,16 +84,26 @@ const yOf=i=>{const cs=getComputedStyle(ed),m=document.createElement('div');
   m.textContent=ed.value.slice(0,i);const s=document.createElement('span');s.textContent='|';m.append(s);document.body.append(m);
   const y=s.offsetTop+(parseFloat(cs.paddingTop)||0);m.remove();return y};
 /* select the hit in the editor so it is highlighted, keep the dialog open, scroll the hit below the dialog */
+/* yellow marker over the hit (stays until you type, click in the editor, or change memo / text size) */
+const drawHit=(i,len)=>{hitBox.textContent='';const cs=getComputedStyle(ed),m=document.createElement('div');
+  m.style.cssText='position:absolute;visibility:hidden;top:0;left:0;box-sizing:border-box;white-space:pre-wrap;overflow-wrap:break-word;width:'+ed.clientWidth+'px';
+  ['fontFamily','fontSize','fontWeight','lineHeight','letterSpacing','paddingLeft','paddingRight','tabSize'].forEach(p=>m.style[p]=cs[p]);
+  m.append(document.createTextNode(ed.value.slice(0,i)));const s=document.createElement('span');s.textContent=ed.value.slice(i,i+len);m.append(s);document.body.append(m);
+  const mr=m.getBoundingClientRect(),pt=parseFloat(cs.paddingTop)||0;
+  for(const r of (s.getClientRects?s.getClientRects():[])){const d=document.createElement('div');d.className='hit-rect';
+    d.style.cssText='left:'+(r.left-mr.left-2)+'px;top:'+(r.top-mr.top+pt-1)+'px;width:'+(r.width+4)+'px;height:'+(r.height+2)+'px';hitBox.append(d)}
+  m.remove();hitBox.style.transform='translateY('+(-ed.scrollTop)+'px)'};
 const showHit=(i,len)=>{
   if(matchMedia('(pointer:coarse)').matches)ed.readOnly=true;  /* no soft keyboard while searching */
   ed.focus({preventScroll:true});ed.setSelectionRange(i,i+len);
   const db=dF.open?dF.getBoundingClientRect().bottom-ed.getBoundingClientRect().top:0;
   const want=Math.min(Math.max(db+28,ed.clientHeight*.4),ed.clientHeight-120);
-  ed.scrollTop=Math.max(0,yOf(i)-want)};
+  ed.scrollTop=Math.max(0,yOf(i)-want);drawHit(i,len)};
 const find=()=>{const k=kw.value;if(!k)return false;if(preview)setMode(false);
   const t=cs.checked?ed.value:ed.value.toLowerCase(),q=cs.checked?k:k.toLowerCase();let i=t.indexOf(q,ed.selectionEnd);if(i<0)i=t.indexOf(q);
-  if(i<0){stat('Not found');return false}
-  showHit(i,k.length);stat('Found');return true};
+  if(i<0){stat('Not found');clearHit();return false}
+  const pos=[];for(let p=t.indexOf(q);p>=0;p=t.indexOf(q,p+q.length))pos.push(p);
+  showHit(i,k.length);stat(pos.filter(x=>x<=i).length+' / '+pos.length);return true};
 const replace=()=>{const k=kw.value;if(!k)return;if(preview)setMode(false);const r=rp.value;
   if(all.checked){let n=0;ed.value=ed.value.replace(new RegExp(k.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),cs.checked?'g':'gi'),()=>(n++,r));stat(n+' replaced');changed();return}
   const a=ed.selectionStart,b=ed.selectionEnd;
@@ -137,21 +148,28 @@ const delAll=()=>{const q=fl.value.trim(),filtered=!!(tagSel.size||q),t=filtered
 ed.addEventListener('input',changed);
 ed.addEventListener('focus',()=>{if(!ed.readOnly)document.body.classList.add('editing')});
 ed.addEventListener('blur',()=>{ed.readOnly=false;document.body.classList.remove('editing')});
-ed.addEventListener('pointerdown',()=>{if(ed.readOnly){ed.readOnly=false;ed.blur()}});
+ed.addEventListener('pointerdown',()=>{clearHit();if(ed.readOnly){ed.readOnly=false;ed.blur()}});
+ed.addEventListener('scroll',()=>{hitBox.style.transform='translateY('+(-ed.scrollTop)+'px)'});
+addEventListener('resize',clearHit);
 $('done').onclick=()=>ed.blur();
 sw.addEventListener('change',()=>setMode(sw.checked,true));
 bg.addEventListener('input',()=>{cur.bg=bg.value;applyBg();changed()});
 $('bRst').onclick=()=>{cur.bg='';applyBg();changed()};
 $('bNew').onclick=doNew;$('bImp').onclick=doImport;$('bExp').onclick=doExport;$('bDel').onclick=doDelete;$('bDup').onclick=doDuplicate;$('bPrev').onclick=()=>rotate(-1);$('bNext').onclick=()=>rotate(1);$('bFind').onclick=openFind;$('bList').onclick=openList;
 $('xF').onclick=()=>dF.close();$('xL').onclick=()=>dL.close();
-$('bDoFind').onclick=find;$('bDoRep').onclick=replace;$('bDelAll').onclick=delAll;
+$('bDoFind').onclick=find;
+const rpx=$('rpx'),bRpT=$('bRpT');
+const setRp=on=>{rpx.hidden=!on;bRpT.setAttribute('aria-expanded',on);bRpT.textContent=on?'Replace ▴':'Replace ▾'};
+bRpT.onclick=()=>{setRp(rpx.hidden);if(!rpx.hidden)rp.focus()};
+kw.addEventListener('input',()=>{stat('');clearHit()});
+$('bDoRep').onclick=replace;$('bDelAll').onclick=delAll;
 kw.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.isComposing){e.preventDefault();find()}});
 rp.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.isComposing){e.preventDefault();replace()}});
 fl.addEventListener('input',()=>{sel=0;drawList()});
 /* give keyboard scrolling back to the memo after any dialog closes (not on touch edit: no soft keyboard) */
 const coarse=matchMedia('(pointer:coarse)').matches,dlgs=[dF,dS,dT,dG,dM,dR,dD,dL];
 const focusBody=()=>{if(dlgs.some(d=>d.open))return;if(preview)pv.focus({preventScroll:true});else if(!coarse)ed.focus({preventScroll:true})};
-dlgs.forEach(d=>d.addEventListener('close',focusBody));
+dlgs.filter(d=>d!==dF).forEach(d=>d.addEventListener('close',focusBody));  /* Find is excluded: refocusing would clear the highlighted hit */
 dL.addEventListener('keydown',e=>{if(e.isComposing)return;
   if(e.altKey&&/^Digit[0-9]$/.test(e.code)){e.preventDefault();const d=+e.code.slice(5);if(d===0)tagSel.clear();else{const t=allTags()[d-1];if(t)toggleTag(t.t)}sel=0;drawList();return}const k=e.key,inF=document.activeElement===fl;
   const mv=d=>{e.preventDefault();if(view.length){sel=(sel+d+view.length)%view.length;drawList()}};
@@ -301,7 +319,7 @@ pv.addEventListener('touchcancel',()=>{if(sm==='h')back();sm=null});
 /* settings: memo text size (5 levels, remembered) */
 const FS=[12,14,16,20,24],FN=['Extra small','Small','Medium','Large','Extra large'],KF='lwsm.fs';
 let fsLv=3;try{const v=+localStorage.getItem(KF);if(v>=1&&v<=5)fsLv=v}catch(e){}
-const applyFs=(keep)=>{document.documentElement.style.setProperty('--fs',FS[fsLv-1]+'px');fsr.value=fsLv;$('fo').textContent=FN[fsLv-1]+' ('+FS[fsLv-1]+'px)';
+const applyFs=(keep)=>{clearHit();document.documentElement.style.setProperty('--fs',FS[fsLv-1]+'px');fsr.value=fsLv;$('fo').textContent=FN[fsLv-1]+' ('+FS[fsLv-1]+'px)';
   if(keep)try{localStorage.setItem(KF,fsLv)}catch(e){}};
 const openSet=()=>{if(!dS.open)dS.show();fsr.focus()};
 fsr.addEventListener('input',()=>{fsLv=+fsr.value;applyFs(true)});
