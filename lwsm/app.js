@@ -54,7 +54,7 @@ const rotate=d=>{save();const p=pool();
   if(tagSel.size){if(!p.length){say('No memos match the tag filter',1800);return}if(p.length===1&&p[0].id===cur.id){say('Only this memo matches the tag filter',1800);return}}
   if(!p.length)return;const i=p.findIndex(m=>m.id===cur.id);
   const n=p[i<0?(d>0?0:p.length-1):(i+d+p.length)%p.length];
-  if(n.id===cur.id)return;n.updated=Date.now();load(n,preview);persist()};
+  if(n.id===cur.id)return;n.updated=Date.now();load(n,!title(cur.text)||preview);persist()};  /* leaving an empty new memo -> open the next one in preview */
 const doNew=()=>{save();load(newMemo(),false);ed.focus()};
 
 /* import / export */
