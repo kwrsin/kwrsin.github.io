@@ -13,7 +13,7 @@ try{memos=JSON.parse(localStorage.getItem(KM)||'[]')}catch(e){}
 
 const newMemo=()=>({id:crypto.randomUUID?crypto.randomUUID():Date.now()+'-'+Math.random().toString(36).slice(2),text:'',bg:'',updated:Date.now()});
 const strip=l=>l.replace(/<[^>]*>/g,'').replace(/^[\s#>*\-+`_~|=]+/,'').trim();
-const title=t=>{for(const l of t.split('\n')){const s=strip(l);if(s)return s.slice(0,80)}return''};
+const title=t=>{const n=t.length;for(let p=0;p<=n;){let e=t.indexOf('\n',p);if(e<0)e=n;const s=strip(t.slice(p,Math.min(e,p+20000)));if(s)return s.slice(0,80);p=e+1}return''};  /* reads only up to the first line with visible text (no full split) */
 const ttl=m=>m.name||title(m.text);
 const BASE='Light Weight Simple Memo';
 const setTitle=()=>{const t=cur&&ttl(cur);document.title=t?t+' - '+BASE:BASE;const h=$('ttl');h.textContent=t||'Untitled';h.title=t?t+'\n(Double-click or Alt+R to rename)':'';h.style.opacity=t?'':'.5';
@@ -111,7 +111,7 @@ const replace=()=>{const k=kw.value;if(!k)return;if(preview)setMode(false);const
 
 /* list */
 const drawList=()=>{const q=fl.value.trim().toLowerCase();drawTagBar();
-  view=memos.slice().sort((a,b)=>b.updated-a.updated).filter(m=>(!q||ttl(m).toLowerCase().includes(q)||m.text.toLowerCase().includes(q))&&[...tagSel].every(k=>hasTag(m,k)));
+  view=memos.slice().sort((a,b)=>b.updated-a.updated).filter(m=>(!q||ttl(m).toLowerCase().includes(q))&&[...tagSel].every(k=>hasTag(m,k)));
   sel=Math.max(0,Math.min(sel,view.length-1));ul.innerHTML='';
   view.forEach((m,i)=>{const li=document.createElement('li');if(i===sel)li.className='on';
     li.innerHTML='<span><b></b><i></i></span><button tabindex="-1" aria-label="Delete memo">×</button>';
@@ -164,12 +164,14 @@ kw.addEventListener('input',()=>{stat('');clearHit()});
 $('bDoRep').onclick=replace;$('bDelAll').onclick=delAll;
 kw.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.isComposing){e.preventDefault();find()}});
 rp.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.isComposing){e.preventDefault();replace()}});
-fl.addEventListener('input',()=>{sel=0;drawList()});
+let flT=0;const flushFl=()=>{if(flT){clearTimeout(flT);flT=0;sel=0;drawList()}};
+fl.addEventListener('input',()=>{clearTimeout(flT);flT=setTimeout(()=>{flT=0;sel=0;drawList()},80)});
 /* give keyboard scrolling back to the memo after any dialog closes (not on touch edit: no soft keyboard) */
 const coarse=matchMedia('(pointer:coarse)').matches,dlgs=[dF,dS,dT,dG,dM,dR,dD,dL];
 const focusBody=()=>{if(dlgs.some(d=>d.open))return;if(preview)pv.focus({preventScroll:true});else if(!coarse)ed.focus({preventScroll:true})};
 dlgs.forEach(d=>d.addEventListener('close',focusBody));
 dL.addEventListener('keydown',e=>{if(e.isComposing)return;
+  if(e.key==='Enter'||e.key==='Delete'||e.key===' ')flushFl();
   if(e.altKey&&/^Digit[0-9]$/.test(e.code)){e.preventDefault();const d=+e.code.slice(5);if(d===0)tagSel.clear();else{const t=allTags()[d-1];if(t)toggleTag(t.t)}sel=0;drawList();return}const k=e.key,inF=document.activeElement===fl;
   const mv=d=>{e.preventDefault();if(view.length){sel=(sel+d+view.length)%view.length;drawList()}};
   if(e.ctrlKey&&k==='n'||k==='ArrowDown')mv(1);
