@@ -20,13 +20,9 @@ button,.btn{font:inherit;line-height:1.2;color:inherit;background:transparent;bo
 button:hover,.btn:hover{background:color-mix(in srgb,currentColor 12%,transparent)}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 input[type=color]{width:42px;height:42px;flex:0 0 auto;padding:2px;border:1.5px solid currentColor;border-radius:4px;background:transparent;cursor:pointer}
-.sw{position:relative;display:inline-block;margin-left:4px}
-.sw input{position:absolute;opacity:0;inset:0;width:100%;height:100%;margin:0;cursor:pointer}
-.sw span{display:block;width:46px;height:26px;border-radius:13px;background:#8a948f;position:relative;transition:background .15s}
-.sw span::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:left .15s}
-.sw input:checked+span{background:var(--accent)}
-.sw input:checked+span::after{left:23px}
-.sw input:focus-visible+span{outline:2px solid var(--accent);outline-offset:2px}
+#bSw .i-view,#bSw .i-edit{display:none}
+#bSw[data-mode=preview] .i-edit{display:block}
+#bSw[data-mode=edit] .i-view{display:block}
 #ed,#pv{position:absolute;inset:0;width:100%;height:100%;overflow:auto;padding:calc(var(--hh,64px) + 16px) clamp(14px,4vw,40px) 40px}
 #ed{border:0;resize:none;background:transparent;color:inherit;font:inherit;line-height:1.7}
 #ed:focus{outline:0}
@@ -77,7 +73,7 @@ dialog input:not([type=checkbox]):not([type=range]){width:100%;font:inherit;colo
 #ul li span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #ul li button{border:0;padding:2px 8px;border-radius:50%}
 .foot{margin-top:14px;text-align:right}
-@media(max-width:520px){#bar{padding:8px;top:auto;bottom:0;border-bottom:0;border-top:1px solid var(--line)}#bar.hide{transform:translateY(101%)}#ed,#pv{padding-top:16px;padding-bottom:calc(var(--hh,64px) + 24px)}.tools{gap:6px;-webkit-overflow-scrolling:touch}.tools button,.tools .btn,input[type=color]{flex:0 0 auto;width:44px;height:44px}.sw{flex:0 0 auto;margin-left:2px}.sw span{width:42px}.sw input:checked+span::after{left:19px}.x{padding:8px 12px}.grid{grid-template-columns:1fr auto}.grid .wide{grid-column:1/-1}.grid label{grid-column:1/-1;margin-bottom:-6px}}
+@media(max-width:520px){#bar{padding:8px;top:auto;bottom:0;border-bottom:0;border-top:1px solid var(--line)}#bar.hide{transform:translateY(101%)}#ed,#pv{padding-top:16px;padding-bottom:calc(var(--hh,64px) + 24px)}.tools{gap:6px;-webkit-overflow-scrolling:touch}.tools button,.tools .btn,input[type=color]{flex:0 0 auto;width:44px;height:44px}.x{padding:8px 12px}.grid{grid-template-columns:1fr auto}.grid .wide{grid-column:1/-1}.grid label{grid-column:1/-1;margin-bottom:-6px}}
 body.drop #content{outline:3px dashed var(--accent);outline-offset:-8px}
 body.drop #content::after{content:"Drop a file to open it";position:absolute;inset:0;z-index:5;display:grid;place-items:center;font-size:1.2rem;background:color-mix(in srgb,var(--paper) 82%,transparent);pointer-events:none}
 #done{display:none;position:absolute;z-index:3;top:6px;right:6px;width:38px;height:38px;padding:0;place-items:center;border-radius:50%;background:color-mix(in srgb,var(--paper) 85%,transparent);opacity:.85}

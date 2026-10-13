@@ -30,7 +30,7 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;padding:12px;border:1px solid va
 <h2>Basics</h2>
 <ul>
 <li>Type in the editor. Every change is <b>saved automatically</b> in your browser (local storage on this device). Nothing is sent to a server.</li>
-<li>The <b>switch</b> in the header toggles between <b>Preview</b> (on) and <b>Edit</b> (off). The app opens the last memo you used, in preview.</li>
+<li>The <b>eye / pencil button</b> in the header switches between <b>Preview</b> and <b>Edit</b> (<kbd>F2</kbd>). The icon shows what the button will switch to. The app opens the last memo you used, in preview.</li>
 <li>Memos can be written in <b>Markdown</b> or <b>HTML</b>. A memo that starts with an HTML tag is treated as HTML. In preview, scripts, styles, and event attributes are removed for safety. <code>iframe</code> tags are removed too, except YouTube embeds (see below).</li>
 <li>Links in the preview open in a <b>new tab</b>.</li>
 <li><b>YouTube videos</b>: paste the embed code from YouTube (Share &rarr; Embed, an <code>&lt;iframe ... src="https://www.youtube.com/embed/..."&gt;</code> tag) into a memo. The video player is shown in preview, resized to the screen width (16:9) and loaded from <code>youtube-nocookie.com</code>. Only YouTube <code>/embed/</code> iframes are allowed; iframes from any other site are removed. A video needs an internet connection to play, and YouTube can see that you opened it. A code sample inside a Markdown code block (<code>```</code>) is shown as plain text.</li>
@@ -50,17 +50,19 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;padding:12px;border:1px solid va
 <table>
 <tr><th>Button</th><th>Action</th></tr>
 <tr><td>New (file with plus)</td><td>Start a new memo. <kbd>F11</kbd></td></tr>
-<tr><td>Import (arrow down)</td><td>Open one or more .md, .markdown, .txt, .html, or .htm files as new memos. You can also drag and drop files onto the window. A <b>.json</b> backup file offers a Restore instead. <kbd>Ctrl</kbd>+<kbd>O</kbd></td></tr>
-<tr><td>Export (arrow up)</td><td>Download the current memo as .md or .html. <kbd>Ctrl</kbd>+<kbd>S</kbd></td></tr>
-<tr><td>Find (magnifier)</td><td>Find and replace (see below). <kbd>F9</kbd></td></tr>
 <tr><td>List (lines)</td><td>Open the memo list. <kbd>F10</kbd></td></tr>
 <tr><td>&lt; &nbsp; &gt;</td><td>Go to the previous / next memo. Wraps around at both ends. Only memos matching the tag filter are used when a filter is set. If you leave a new memo that is still empty, the next memo opens in preview. <kbd>Alt</kbd>+<kbd>[</kbd> / <kbd>Alt</kbd>+<kbd>]</kbd></td></tr>
-<tr><td>Tags (tag)</td><td>Add or remove tags on the current memo. <kbd>Alt</kbd>+<kbd>T</kbd></td></tr>
+<tr><td>Preview / Edit (eye / pencil)</td><td>Switch between preview and edit mode. The icon shows what the button will switch to: a pencil while you are previewing, an eye while you are editing. <kbd>F2</kbd></td></tr>
+<tr><td>Find (magnifier)</td><td>Find and replace (see below). <kbd>F9</kbd></td></tr>
 <tr><td>Search all memos (document with magnifier)</td><td>Search the <b>text</b> of all memos (see below). <kbd>Alt</kbd>+<kbd>G</kbd></td></tr>
-<tr><td>Settings (gear)</td><td>Open the settings pop-up. Use the slider to set the <b>memo text size</b> in 5 steps. The setting is remembered. <kbd>Alt</kbd>+<kbd>&lt;</kbd> / <kbd>Alt</kbd>+<kbd>&gt;</kbd> change it without opening the pop-up. Settings also has <b>Manage tags</b>. Press <kbd>Esc</kbd> or &#10005; to close.</td></tr>
-<tr><td>Backup &amp; Restore (floppy disk)</td><td>Open the Backup &amp; Restore screen. <kbd>Alt</kbd>+<kbd>D</kbd></td></tr>
+<tr><td>Background color (square) and Reset (circular arrow)</td><td>Change the background color of the current memo, or go back to the default color.</td></tr>
+<tr><td>Tags (tag)</td><td>Add or remove tags on the current memo. <kbd>Alt</kbd>+<kbd>T</kbd></td></tr>
 <tr><td>Duplicate (two squares)</td><td>Make a copy of the current memo (text, background color, and tags). The copy is added at the end and gets a number after the title: <i>Title (2)</i>, <i>Title (3)</i>, &hellip; Only saved memos can be duplicated. <kbd>Alt</kbd>+<kbd>C</kbd></td></tr>
 <tr><td>Delete (trash can)</td><td>Delete the current memo after confirmation. <kbd>Alt</kbd>+<kbd>Delete</kbd></td></tr>
+<tr><td>Import (arrow down)</td><td>Open one or more .md, .markdown, .txt, .html, or .htm files as new memos. You can also drag and drop files onto the window. A <b>.json</b> backup file offers a Restore instead. <kbd>Ctrl</kbd>+<kbd>O</kbd></td></tr>
+<tr><td>Export (arrow up)</td><td>Download the current memo as .md or .html. <kbd>Ctrl</kbd>+<kbd>S</kbd></td></tr>
+<tr><td>Settings (gear)</td><td>Open the settings pop-up. Use the slider to set the <b>memo text size</b> in 5 steps. The setting is remembered. <kbd>Alt</kbd>+<kbd>&lt;</kbd> / <kbd>Alt</kbd>+<kbd>&gt;</kbd> change it without opening the pop-up. Settings also has <b>Manage tags</b>. Press <kbd>Esc</kbd> or &#10005; to close.</td></tr>
+<tr><td>Backup &amp; Restore (floppy disk)</td><td>Open the Backup &amp; Restore screen. <kbd>Alt</kbd>+<kbd>D</kbd></td></tr>
 <tr><td>? (circle)</td><td>Open this page.</td></tr>
 </table>
 

@@ -1,7 +1,7 @@
 (()=>{
 const $=id=>document.getElementById(id);
 const KM='lwsm.memos',KC='lwsm.cur';
-const ed=$('ed'),pv=$('pv'),sw=$('sw'),bg=$('bg'),bar=$('bar'),box=$('content');
+const ed=$('ed'),pv=$('pv'),sw=$('bSw'),bg=$('bg'),bar=$('bar'),box=$('content');
 const dF=$('dFind'),kw=$('kw'),rp=$('rp'),all=$('all'),cs=$('cs'),st=$('st');
 const dS=$('dSet'),fsr=$('fs');
 const hitBox=$('hit'),clearHit=()=>{hitBox.textContent='';hit=null};
@@ -46,7 +46,7 @@ const render=t=>clean(isHtml(t)?t:(window.marked?marked.parse(t,{gfm:true,breaks
 
 const applyBg=()=>{const c=cur.bg;box.style.background=c;box.style.color=c?fg(c):'';box.style.setProperty('--link',c?fg(c):'');
   bg.value=c||(matchMedia('(prefers-color-scheme:dark)').matches?'#171d1a':'#ffffff')};
-const setMode=(p,focus)=>{preview=p;if(p)pv.innerHTML=render(cur.text);sw.checked=p;ed.hidden=p;pv.hidden=!p;bar.classList.remove('hide');if(!p&&focus)ed.focus();if(p){clearHit();pv.focus({preventScroll:true})}};
+const setMode=(p,focus)=>{preview=p;if(p)pv.innerHTML=render(cur.text);sw.dataset.mode=p?'preview':'edit';const sl=p?'Switch to edit (F2)':'Switch to preview (F2)';sw.title=sl;sw.setAttribute('aria-label',sl);ed.hidden=p;pv.hidden=!p;bar.classList.remove('hide');if(!p&&focus)ed.focus();if(p){clearHit();pv.focus({preventScroll:true})}};
 const load=(m,p)=>{cur=m;clearHit();setTitle();ed.value=m.text;applyBg();ed.hidden=pv.hidden=false;ed.scrollTop=pv.scrollTop=0;ly=0;setMode(p);try{localStorage.setItem(KC,m.id)}catch(e){}};
 const pool=()=>memos.filter(m=>[...tagSel].every(k=>hasTag(m,k)));
 const canRotate=()=>{const p=pool();return p.length>1||(p.length===1&&p[0].id!==cur.id)};
@@ -151,7 +151,7 @@ ed.addEventListener('pointerdown',()=>{clearHit();if(ed.readOnly){ed.readOnly=fa
 ed.addEventListener('scroll',()=>{hitBox.style.transform='translateY('+(-ed.scrollTop)+'px)'});
 addEventListener('resize',clearHit);
 $('done').onclick=()=>ed.blur();
-sw.addEventListener('change',()=>setMode(sw.checked,true));
+sw.addEventListener('click',()=>setMode(!preview,true));
 bg.addEventListener('input',()=>{cur.bg=bg.value;applyBg();changed()});
 $('bRst').onclick=()=>{cur.bg='';applyBg();changed()};
 $('bNew').onclick=doNew;$('bImp').onclick=doImport;$('bExp').onclick=doExport;$('bDel').onclick=doDelete;$('bDup').onclick=doDuplicate;$('bPrev').onclick=()=>rotate(-1);$('bNext').onclick=()=>rotate(1);$('bFind').onclick=openFind;$('bList').onclick=openList;
