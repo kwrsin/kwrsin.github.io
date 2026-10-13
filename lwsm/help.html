@@ -56,6 +56,7 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;padding:12px;border:1px solid va
 <tr><td>List (lines)</td><td>Open the memo list. <kbd>F10</kbd></td></tr>
 <tr><td>&lt; &nbsp; &gt;</td><td>Go to the previous / next memo. Wraps around at both ends. Only memos matching the tag filter are used when a filter is set. If you leave a new memo that is still empty, the next memo opens in preview. <kbd>Alt</kbd>+<kbd>[</kbd> / <kbd>Alt</kbd>+<kbd>]</kbd></td></tr>
 <tr><td>Tags (tag)</td><td>Add or remove tags on the current memo. <kbd>Alt</kbd>+<kbd>T</kbd></td></tr>
+<tr><td>Search all memos (document with magnifier)</td><td>Search the <b>text</b> of all memos (see below). <kbd>Alt</kbd>+<kbd>G</kbd></td></tr>
 <tr><td>Settings (gear)</td><td>Open the settings pop-up. Use the slider to set the <b>memo text size</b> in 5 steps. The setting is remembered. <kbd>Alt</kbd>+<kbd>&lt;</kbd> / <kbd>Alt</kbd>+<kbd>&gt;</kbd> change it without opening the pop-up. Settings also has <b>Manage tags</b>. Press <kbd>Esc</kbd> or &#10005; to close.</td></tr>
 <tr><td>Backup &amp; Restore (floppy disk)</td><td>Open the Backup &amp; Restore screen. <kbd>Alt</kbd>+<kbd>D</kbd></td></tr>
 <tr><td>Duplicate (two squares)</td><td>Make a copy of the current memo (text, background color, and tags). The copy is added at the end and gets a number after the title: <i>Title (2)</i>, <i>Title (3)</i>, &hellip; Only saved memos can be duplicated. <kbd>Alt</kbd>+<kbd>C</kbd></td></tr>
@@ -76,6 +77,7 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;padding:12px;border:1px solid va
 <tr><td><kbd>Alt</kbd>+<kbd>&lt;</kbd> / <kbd>Alt</kbd>+<kbd>&gt;</kbd></td><td>Make the memo text smaller / larger (5 steps). Same as the key without Shift: <kbd>Alt</kbd>+<kbd>,</kbd> / <kbd>Alt</kbd>+<kbd>.</kbd></td></tr>
 <tr><td><kbd>Alt</kbd>+<kbd>T</kbd></td><td>Tags of the current memo</td></tr>
 <tr><td><kbd>Alt</kbd>+<kbd>M</kbd></td><td>Manage tags (rename / delete)</td></tr>
+<tr><td><kbd>Alt</kbd>+<kbd>G</kbd></td><td>Search all memos (full text)</td></tr>
 <tr><td><kbd>Alt</kbd>+<kbd>C</kbd></td><td>Duplicate the current memo</td></tr>
 <tr><td><kbd>Alt</kbd>+<kbd>D</kbd></td><td>Backup &amp; Restore screen (floppy disk button)</td></tr>
 <tr><td><kbd>Alt</kbd>+<kbd>B</kbd></td><td>Backup all memos</td></tr>
@@ -105,6 +107,15 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;padding:12px;border:1px solid va
 <li><kbd>Space</kbd> or <kbd>Enter</kbd> opens the selected memo and closes the list. While the Filter box has text, <kbd>Space</kbd> types a space; use <kbd>Enter</kbd>.</li>
 <li><kbd>Delete</kbd> deletes the selected memo after confirmation. The &times; button on a row does the same; <b>Delete all</b> removes every memo. When a tag or keyword filter is active, it becomes <b>Delete N shown</b> and removes only the memos shown in the list (after a confirmation); the filter is then cleared.</li>
 <li><kbd>Esc</kbd> or the &#10005; button closes the list. The same applies to Find.</li>
+</ul>
+
+<h2>Search all memos</h2>
+<ul>
+<li>Press the <b>search button</b> (<kbd>Alt</kbd>+<kbd>G</kbd>) to look for a word in the <b>text</b> of your memos. (The Filter in the memo list only looks at titles.)</li>
+<li>The search covers all memos, or only the memos that have <b>all</b> the selected tags (use the tag chips in the dialog; it is the same tag selection as in the memo list). Upper and lower case are treated as the same unless <b>Case sensitive</b> is ticked.</li>
+<li>While searching, only the number of hits and a <b>Cancel</b> button are shown, and you can cancel at any time. When the search finishes (or is cancelled), the hits are listed with the <b>line number</b>, the <b>memo title</b>, and the matching line. At most 1000 hits are listed.</li>
+<li>Click a hit (or pick it with <kbd>&uarr;</kbd> / <kbd>&darr;</kbd> and press <kbd>Enter</kbd>) to open that memo in <b>edit mode</b> at that line; the keyword is marked with a yellow box. The list is kept when you reopen the dialog, until you search again. If the memo has changed since the search, the nearest match is used.</li>
+<li>After the jump, <b>Find</b> (<kbd>F9</kbd>) already has the keyword filled in, so you can continue with the next match.</li>
 </ul>
 
 <h2>Tags</h2>

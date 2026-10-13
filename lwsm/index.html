@@ -35,6 +35,7 @@
       <button id="bExp" title="Export (Ctrl+S)" aria-label="Export"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3M7 8l5-5 5 5M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg></button>
       <button id="bFind" title="Find (F9)" aria-label="Find"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.5-4.5"/></svg></button>
       <button id="bList" title="List (F10)" aria-label="List"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3.5 6h.01M3.5 12h.01M3.5 18h.01"/></svg></button>
+      <button id="bGrep" title="Search all memos (Alt+G)" aria-label="Search all memos"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h4"/><path d="M13 3l5 5v2"/><circle cx="16" cy="16" r="3"/><path d="M21 21l-2.9-2.9"/></svg></button>
       <button id="bPrev" title="Previous memo (Alt+[)" aria-label="Previous memo"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
       <button id="bNext" title="Next memo (Alt+])" aria-label="Next memo"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
       <label class="sw" title="Preview / Edit (F2)"><input type="checkbox" id="sw" aria-label="Preview"><span></span></label>
@@ -94,6 +95,18 @@
   <p id="dn"></p>
   <div class="btns"><button id="bBk" title="Alt+B">Backup</button><button id="bRs" title="Alt+O">Restore</button></div>
   <p class="hint"><b>Backup</b> downloads all memos (with tags) as one .json file. While a tag filter is active, only the memos matching it are saved. <b>Restore</b> reads a backup file and lets you merge it into the current memos or replace them.</p>
+</dialog>
+
+<dialog id="dGrep" aria-label="Search all memos">
+  <button class="x" id="xGr" aria-label="Close">✕</button>
+  <h2 class="dh" id="gh">Search all memos</h2>
+  <div id="gform">
+    <div class="krow"><input id="gk" autocomplete="off" placeholder="Keyword in memo text" aria-label="Keyword"><button id="bGr">Search</button></div>
+    <div class="frow"><label class="chk"><input type="checkbox" id="gcs"> Case sensitive</label><span id="gscope"></span></div>
+    <div id="gtl" class="chips" role="group" aria-label="Limit to tags"></div>
+  </div>
+  <div id="grun" hidden><p id="gn">0 hits</p><button id="bGc">Cancel</button></div>
+  <div id="gres" hidden><p id="gsum"></p><ul id="gl"></ul></div>
 </dialog>
 
 <dialog id="dTags" aria-label="Tags">

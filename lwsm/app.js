@@ -5,7 +5,7 @@ const ed=$('ed'),pv=$('pv'),sw=$('sw'),bg=$('bg'),bar=$('bar'),box=$('content');
 const dF=$('dFind'),kw=$('kw'),rp=$('rp'),all=$('all'),cs=$('cs'),st=$('st');
 const dS=$('dSet'),fsr=$('fs');
 const hitBox=$('hit'),clearHit=()=>{hitBox.textContent='';hit=null};
-const dD=$('dData'),dG=$('dTags'),gc=$('gc'),gs=$('gs'),gi=$('gi'),dM=$('dMng'),mg=$('mg'),dR=$('dRest'),tl=$('tl');
+const dGr=$('dGrep'),dD=$('dData'),dG=$('dTags'),gc=$('gc'),gs=$('gs'),gi=$('gi'),dM=$('dMng'),mg=$('mg'),dR=$('dRest'),tl=$('tl');
 const dT=$('dTitle'),ti=$('ti'),tt=$('ttl');
 const dL=$('dList'),fl=$('fl'),ul=$('ul');
 let ly=0,hit=null,memos=[],cur,tagSel=new Set(),rest=null,preview=true,timer,sel=0,view=[];
@@ -167,7 +167,7 @@ rp.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.isComposing){e.preventD
 let flT=0;const flushFl=()=>{if(flT){clearTimeout(flT);flT=0;sel=0;drawList()}};
 fl.addEventListener('input',()=>{clearTimeout(flT);flT=setTimeout(()=>{flT=0;sel=0;drawList()},80)});
 /* give keyboard scrolling back to the memo after any dialog closes (not on touch edit: no soft keyboard) */
-const coarse=matchMedia('(pointer:coarse)').matches,dlgs=[dF,dS,dT,dG,dM,dR,dD,dL];
+const coarse=matchMedia('(pointer:coarse)').matches,dlgs=[dF,dS,dT,dG,dM,dR,dD,dL,dGr];
 const focusBody=()=>{if(dlgs.some(d=>d.open))return;if(preview)pv.focus({preventScroll:true});else if(!coarse)ed.focus({preventScroll:true})};
 dlgs.forEach(d=>d.addEventListener('close',focusBody));
 dL.addEventListener('keydown',e=>{if(e.isComposing)return;
@@ -181,13 +181,13 @@ dL.addEventListener('keydown',e=>{if(e.isComposing)return;
 /* bracket keys differ by keyboard layout and Option on macOS, so map by layout */
 const kc={'[':'BracketLeft',']':'BracketRight'};
 if(navigator.keyboard&&navigator.keyboard.getLayoutMap)navigator.keyboard.getLayoutMap().then(m=>{for(const[c,v]of m)if(v==='['||v===']')kc[v]=c}).catch(()=>{});
-document.addEventListener('keydown',e=>{if(dL.open||dT.open||dG.open||dM.open||dR.open||dD.open)return;const c=e.ctrlKey||e.metaKey,k=e.key.toLowerCase();
+document.addEventListener('keydown',e=>{if(dL.open||dT.open||dG.open||dM.open||dR.open||dD.open||dGr.open)return;const c=e.ctrlKey||e.metaKey,k=e.key.toLowerCase();
   if(e.altKey&&!c&&(e.code==='Comma'||e.code==='Period')){e.preventDefault();fsStep(e.code==='Comma'?-1:1);return}
   if(dS.open){if(e.key==='Escape'){e.preventDefault();dS.close()}return}
   if(dF.open){if(e.key==='F9'){e.preventDefault();kw.focus();kw.select()}else if(e.key==='Escape'){e.preventDefault();dF.close()}return}
   const run=f=>{e.preventDefault();f()},al=e.altKey&&!c,ak=x=>al&&e.code===x,kb=x=>e.key===x||e.code===kc[x];
   if(e.key==='F11')run(doNew);else if(c&&k==='o')run(doImport);else if(c&&k==='s')run(doExport);else if(e.key==='F9')run(openFind);
-  else if(al&&kb(']'))run(()=>rotate(1));else if(al&&kb('['))run(()=>rotate(-1));else if(al&&e.key==='Delete')run(doDelete);else if(al&&(k==='r'||e.code==='KeyR'))run(openTitle);else if(ak('KeyT'))run(openTags);else if(ak('KeyM'))run(openMng);else if(ak('KeyB'))run(doBackup);else if(ak('KeyO'))run(openRestore);else if(ak('KeyD'))run(openData);else if(ak('KeyC'))run(doDuplicate);else if(e.key==='F10')run(openList);else if(e.key==='F2')run(()=>setMode(!preview,true))});
+  else if(al&&kb(']'))run(()=>rotate(1));else if(al&&kb('['))run(()=>rotate(-1));else if(al&&e.key==='Delete')run(doDelete);else if(al&&(k==='r'||e.code==='KeyR'))run(openTitle);else if(ak('KeyT'))run(openTags);else if(ak('KeyM'))run(openMng);else if(ak('KeyB'))run(doBackup);else if(ak('KeyO'))run(openRestore);else if(ak('KeyD'))run(openData);else if(ak('KeyC'))run(doDuplicate);else if(ak('KeyG'))run(openGrep);else if(e.key==='F10')run(openList);else if(e.key==='F2')run(()=>setMode(!preview,true))});
 pv.addEventListener('click',e=>{const a=e.target.closest('a[href]');if(!a||(a.getAttribute('href')||'').startsWith('#'))return;
   e.preventDefault();window.open(a.href,'_blank','noopener,noreferrer')});
 const onScroll=e=>{const y=e.target.scrollTop;if(y>ly+8&&y>60)bar.classList.add('hide');else if(y<ly-8||y<=0)bar.classList.remove('hide');ly=y};
@@ -244,6 +244,55 @@ const deleteTag=(name,n)=>{if(!confirm('Remove tag "'+name+'" from '+n+' memo'+(
   for(const m of memos)if(m.tags){m.tags=m.tags.filter(x=>x.toLowerCase()!==name.toLowerCase());if(!m.tags.length)delete m.tags}
   tagSel.delete(name.toLowerCase());persist();setTitle();drawMng();drawList()};
 const openMng=()=>{if(dM.open)return;save();drawMng();dM.showModal()};
+
+/* ---- search all memos (Alt+G): async, cancellable, scoped by the tag selection ---- */
+const gk=$('gk'),gcs=$('gcs'),gl=$('gl'),GMAX=1000;
+let gRes=null,gRun=false,gAbort=false,gSel=-1;
+const reEsc=s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+const gShow=run=>{$('gform').hidden=run;$('gh').hidden=run;$('grun').hidden=!run;$('gres').hidden=run||!gRes};
+const drawGScope=()=>{const ts=allTags();for(const k of [...tagSel])if(!ts.some(x=>x.t.toLowerCase()===k))tagSel.delete(k);
+  const gt=$('gtl');gt.textContent='';
+  ts.forEach(x=>{const on=tagSel.has(x.t.toLowerCase());const b=chip(x.t,on?'on':'',()=>{toggleTag(x.t);drawFlt();drawGScope()});b.setAttribute('aria-pressed',on);gt.append(b)});
+  const n=pool().length;$('gscope').textContent=tagSel.size?fltText()+' · '+n+' memo'+(n===1?'':'s'):'All memos · '+n};
+const drawGRes=()=>{gl.textContent='';gSel=-1;const r=gRes;$('gres').hidden=!r;if(!r)return;
+  $('gsum').textContent=(r.cancelled?'Cancelled: ':'')+r.total+(r.truncated?'+':'')+' hit'+(r.total===1?'':'s')+' in '+r.memos+' memo'+(r.memos===1?'':'s')+(r.truncated?' (showing the first '+r.hits.length+')':'')+(r.cancelled?' so far':'');
+  for(const h of r.hits){const li=document.createElement('li'),a=document.createElement('div'),ln=document.createElement('span'),tt=document.createElement('span'),sn=document.createElement('div'),mk=document.createElement('mark');
+    a.className='h1';ln.className='ln';ln.textContent='L'+h.line;tt.className='tt';tt.textContent=h.title||'(untitled)';a.append(ln,tt);
+    sn.className='sn';mk.textContent=h.snip.slice(h.hs,h.hs+h.hl);sn.append(document.createTextNode(h.snip.slice(0,h.hs)),mk,document.createTextNode(h.snip.slice(h.hs+h.hl)));
+    li.append(a,sn);li.onclick=()=>gotoHit(h);gl.append(li)}};
+const runGrep=async()=>{if(gRun)return;const k=gk.value;if(!k)return;save();
+  const scope=pool(),cs=gcs.checked,re=new RegExp(reEsc(k),cs?'g':'gi');
+  gRun=true;gAbort=false;gRes=null;gShow(true);$('gn').textContent='0 hits';
+  const hits=[];let memosHit=0,trunc=false,t0=performance.now();
+  outer:for(const m of scope){const text=m.text;let nl=text.indexOf('\n'),line=1,ls=0,r,found=false;re.lastIndex=0;
+    while((r=re.exec(text))){
+      while(nl>=0&&nl<r.index){line++;ls=nl+1;nl=text.indexOf('\n',nl+1)}
+      if(hits.length>=GMAX){trunc=true;break outer}
+      const le=nl<0?text.length:nl;let a=ls,b=le,pre='',post='';
+      if(b-a>90){a=Math.max(ls,r.index-30);b=Math.min(le,r.index+r[0].length+50);pre=a>ls?'…':'';post=b<le?'…':''}
+      hits.push({id:m.id,line,off:r.index,len:r[0].length,title:ttl(m),snip:pre+text.slice(a,b)+post,hs:pre.length+(r.index-a),hl:r[0].length,kw:k,cs});found=true}
+    if(found)memosHit++;
+    if(performance.now()-t0>12){$('gn').textContent=hits.length+' hit'+(hits.length===1?'':'s');await new Promise(x=>setTimeout(x,0));if(gAbort)break;t0=performance.now()}}
+  gRun=false;gRes={hits,total:hits.length,memos:memosHit,truncated:trunc,cancelled:gAbort};
+  gShow(false);drawGRes();drawGScope()};
+const gotoHit=h=>{const m=memos.find(x=>x.id===h.id);if(!m){say('That memo no longer exists',2000);return}
+  save();if(cur.id!==m.id){m.updated=Date.now();load(m,false);persist()}else if(preview)setMode(false);
+  dGr.close();kw.value=h.kw;cs.checked=h.cs;
+  const t=ed.value,same=s=>h.cs?s===h.kw:s.toLowerCase()===h.kw.toLowerCase();let off=h.off;
+  if(!same(t.substr(off,h.len))){const re=new RegExp(reEsc(h.kw),h.cs?'g':'gi');let best=-1,bd=Infinity,r;
+    while((r=re.exec(t))){const d=Math.abs(r.index-h.off);if(d<bd){bd=d;best=r.index}else if(r.index>h.off)break}
+    if(best<0){say('The keyword is no longer in this memo',2200);return}off=best;say('The memo has changed; showing the nearest match',2000)}
+  showHit(off,h.len)};
+const openGrep=()=>{if(dGr.open)return;save();drawGScope();gShow(gRun);drawGRes();dGr.showModal();gk.focus();gk.select()};
+$('bGrep').onclick=openGrep;$('xGr').onclick=()=>dGr.close();$('bGr').onclick=runGrep;$('bGc').onclick=()=>{gAbort=true};
+dGr.addEventListener('close',()=>{if(gRun)gAbort=true});
+gk.addEventListener('input',()=>{gSel=-1;[...gl.children].forEach(li=>li.classList.remove('on'))});
+dGr.addEventListener('keydown',e=>{if(e.isComposing)return;
+  if((e.key==='ArrowDown'||e.key==='ArrowUp')&&gRes&&gl.children.length){e.preventDefault();
+    gSel=Math.max(0,Math.min(gl.children.length-1,gSel+(e.key==='ArrowDown'?1:-1)));
+    [...gl.children].forEach((li,i)=>li.classList.toggle('on',i===gSel));gl.children[gSel].scrollIntoView({block:'nearest'})}
+  else if(e.key==='Enter'&&e.target.tagName!=='BUTTON'){e.preventDefault();
+    if(gSel>=0&&gRes&&gRes.hits[gSel])gotoHit(gRes.hits[gSel]);else if(e.target===gk)runGrep()}});
 
 /* ---- backup / restore ---- */
 const stamp=()=>{const d=new Date(),p=n=>String(n).padStart(2,'0');return d.getFullYear()+p(d.getMonth()+1)+p(d.getDate())+'-'+p(d.getHours())+p(d.getMinutes())+p(d.getSeconds())};
