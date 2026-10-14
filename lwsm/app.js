@@ -288,8 +288,9 @@ $('bGrep').onclick=openGrep;$('xGr').onclick=()=>dGr.close();$('bGr').onclick=ru
 dGr.addEventListener('close',()=>{if(gRun)gAbort=true});
 gk.addEventListener('input',()=>{gSel=-1;[...gl.children].forEach(li=>li.classList.remove('on'))});
 dGr.addEventListener('keydown',e=>{if(e.isComposing)return;
-  if((e.key==='ArrowDown'||e.key==='ArrowUp')&&gRes&&gl.children.length){e.preventDefault();
-    gSel=Math.max(0,Math.min(gl.children.length-1,gSel+(e.key==='ArrowDown'?1:-1)));
+  const k=e.key.toLowerCase(),step=e.ctrlKey&&!e.altKey&&!e.metaKey?(k==='n'?1:k==='p'?-1:0):(e.key==='ArrowDown'?1:e.key==='ArrowUp'?-1:0);
+  if(step&&gRes&&gl.children.length){e.preventDefault();const n=gl.children.length;   /* Ctrl+N / Ctrl+P / arrows: wrap around like the memo list */
+    gSel=gSel<0?(step>0?0:n-1):(gSel+step+n)%n;
     [...gl.children].forEach((li,i)=>li.classList.toggle('on',i===gSel));gl.children[gSel].scrollIntoView({block:'nearest'})}
   else if(e.key==='Enter'&&e.target.tagName!=='BUTTON'){e.preventDefault();
     if(gSel>=0&&gRes&&gRes.hits[gSel])gotoHit(gRes.hits[gSel]);else if(e.target===gk)runGrep()}});
