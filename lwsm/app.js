@@ -146,7 +146,17 @@ const delAll=()=>{const q=fl.value.trim(),filtered=!!(tagSel.size||q),t=filtered
 /* events */
 ed.addEventListener('input',changed);
 ed.addEventListener('focus',()=>{if(!ed.readOnly)document.body.classList.add('editing')});
-ed.addEventListener('blur',()=>{ed.readOnly=false;document.body.classList.remove('editing')});
+/* leaving the editor (also when only the soft keyboard was closed): bring the header back and undo the page shift iOS leaves behind */
+const leaveEdit=()=>{ed.readOnly=false;document.body.classList.remove('editing');bar.classList.remove('hide');ly=ed.scrollTop;scrollTo(0,0);setTimeout(()=>scrollTo(0,0),80)};
+ed.addEventListener('blur',leaveEdit);
+/* detect that the soft keyboard was closed (iOS can close it while the textarea keeps focus) */
+if(window.visualViewport){const vv=window.visualViewport;let base=0,kb=false,lw=innerWidth;
+  const upd=()=>{if(!matchMedia('(pointer:coarse)').matches||vv.scale!==1)return;
+    if(innerWidth!==lw){lw=innerWidth;base=0;kb=false}
+    base=Math.max(base,vv.height);
+    if(vv.height<base-120)kb=true;
+    else if(kb){kb=false;if(document.activeElement===ed)ed.blur()}};
+  vv.addEventListener('resize',upd);upd()}
 ed.addEventListener('pointerdown',()=>{clearHit();if(ed.readOnly){ed.readOnly=false;ed.blur()}});
 ed.addEventListener('scroll',()=>{hitBox.style.transform='translateY('+(-ed.scrollTop)+'px)'});
 addEventListener('resize',clearHit);
