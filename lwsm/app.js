@@ -161,6 +161,8 @@ ed.addEventListener('pointerdown',()=>{clearHit();if(ed.readOnly){ed.readOnly=fa
 ed.addEventListener('scroll',()=>{hitBox.style.transform='translateY('+(-ed.scrollTop)+'px)'});
 addEventListener('resize',clearHit);
 $('done').onclick=()=>ed.blur();
+/* iOS pans the page when the keyboard opens; keep the close-keyboard button at the top of what is actually visible */
+if(window.visualViewport){const v=window.visualViewport,place=()=>{$('done').style.transform='translate('+v.offsetLeft+'px,'+v.offsetTop+'px)'};v.addEventListener('scroll',place);v.addEventListener('resize',place);place()}
 sw.addEventListener('click',()=>setMode(!preview,true));
 bg.addEventListener('input',()=>{cur.bg=bg.value;applyBg();changed()});
 $('bRst').onclick=()=>{cur.bg='';applyBg();changed()};
