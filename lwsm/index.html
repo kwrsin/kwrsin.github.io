@@ -53,6 +53,8 @@
   <textarea id="ed" spellcheck="false" placeholder="Start typing…" aria-label="Memo" hidden></textarea>
   <article id="pv" aria-label="Preview" tabindex="0"></article>
   <div id="hit" aria-hidden="true"></div>
+  <button id="bOut" type="button" hidden aria-label="Outline" aria-expanded="false" aria-controls="outline" title="Outline (Alt+H)"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M8 12h12M12 18h8"/></svg></button>
+  <nav id="outline" aria-label="Outline" hidden><ul id="ol"></ul></nav>
 </main>
 
 <div id="toast" role="status" aria-live="polite"></div>
@@ -75,6 +77,9 @@
     <label for="fs">Memo text size</label>
     <div class="sl"><span class="s1" aria-hidden="true">A</span><input type="range" id="fs" min="1" max="5" step="1"><span class="s2" aria-hidden="true">A</span></div>
     <output id="fo" for="fs"></output>
+  </div>
+  <div class="row">
+    <label class="chk"><input type="checkbox" id="sOut"> Show floating outline in preview</label>
   </div>
   <div class="row">
     <span>Tags</span>

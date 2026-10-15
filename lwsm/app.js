@@ -46,7 +46,7 @@ const render=t=>clean(isHtml(t)?t:(window.marked?marked.parse(t,{gfm:true,breaks
 
 const applyBg=()=>{const c=cur.bg;box.style.background=c;box.style.color=c?fg(c):'';box.style.setProperty('--link',c?fg(c):'');
   bg.value=c||(matchMedia('(prefers-color-scheme:dark)').matches?'#171d1a':'#ffffff')};
-const setMode=(p,focus)=>{preview=p;document.body.dataset.mode=p?'preview':'edit';setTitle();if(p)pv.innerHTML=render(cur.text);sw.dataset.mode=p?'preview':'edit';const sl=p?'Switch to edit (F2)':'Switch to preview (F2)';sw.title=sl;sw.setAttribute('aria-label',sl);ed.hidden=p;pv.hidden=!p;bar.classList.remove('hide');if(!p&&focus)ed.focus();if(p){clearHit();pv.focus({preventScroll:true})}};
+const setMode=(p,focus)=>{preview=p;document.body.dataset.mode=p?'preview':'edit';setTitle();if(p){pv.innerHTML=render(cur.text);olBuild()}else olUpdate();sw.dataset.mode=p?'preview':'edit';const sl=p?'Switch to edit (F2)':'Switch to preview (F2)';sw.title=sl;sw.setAttribute('aria-label',sl);ed.hidden=p;pv.hidden=!p;olUpdate();bar.classList.remove('hide');if(!p&&focus)ed.focus();if(p){clearHit();pv.focus({preventScroll:true})}};
 const load=(m,p)=>{cur=m;clearHit();setTitle();ed.value=m.text;applyBg();ed.hidden=pv.hidden=false;ed.scrollTop=pv.scrollTop=0;ly=0;setMode(p);try{localStorage.setItem(KC,m.id)}catch(e){}};
 const pool=()=>memos.filter(m=>[...tagSel].every(k=>hasTag(m,k)));
 const canRotate=()=>{const p=pool();return p.length>1||(p.length===1&&p[0].id!==cur.id)};
@@ -231,13 +231,14 @@ dL.addEventListener('keydown',e=>{if(e.isComposing)return;
 /* bracket keys differ by keyboard layout and Option on macOS, so map by layout */
 const kc={'[':'BracketLeft',']':'BracketRight'};
 if(navigator.keyboard&&navigator.keyboard.getLayoutMap)navigator.keyboard.getLayoutMap().then(m=>{for(const[c,v]of m)if(v==='['||v===']')kc[v]=c}).catch(()=>{});
-document.addEventListener('keydown',e=>{if(dL.open||dT.open||dG.open||dM.open||dR.open||dD.open||dGr.open)return;const c=e.ctrlKey||e.metaKey,k=e.key.toLowerCase();
+document.addEventListener('keydown',e=>{if(dL.open||dT.open||dG.open||dM.open||dR.open||dD.open||dGr.open)return;
+  if(e.key==='Escape'&&!olNav.hidden){e.preventDefault();olClose();return}const c=e.ctrlKey||e.metaKey,k=e.key.toLowerCase();
   if(e.altKey&&!c&&(e.code==='Comma'||e.code==='Period')){e.preventDefault();fsStep(e.code==='Comma'?-1:1);return}
   if(dS.open){if(e.key==='Escape'){e.preventDefault();dS.close()}return}
   if(dF.open){if(e.key==='F9'){e.preventDefault();kw.focus();kw.select()}else if(e.key==='Escape'){e.preventDefault();dF.close()}return}
   const run=f=>{e.preventDefault();f()},al=e.altKey&&!c,ak=x=>al&&e.code===x,kb=x=>e.key===x||e.code===kc[x];
   if(e.key==='F11')run(doNew);else if(c&&k==='o')run(doImport);else if(c&&k==='s')run(doExport);else if(e.key==='F9')run(openFind);
-  else if(al&&kb(']'))run(()=>rotate(1));else if(al&&kb('['))run(()=>rotate(-1));else if(al&&e.key==='Delete')run(doDelete);else if(al&&(k==='r'||e.code==='KeyR'))run(openTitle);else if(ak('KeyT'))run(openTags);else if(ak('KeyM'))run(openMng);else if(ak('KeyB'))run(doBackup);else if(ak('KeyO'))run(openRestore);else if(ak('KeyD'))run(openData);else if(ak('KeyC'))run(doDuplicate);else if(ak('KeyG'))run(openGrep);else if(e.key==='F10')run(openList);else if(e.key==='F2')run(()=>setMode(!preview,true))});
+  else if(al&&kb(']'))run(()=>rotate(1));else if(al&&kb('['))run(()=>rotate(-1));else if(al&&e.key==='Delete')run(doDelete);else if(al&&(k==='r'||e.code==='KeyR'))run(openTitle);else if(ak('KeyT'))run(openTags);else if(ak('KeyM'))run(openMng);else if(ak('KeyB'))run(doBackup);else if(ak('KeyO'))run(openRestore);else if(ak('KeyD'))run(openData);else if(ak('KeyC'))run(doDuplicate);else if(ak('KeyG'))run(openGrep);else if(ak('KeyH'))run(olToggle);else if(e.key==='F10')run(openList);else if(e.key==='F2')run(()=>setMode(!preview,true))});
 pv.addEventListener('click',e=>{const a=e.target.closest('a[href]');if(!a||(a.getAttribute('href')||'').startsWith('#'))return;
   e.preventDefault();window.open(a.href,'_blank','noopener,noreferrer')});
 const onScroll=e=>{const y=e.target.scrollTop;if(y>ly+8&&y>60)bar.classList.add('hide');else if(y<ly-8||y<=0)bar.classList.remove('hide');ly=y};
@@ -425,10 +426,35 @@ pv.addEventListener('touchend',()=>{const h=sm==='h';sm=null;if(!h)return;
     pv.style.transition='transform .18s ease-out';pv.style.transform=''},150)});
 pv.addEventListener('touchcancel',()=>{if(sm==='h')back();sm=null});
 
+/* ---- outline (table of contents) for the preview ---- */
+const OLK='lwsm.outline',bOut=$('bOut'),olNav=$('outline'),olUl=$('ol'),sOut=$('sOut');
+let olOn=true,heads=[],olRaf=0;try{olOn=localStorage.getItem(OLK)!=='0'}catch(e){}
+const olNarrow=()=>matchMedia('(max-width:520px)').matches;
+const olClose=()=>{olNav.hidden=true;bOut.setAttribute('aria-expanded','false')};
+const olUpdate=()=>{const can=olOn&&preview&&heads.length>0&&pv.scrollHeight>pv.clientHeight+8;bOut.hidden=!can;if(!can)olClose()};
+const olSpy=()=>{olRaf=0;if(olNav.hidden)return;const top=pv.getBoundingClientRect().top+(olNarrow()?24:bar.offsetHeight+24);let c=0;
+  heads.forEach((h,i)=>{if(h.getBoundingClientRect().top<=top)c=i});
+  [...olUl.querySelectorAll('button')].forEach((b,i)=>b.classList.toggle('cur',i===c));
+  const li=olUl.children[c];if(li)li.scrollIntoView({block:'nearest'})};
+const olGo=i=>{const h=heads[i];if(!h)return;const m=olNarrow()?12:bar.offsetHeight+8;
+  pv.scrollTo({top:pv.scrollTop+h.getBoundingClientRect().top-pv.getBoundingClientRect().top-m,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});olClose()};
+const olBuild=()=>{olClose();heads=[...pv.querySelectorAll('h1,h2,h3,h4,h5,h6')];olUl.textContent='';
+  const min=Math.min(6,...heads.map(h=>+h.tagName[1]));
+  heads.forEach((h,i)=>{const li=document.createElement('li'),b=document.createElement('button');b.type='button';
+    b.textContent=h.textContent.trim()||'(untitled)';b.title=b.textContent;b.style.paddingLeft=(8+(+h.tagName[1]-min)*14)+'px';b.onclick=()=>olGo(i);li.append(b);olUl.append(li)});
+  olUpdate()};
+const olToggle=()=>{if(bOut.hidden)return;const open=olNav.hidden;olNav.hidden=!open;bOut.setAttribute('aria-expanded',open);if(open)olSpy()};
+bOut.onclick=olToggle;
+sOut.checked=olOn;sOut.addEventListener('change',()=>{olOn=sOut.checked;try{localStorage.setItem(OLK,olOn?'1':'0')}catch(e){}olUpdate()});
+pv.addEventListener('scroll',()=>{if(!olNav.hidden&&!olRaf)olRaf=requestAnimationFrame(olSpy)},{passive:true});
+pv.addEventListener('click',()=>{if(!olNav.hidden)olClose()});
+pv.addEventListener('load',olUpdate,true);
+new ResizeObserver(olUpdate).observe(pv);
+
 /* settings: memo text size (5 levels, remembered) */
 const FS=[12,14,16,20,24],FN=['Extra small','Small','Medium','Large','Extra large'],KF='lwsm.fs';
 let fsLv=3;try{const v=+localStorage.getItem(KF);if(v>=1&&v<=5)fsLv=v}catch(e){}
-const applyFs=(keep)=>{clearHit();document.documentElement.style.setProperty('--fs',FS[fsLv-1]+'px');fsr.value=fsLv;$('fo').textContent=FN[fsLv-1]+' ('+FS[fsLv-1]+'px)';
+const applyFs=(keep)=>{clearHit();olUpdate();document.documentElement.style.setProperty('--fs',FS[fsLv-1]+'px');fsr.value=fsLv;$('fo').textContent=FN[fsLv-1]+' ('+FS[fsLv-1]+'px)';
   if(keep)try{localStorage.setItem(KF,fsLv)}catch(e){}};
 const openSet=()=>{if(!dS.open)dS.show();fsr.focus()};
 fsr.addEventListener('input',()=>{fsLv=+fsr.value;applyFs(true)});

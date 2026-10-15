@@ -62,7 +62,7 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;padding:12px;border:1px solid va
 <tr><td>Delete (trash can)</td><td>Delete the current memo after confirmation. <kbd>Alt</kbd>+<kbd>Delete</kbd></td></tr>
 <tr><td>Import (arrow down)</td><td>Open one or more .md, .markdown, .txt, .html, or .htm files as new memos. You can also drag and drop files onto the window. A <b>.json</b> backup file offers a Restore instead. <kbd>Ctrl</kbd>+<kbd>O</kbd></td></tr>
 <tr><td>Export (arrow up)</td><td>Download the current memo as .md or .html. <kbd>Ctrl</kbd>+<kbd>S</kbd></td></tr>
-<tr><td>Settings (gear)</td><td>Open the settings pop-up. Use the slider to set the <b>memo text size</b> in 5 steps. The setting is remembered. <kbd>Alt</kbd>+<kbd>&lt;</kbd> / <kbd>Alt</kbd>+<kbd>&gt;</kbd> change it without opening the pop-up. Settings also has <b>Manage tags</b>. Press <kbd>Esc</kbd> or &#10005; to close.</td></tr>
+<tr><td>Settings (gear)</td><td>Open the settings pop-up. Use the slider to set the <b>memo text size</b> in 5 steps. The setting is remembered. <kbd>Alt</kbd>+<kbd>&lt;</kbd> / <kbd>Alt</kbd>+<kbd>&gt;</kbd> change it without opening the pop-up. Settings also has <b>Manage tags</b> and the on/off option of the floating <b>outline</b>. Press <kbd>Esc</kbd> or &#10005; to close.</td></tr>
 <tr><td>Backup &amp; Restore (floppy disk)</td><td>Open the Backup &amp; Restore screen. <kbd>Alt</kbd>+<kbd>D</kbd></td></tr>
 <tr><td>? (circle)</td><td>Open this page.</td></tr>
 </table>
@@ -80,6 +80,7 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;padding:12px;border:1px solid va
 <tr><td><kbd>Alt</kbd>+<kbd>&lt;</kbd> / <kbd>Alt</kbd>+<kbd>&gt;</kbd></td><td>Make the memo text smaller / larger (5 steps). Same as the key without Shift: <kbd>Alt</kbd>+<kbd>,</kbd> / <kbd>Alt</kbd>+<kbd>.</kbd></td></tr>
 <tr><td><kbd>Alt</kbd>+<kbd>T</kbd></td><td>Tags of the current memo</td></tr>
 <tr><td><kbd>Alt</kbd>+<kbd>M</kbd></td><td>Manage tags (rename / delete)</td></tr>
+<tr><td><kbd>Alt</kbd>+<kbd>H</kbd></td><td>Show / hide the outline (headings list) in preview</td></tr>
 <tr><td><kbd>Alt</kbd>+<kbd>G</kbd></td><td>Search all memos (full text)</td></tr>
 <tr><td><kbd>Alt</kbd>+<kbd>C</kbd></td><td>Duplicate the current memo</td></tr>
 <tr><td><kbd>Alt</kbd>+<kbd>D</kbd></td><td>Backup &amp; Restore screen (floppy disk button)</td></tr>
@@ -112,6 +113,13 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;padding:12px;border:1px solid va
 <li><kbd>Space</kbd> or <kbd>Enter</kbd> opens the selected memo and closes the list. While the Filter box has text, <kbd>Space</kbd> types a space; use <kbd>Enter</kbd>.</li>
 <li><kbd>Delete</kbd> deletes the selected memo after confirmation. The &times; button on a row does the same; <b>Delete all</b> removes every memo. When a tag or keyword filter is active, it becomes <b>Delete N shown</b> and removes only the memos shown in the list (after a confirmation); the filter is then cleared.</li>
 <li><kbd>Esc</kbd> or the &#10005; button closes the list. The same applies to Find.</li>
+</ul>
+
+<h2>Outline (headings list)</h2>
+<ul>
+<li>In <b>preview</b>, when a memo has at least one heading and is long enough to scroll, a round <b>outline button</b> floats at the bottom left. It is hidden in edit mode. On a phone in portrait orientation it sits above the header and moves down when the header hides.</li>
+<li>Press the button (or <kbd>Alt</kbd>+<kbd>H</kbd>) to open a floating list of the headings, indented by level. The heading you are reading is shown in bold. Pick a heading to jump to it; the list closes. <kbd>Esc</kbd>, a tap on the text, or the button closes it too. The list scrolls inside itself and always stays on the screen.</li>
+<li>You can turn the outline off and on in <b>Settings</b> (gear): <i>Show floating outline in preview</i>. It is on by default.</li>
 </ul>
 
 <h2>Search all memos</h2>
