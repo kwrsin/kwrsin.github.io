@@ -97,6 +97,7 @@ const showHit=(i,len)=>{   /* no text selection: only the yellow marker; the hit
   const db=dF.open?dF.getBoundingClientRect().bottom-ed.getBoundingClientRect().top:0;
   const vv=window.visualViewport,avail=Math.min(ed.clientHeight,(vv?vv.height:innerHeight)-ed.getBoundingClientRect().top);
   const want=Math.max(db+24,Math.min(Math.max(db+48,avail*.42),avail-120));
+  if(!coarse)ed.setSelectionRange(i,i);   /* cursor just before the keyword (PC only; no selection) */
   ed.scrollTop=Math.max(0,yOf(i)-want);drawHit(i,len);hit={i,len}};
 const find=()=>{const k=kw.value;if(!k)return false;if(preview)setMode(false);
   const t=cs.checked?ed.value:ed.value.toLowerCase(),q=cs.checked?k:k.toLowerCase();let i=t.indexOf(q,hit?hit.i+hit.len:ed.selectionEnd);if(i<0)i=t.indexOf(q);
