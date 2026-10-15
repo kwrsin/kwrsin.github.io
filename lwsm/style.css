@@ -101,6 +101,7 @@ body.drop #content::after{content:"Drop a file to open it";position:absolute;ins
 .foot button+button{margin-left:8px}
 #ul li b{font-weight:400}
 #ul li i{font-style:normal;font-size:.8rem;opacity:.65;margin-left:.6em}
+body[data-mode=edit] #ttl{font-style:italic}
 #tgs{cursor:pointer;text-align:center;font-size:.8rem;opacity:.75;margin:-4px 0 8px;padding:0 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #tgs:empty{display:none}
 #flt{display:flex;justify-content:center;align-items:center;gap:6px;font-size:.8rem;font-weight:600;margin:-2px 0 8px}

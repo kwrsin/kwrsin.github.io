@@ -16,7 +16,7 @@ const strip=l=>l.replace(/<[^>]*>/g,'').replace(/^[\s#>*\-+`_~|=]+/,'').trim();
 const title=t=>{const n=t.length;for(let p=0;p<=n;){let e=t.indexOf('\n',p);if(e<0)e=n;const s=strip(t.slice(p,Math.min(e,p+20000)));if(s)return s.slice(0,80);p=e+1}return''};  /* reads only up to the first line with visible text (no full split) */
 const ttl=m=>m.name||title(m.text);
 const BASE='Light Weight Simple Memo';
-const setTitle=()=>{const t=cur&&ttl(cur);document.title=t?t+' - '+BASE:BASE;const h=$('ttl');h.textContent=t||'Untitled';h.title=t?t+'\n(Double-click or Alt+R to rename)':'';h.style.opacity=t?'':'.5';
+const setTitle=()=>{const t=cur&&ttl(cur);const lab='['+(preview?'Preview':'Editing')+'] ';document.title=lab+(t?t+' - '+BASE:BASE);const h=$('ttl');h.textContent=t||'Untitled';h.title=t?t+'\n(Double-click or Alt+R to rename)':'';h.style.opacity=t?'':'.5';
   const g=$('tgs'),tg=(cur&&cur.tags)||[];g.textContent=tg.map(x=>'#'+x).join(' ');g.title=tg.length?'Tags: '+tg.join(', ')+' (click to edit)':'';drawFlt()};
 const isHtml=t=>/^\s*<(!doctype|html|head|body|[a-z][\w-]*)[\s>\/]/i.test(t);
 const fg=c=>{const n=parseInt(c.slice(1),16);return((n>>16)*299+(n>>8&255)*587+(n&255)*114)/1000>150?'#111':'#f2f2f2'};
@@ -46,7 +46,7 @@ const render=t=>clean(isHtml(t)?t:(window.marked?marked.parse(t,{gfm:true,breaks
 
 const applyBg=()=>{const c=cur.bg;box.style.background=c;box.style.color=c?fg(c):'';box.style.setProperty('--link',c?fg(c):'');
   bg.value=c||(matchMedia('(prefers-color-scheme:dark)').matches?'#171d1a':'#ffffff')};
-const setMode=(p,focus)=>{preview=p;if(p)pv.innerHTML=render(cur.text);sw.dataset.mode=p?'preview':'edit';const sl=p?'Switch to edit (F2)':'Switch to preview (F2)';sw.title=sl;sw.setAttribute('aria-label',sl);ed.hidden=p;pv.hidden=!p;bar.classList.remove('hide');if(!p&&focus)ed.focus();if(p){clearHit();pv.focus({preventScroll:true})}};
+const setMode=(p,focus)=>{preview=p;document.body.dataset.mode=p?'preview':'edit';setTitle();if(p)pv.innerHTML=render(cur.text);sw.dataset.mode=p?'preview':'edit';const sl=p?'Switch to edit (F2)':'Switch to preview (F2)';sw.title=sl;sw.setAttribute('aria-label',sl);ed.hidden=p;pv.hidden=!p;bar.classList.remove('hide');if(!p&&focus)ed.focus();if(p){clearHit();pv.focus({preventScroll:true})}};
 const load=(m,p)=>{cur=m;clearHit();setTitle();ed.value=m.text;applyBg();ed.hidden=pv.hidden=false;ed.scrollTop=pv.scrollTop=0;ly=0;setMode(p);try{localStorage.setItem(KC,m.id)}catch(e){}};
 const pool=()=>memos.filter(m=>[...tagSel].every(k=>hasTag(m,k)));
 const canRotate=()=>{const p=pool();return p.length>1||(p.length===1&&p[0].id!==cur.id)};
