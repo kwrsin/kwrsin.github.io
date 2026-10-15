@@ -59,8 +59,9 @@
 
 <dialog id="dFind" aria-label="Find and replace">
   <button class="x" id="xF" aria-label="Close">✕</button>
-  <div class="krow"><input id="kw" autocomplete="off" placeholder="Keyword (Enter = find next)" aria-label="Keyword"><button id="bDoFind">Find</button></div>
-  <div class="frow"><label class="chk"><input type="checkbox" id="cs"> Case sensitive</label><span id="st" role="status"></span><button id="bRpT" aria-expanded="false" aria-controls="rpx">Replace ▾</button></div>
+  <div class="krow"><input id="kw" autocomplete="off" placeholder="Keyword (Enter = find next)" aria-label="Keyword"><button id="hF" class="hbtn" type="button" aria-label="Search history" aria-expanded="false" title="History (Alt+↓)">▾</button><button id="bDoFind">Find</button></div>
+  <ul class="hist" id="hlF" hidden></ul>
+  <div class="frow"><label class="chk"><input type="checkbox" id="cs"> Case sensitive</label><label class="chk"><input type="checkbox" id="rx"> Regex</label><span id="st" role="status"></span><button id="bRpT" aria-expanded="false" aria-controls="rpx">Replace ▾</button></div>
   <div id="rpx" hidden>
     <div class="krow"><input id="rp" autocomplete="off" placeholder="Replacement" aria-label="Replacement"><button id="bDoRep">Replace</button></div>
     <label class="chk"><input type="checkbox" id="all"> All (replace every match)</label>
@@ -101,9 +102,11 @@
   <button class="x" id="xGr" aria-label="Close">✕</button>
   <h2 class="dh" id="gh">Search all memos</h2>
   <div id="gform">
-    <div class="krow"><input id="gk" autocomplete="off" placeholder="Keyword in memo text" aria-label="Keyword"><button id="bGr">Search</button></div>
-    <div class="frow"><label class="chk"><input type="checkbox" id="gcs"> Case sensitive</label><span id="gscope"></span></div>
+    <div class="krow"><input id="gk" autocomplete="off" placeholder="Keyword in memo text" aria-label="Keyword"><button id="hG" class="hbtn" type="button" aria-label="Search history" aria-expanded="false" title="History (Alt+↓)">▾</button><button id="bGr">Search</button></div>
+    <ul class="hist" id="hlG" hidden></ul>
+    <div class="frow"><label class="chk"><input type="checkbox" id="gcs"> Case sensitive</label><label class="chk"><input type="checkbox" id="grx"> Regex</label><label class="chk"><input type="checkbox" id="gcur"> Current memo</label><span id="gscope"></span></div>
     <div id="gtl" class="chips" role="group" aria-label="Limit to tags"></div>
+    <p id="gerr" role="alert" hidden></p>
   </div>
   <div id="grun" hidden><p id="gn">0 hits</p><button id="bGc">Cancel</button></div>
   <div id="gres" hidden><p id="gsum"></p><ul id="gl"></ul></div>

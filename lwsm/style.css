@@ -120,4 +120,15 @@ button:disabled{opacity:.45;cursor:default}
 #gl .tt{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #gl .sn{font-size:.85rem;opacity:.9;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #gl mark{background:#ffd54a;color:#000;border-radius:2px;padding:0 1px}
+ul.hist{list-style:none;margin:8px 0 0;padding:4px;border:1.5px solid var(--line);border-radius:8px}
+ul.hist[hidden]{display:none}
+ul.hist li{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:4px;cursor:pointer}
+ul.hist li.on{background:var(--hl)}
+ul.hist .hk{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.9rem}
+ul.hist .hb{font-size:.7rem;opacity:.75;border:1px solid currentColor;border-radius:4px;padding:0 4px}
+ul.hist li.hc{opacity:.7;font-size:.85rem;justify-content:center}
+.krow .hbtn{padding:6px 10px}
+#gtl.off{opacity:.4;pointer-events:none}
+#gerr{color:#e5484d;margin:8px 0 0;font-size:.85rem}
+#gerr[hidden]{display:none}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}.hit-rect{animation:none}}

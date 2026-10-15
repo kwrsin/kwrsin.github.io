@@ -2,7 +2,7 @@
 const $=id=>document.getElementById(id);
 const KM='lwsm.memos',KC='lwsm.cur';
 const ed=$('ed'),pv=$('pv'),sw=$('bSw'),bg=$('bg'),bar=$('bar'),box=$('content');
-const dF=$('dFind'),kw=$('kw'),rp=$('rp'),all=$('all'),cs=$('cs'),st=$('st');
+const dF=$('dFind'),kw=$('kw'),rp=$('rp'),all=$('all'),cs=$('cs'),rx=$('rx'),st=$('st');
 const dS=$('dSet'),fsr=$('fs');
 const hitBox=$('hit'),clearHit=()=>{hitBox.textContent='';hit=null};
 const dGr=$('dGrep'),dD=$('dData'),dG=$('dTags'),gc=$('gc'),gs=$('gs'),gi=$('gi'),dM=$('dMng'),mg=$('mg'),dR=$('dRest'),tl=$('tl');
@@ -99,15 +99,49 @@ const showHit=(i,len)=>{   /* no text selection: only the yellow marker; the hit
   const want=Math.max(db+24,Math.min(Math.max(db+48,avail*.42),avail-120));
   if(!coarse)ed.setSelectionRange(i,i);   /* cursor just before the keyword (PC only; no selection) */
   ed.scrollTop=Math.max(0,yOf(i)-want);drawHit(i,len);hit={i,len}};
+/* ---- regular expressions + keyword history (shared by Find and Search all memos) ---- */
+const reEsc=s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+const mkRe=(k,isRe,csens)=>{const src=isRe?k:reEsc(k),fl=(csens?'':'i')+'gm',re=new RegExp(src,fl);   /* throws if the pattern is invalid */
+  if(isRe&&new RegExp(src,fl.replace('g','')).test(''))throw new Error('empty');return re};
+const reMsg=e=>e.message==='empty'?'This pattern can match empty text. Make it more specific.':'Invalid regular expression';
+const HK='lwsm.hist';let hist=[];
+try{hist=JSON.parse(localStorage.getItem(HK)||'[]').filter(h=>h&&typeof h.k==='string'&&h.k).slice(0,5)}catch(e){}
+const addHist=(k,re,cs)=>{if(!k)return;re=!!re;cs=!!cs;hist=[{k,re,cs},...hist.filter(h=>!(h.k===k&&h.re===re&&h.cs===cs))].slice(0,5);try{localStorage.setItem(HK,JSON.stringify(hist))}catch(e){}};
+const histUI=(inp,btn,ul,onPick)=>{let sel=-1;
+  const draw=()=>{ul.textContent='';
+    hist.forEach((h,i)=>{const li=document.createElement('li'),s=document.createElement('span');if(i===sel)li.className='on';s.className='hk';s.textContent=h.k;li.append(s);
+      for(const [on,t,tip] of [[h.re,'.*','Regex'],[h.cs,'Aa','Case sensitive']])if(on){const b=document.createElement('span');b.className='hb';b.textContent=t;b.title=tip;li.append(b)}
+      li.onmousedown=e=>e.preventDefault();li.onclick=()=>pick(i);ul.append(li)});
+    const c=document.createElement('li');c.className='hc';c.textContent='Clear history';c.onmousedown=e=>e.preventDefault();
+    c.onclick=()=>{hist=[];try{localStorage.removeItem(HK)}catch(e){}show(false)};ul.append(c)};
+  const show=on=>{on=on&&hist.length>0;ul.hidden=!on;btn.setAttribute('aria-expanded',on);sel=-1;if(on)draw()};
+  const pick=i=>{const h=hist[i];if(!h)return;onPick(h);show(false);inp.focus()};
+  btn.onclick=()=>{show(ul.hidden);inp.focus()};
+  inp.addEventListener('input',()=>show(false));
+  inp.addEventListener('keydown',e=>{if(e.isComposing)return;const stop=()=>{e.preventDefault();e.stopImmediatePropagation()};
+    if(e.altKey&&e.key==='ArrowDown'){stop();show(ul.hidden);return}
+    if(ul.hidden)return;
+    if(e.key==='ArrowDown'||e.key==='ArrowUp'){stop();const n=hist.length;sel=sel<0?(e.key==='ArrowDown'?0:n-1):(sel+(e.key==='ArrowDown'?1:-1)+n)%n;draw()}
+    else if(e.key==='Enter'&&sel>=0){stop();pick(sel)}
+    else if(e.key==='Escape'){stop();show(false)}},true);
+  return{close:()=>show(false)}};
+
 const find=()=>{const k=kw.value;if(!k)return false;if(preview)setMode(false);
-  const t=cs.checked?ed.value:ed.value.toLowerCase(),q=cs.checked?k:k.toLowerCase();let i=t.indexOf(q,hit?hit.i+hit.len:ed.selectionEnd);if(i<0)i=t.indexOf(q);
-  if(i<0){stat('Not found');clearHit();return false}
-  const pos=[];for(let p=t.indexOf(q);p>=0;p=t.indexOf(q,p+q.length))pos.push(p);
-  showHit(i,k.length);stat(pos.filter(x=>x<=i).length+' / '+pos.length);return true};
+  let re;try{re=mkRe(k,rx.checked,cs.checked)}catch(e){stat(reMsg(e));clearHit();return false}
+  fHist.close();addHist(k,rx.checked,cs.checked);
+  const t=ed.value,from=hit?hit.i+hit.len:ed.selectionEnd,found=[];let m;
+  while((m=re.exec(t))){if(!m[0].length){re.lastIndex++;continue}found.push([m.index,m[0].length]);if(found.length>=20000)break}
+  if(!found.length){stat('Not found');clearHit();return false}
+  const nx=found.find(a=>a[0]>=from)||found[0];
+  showHit(nx[0],nx[1]);stat((found.indexOf(nx)+1)+' / '+found.length+(found.length>=20000?'+':''));return true};
 const replace=()=>{const k=kw.value;if(!k)return;if(preview)setMode(false);const r=rp.value;
-  if(all.checked){let n=0;ed.value=ed.value.replace(new RegExp(k.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),cs.checked?'g':'gi'),()=>(n++,r));stat(n+' replaced');changed();return}
-  if(hit){const a=hit.i,b=a+hit.len,s=ed.value.slice(a,b);
-    if(cs.checked?s===k:s.toLowerCase()===k.toLowerCase()){ed.setRangeText(r,a,b,'end');changed()}}
+  let re;try{re=mkRe(k,rx.checked,cs.checked)}catch(e){stat(reMsg(e));return}
+  if(all.checked){const t=ed.value;let n=0,m;while((m=re.exec(t))){if(!m[0].length){re.lastIndex++;continue}n++}
+    re.lastIndex=0;ed.value=rx.checked?t.replace(re,r):t.replace(re,()=>r);stat(n+' replaced');changed();return}
+  if(hit){const t=ed.value,a=hit.i,sr=new RegExp(re.source,re.flags.replace('g','')+'y');sr.lastIndex=a;const m=sr.exec(t);
+    if(m&&m.index===a&&m[0].length===hit.len){sr.lastIndex=a;
+      const frag=rx.checked?(o=>o.slice(a,a+o.length-t.length+hit.len))(sr[Symbol.replace](t,r)):r;   /* $1, $2 ... work in regex mode */
+      ed.setRangeText(frag,a,a+hit.len,'end');changed()}}
   find()};
 
 /* list */
@@ -174,6 +208,9 @@ const rpx=$('rpx'),bRpT=$('bRpT');
 const setRp=on=>{rpx.hidden=!on;bRpT.setAttribute('aria-expanded',on);bRpT.textContent=on?'Replace ▴':'Replace ▾'};
 bRpT.onclick=()=>{setRp(rpx.hidden);if(!rpx.hidden)rp.focus()};
 kw.addEventListener('input',()=>{stat('');clearHit()});
+const fHist=histUI(kw,$('hF'),$('hlF'),h=>{kw.value=h.k;cs.checked=h.cs;rx.checked=h.re;kw.dispatchEvent(new Event('input'))});
+cs.addEventListener('change',()=>{stat('');clearHit()});rx.addEventListener('change',()=>{stat('');clearHit()});
+dF.addEventListener('close',()=>fHist.close());
 $('bDoRep').onclick=replace;$('bDelAll').onclick=delAll;
 kw.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.isComposing){e.preventDefault();find()}});
 rp.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.isComposing){e.preventDefault();replace()}});
@@ -259,14 +296,13 @@ const deleteTag=(name,n)=>{if(!confirm('Remove tag "'+name+'" from '+n+' memo'+(
 const openMng=()=>{if(dM.open)return;save();drawMng();dM.showModal()};
 
 /* ---- search all memos (Alt+G): async, cancellable, scoped by the tag selection ---- */
-const gk=$('gk'),gcs=$('gcs'),gl=$('gl'),GMAX=1000;
+const gk=$('gk'),gcs=$('gcs'),grx=$('grx'),gcur=$('gcur'),gl=$('gl'),GMAX=1000;
 let gRes=null,gRun=false,gAbort=false,gSel=-1;
-const reEsc=s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
 const gShow=run=>{$('gform').hidden=run;$('gh').hidden=run;$('grun').hidden=!run;$('gres').hidden=run||!gRes};
 const drawGScope=()=>{const ts=allTags();for(const k of [...tagSel])if(!ts.some(x=>x.t.toLowerCase()===k))tagSel.delete(k);
   const gt=$('gtl');gt.textContent='';
   ts.forEach(x=>{const on=tagSel.has(x.t.toLowerCase());const b=chip(x.t,on?'on':'',()=>{toggleTag(x.t);drawFlt();drawGScope()});b.setAttribute('aria-pressed',on);gt.append(b)});
-  const n=pool().length;$('gscope').textContent=tagSel.size?fltText()+' · '+n+' memo'+(n===1?'':'s'):'All memos · '+n};
+  gt.classList.toggle('off',gcur.checked);const n=pool().length;$('gscope').textContent=gcur.checked?'Current memo only':tagSel.size?fltText()+' · '+n+' memo'+(n===1?'':'s'):'All memos · '+n};
 const drawGRes=()=>{gl.textContent='';gSel=-1;const r=gRes;$('gres').hidden=!r;if(!r)return;
   $('gsum').textContent=(r.cancelled?'Cancelled: ':'')+r.total+(r.truncated?'+':'')+' hit'+(r.total===1?'':'s')+' in '+r.memos+' memo'+(r.memos===1?'':'s')+(r.truncated?' (showing the first '+r.hits.length+')':'')+(r.cancelled?' so far':'');
   for(const h of r.hits){const li=document.createElement('li'),a=document.createElement('div'),ln=document.createElement('span'),tt=document.createElement('span'),sn=document.createElement('div'),mk=document.createElement('mark');
@@ -274,32 +310,41 @@ const drawGRes=()=>{gl.textContent='';gSel=-1;const r=gRes;$('gres').hidden=!r;i
     sn.className='sn';mk.textContent=h.snip.slice(h.hs,h.hs+h.hl);sn.append(document.createTextNode(h.snip.slice(0,h.hs)),mk,document.createTextNode(h.snip.slice(h.hs+h.hl)));
     li.append(a,sn);li.onclick=()=>gotoHit(h);gl.append(li)}};
 const runGrep=async()=>{if(gRun)return;const k=gk.value;if(!k)return;save();
-  const scope=pool(),cs=gcs.checked,re=new RegExp(reEsc(k),cs?'g':'gi');
+  let re;try{re=mkRe(k,grx.checked,gcs.checked)}catch(e){$('gerr').textContent=reMsg(e);$('gerr').hidden=false;return}
+  $('gerr').hidden=true;gHist.close();addHist(k,grx.checked,gcs.checked);
+  const cs=gcs.checked,isRe=grx.checked,cm=memos.find(x=>x.id===cur.id),scope=gcur.checked?(cm?[cm]:[]):pool();
   gRun=true;gAbort=false;gRes=null;gShow(true);$('gn').textContent='0 hits';
   const hits=[];let memosHit=0,trunc=false,t0=performance.now();
   outer:for(const m of scope){const text=m.text;let nl=text.indexOf('\n'),line=1,ls=0,r,found=false;re.lastIndex=0;
     while((r=re.exec(text))){
+      if(!r[0].length){re.lastIndex++;continue}
       while(nl>=0&&nl<r.index){line++;ls=nl+1;nl=text.indexOf('\n',nl+1)}
       if(hits.length>=GMAX){trunc=true;break outer}
       const le=nl<0?text.length:nl;let a=ls,b=le,pre='',post='';
       if(b-a>90){a=Math.max(ls,r.index-30);b=Math.min(le,r.index+r[0].length+50);pre=a>ls?'…':'';post=b<le?'…':''}
-      hits.push({id:m.id,line,off:r.index,len:r[0].length,title:ttl(m),snip:pre+text.slice(a,b)+post,hs:pre.length+(r.index-a),hl:r[0].length,kw:k,cs});found=true}
+      hits.push({id:m.id,line,off:r.index,len:r[0].length,title:ttl(m),snip:pre+text.slice(a,b)+post,hs:pre.length+(r.index-a),hl:r[0].length,kw:k,cs,re:isRe});found=true}
     if(found)memosHit++;
     if(performance.now()-t0>12){$('gn').textContent=hits.length+' hit'+(hits.length===1?'':'s');await new Promise(x=>setTimeout(x,0));if(gAbort)break;t0=performance.now()}}
   gRun=false;gRes={hits,total:hits.length,memos:memosHit,truncated:trunc,cancelled:gAbort};
   gShow(false);drawGRes();drawGScope()};
 const gotoHit=h=>{const m=memos.find(x=>x.id===h.id);if(!m){say('That memo no longer exists',2000);return}
   save();if(cur.id!==m.id){m.updated=Date.now();load(m,false);persist()}else if(preview)setMode(false);
-  dGr.close();kw.value=h.kw;cs.checked=h.cs;
-  const t=ed.value,same=s=>h.cs?s===h.kw:s.toLowerCase()===h.kw.toLowerCase();let off=h.off;
-  if(!same(t.substr(off,h.len))){const re=new RegExp(reEsc(h.kw),h.cs?'g':'gi');let best=-1,bd=Infinity,r;
-    while((r=re.exec(t))){const d=Math.abs(r.index-h.off);if(d<bd){bd=d;best=r.index}else if(r.index>h.off)break}
+  dGr.close();kw.value=h.kw;cs.checked=h.cs;rx.checked=!!h.re;
+  const t=ed.value;let off=h.off,len=h.len,re;
+  try{re=mkRe(h.kw,h.re,h.cs)}catch(e){say('Invalid pattern',2000);return}
+  const sr=new RegExp(re.source,re.flags.replace('g','')+'y');sr.lastIndex=off;const m0=sr.exec(t);
+  if(m0&&m0.index===off)len=m0[0].length;
+  else{let best=-1,bd=Infinity,r;re.lastIndex=0;
+    while((r=re.exec(t))){if(!r[0].length){re.lastIndex++;continue}const d=Math.abs(r.index-h.off);if(d<bd){bd=d;best=r.index;len=r[0].length}else if(r.index>h.off)break}
     if(best<0){say('The keyword is no longer in this memo',2200);return}off=best;say('The memo has changed; showing the nearest match',2000)}
-  showHit(off,h.len)};
+  showHit(off,len)};
 const openGrep=()=>{if(dGr.open)return;save();drawGScope();gShow(gRun);drawGRes();dGr.showModal();gk.focus();gk.select()};
 $('bGrep').onclick=openGrep;$('xGr').onclick=()=>dGr.close();$('bGr').onclick=runGrep;$('bGc').onclick=()=>{gAbort=true};
 dGr.addEventListener('close',()=>{if(gRun)gAbort=true});
 gk.addEventListener('input',()=>{gSel=-1;[...gl.children].forEach(li=>li.classList.remove('on'))});
+const gHist=histUI(gk,$('hG'),$('hlG'),h=>{gk.value=h.k;gcs.checked=h.cs;grx.checked=h.re;gk.dispatchEvent(new Event('input'))});
+gcur.addEventListener('change',drawGScope);
+dGr.addEventListener('cancel',e=>{if(!$('hlG').hidden)e.preventDefault()});
 dGr.addEventListener('keydown',e=>{if(e.isComposing)return;
   const k=e.key.toLowerCase(),step=e.ctrlKey&&!e.altKey&&!e.metaKey?(k==='n'?1:k==='p'?-1:0):(e.key==='ArrowDown'?1:e.key==='ArrowUp'?-1:0);
   if(step&&gRes&&gl.children.length){e.preventDefault();const n=gl.children.length;   /* Ctrl+N / Ctrl+P / arrows: wrap around like the memo list */
