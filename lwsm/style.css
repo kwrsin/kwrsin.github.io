@@ -140,4 +140,9 @@ ul.hist li.hc{opacity:.7;font-size:.85rem;justify-content:center}
 #pv :is(h1,h2,h3,h4,h5,h6){scroll-margin-top:calc(var(--hh,64px) + 8px)}
 @media(max-width:520px){#bOut{bottom:calc(var(--hh,64px) + 12px)}#outline{bottom:calc(var(--hh,64px) + 62px);max-height:calc(100% - var(--hh,64px) - 62px - 14px)}
 #bar.hide~#bOut{bottom:14px}#bar.hide~#outline{bottom:64px;max-height:calc(100% - 78px)}#pv :is(h1,h2,h3,h4,h5,h6){scroll-margin-top:12px}}
+/* optional translucent + blurred header / outline (Settings); browsers without backdrop-filter keep the normal look */
+@supports (backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px)){
+body.glass #bar,body.glass #bOut{background:color-mix(in srgb,var(--mbg,var(--paper)) 82%,transparent);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+body.glass #outline{background:color-mix(in srgb,var(--mbg,var(--paper)) 86%,transparent);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
+}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}.hit-rect{animation:none}}

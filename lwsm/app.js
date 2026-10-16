@@ -44,7 +44,7 @@ const clean=h=>{const d=new DOMParser().parseFromString(h,'text/html');
   return d.body.innerHTML};
 const render=t=>clean(isHtml(t)?t:(window.marked?marked.parse(t,{gfm:true,breaks:true}):'<pre>'+esc(t)+'</pre>'));
 
-const applyBg=()=>{const c=cur.bg;box.style.background=c;box.style.color=c?fg(c):'';box.style.setProperty('--link',c?fg(c):'');
+const applyBg=()=>{const c=cur.bg;box.style.background=c;box.style.color=c?fg(c):'';box.style.setProperty('--link',c?fg(c):'');box.style.setProperty('--mbg',c||'');
   bg.value=c||(matchMedia('(prefers-color-scheme:dark)').matches?'#171d1a':'#ffffff')};
 const setMode=(p,focus)=>{preview=p;document.body.dataset.mode=p?'preview':'edit';setTitle();if(p){pv.innerHTML=render(cur.text);olBuild()}else olUpdate();sw.dataset.mode=p?'preview':'edit';const sl=p?'Switch to edit (F2)':'Switch to preview (F2)';sw.title=sl;sw.setAttribute('aria-label',sl);ed.hidden=p;pv.hidden=!p;olUpdate();bar.classList.remove('hide');if(!p&&focus)ed.focus();if(p){clearHit();pv.focus({preventScroll:true})}};
 const load=(m,p)=>{cur=m;clearHit();setTitle();ed.value=m.text;applyBg();ed.hidden=pv.hidden=false;ed.scrollTop=pv.scrollTop=0;ly=0;setMode(p);try{localStorage.setItem(KC,m.id)}catch(e){}};
@@ -446,6 +446,9 @@ const olBuild=()=>{olClose();heads=[...pv.querySelectorAll('h1,h2,h3,h4,h5,h6')]
 const olToggle=()=>{if(bOut.hidden)return;const open=olNav.hidden;olNav.hidden=!open;bOut.setAttribute('aria-expanded',open);if(open)olSpy()};
 bOut.onclick=olToggle;
 sOut.checked=olOn;sOut.addEventListener('change',()=>{olOn=sOut.checked;try{localStorage.setItem(OLK,olOn?'1':'0')}catch(e){}olUpdate()});
+const GLK='lwsm.glass',sGlass=$('sGlass');let glassOn=false;try{glassOn=localStorage.getItem(GLK)==='1'}catch(e){}
+const applyGlass=()=>document.body.classList.toggle('glass',glassOn);
+sGlass.checked=glassOn;sGlass.addEventListener('change',()=>{glassOn=sGlass.checked;try{localStorage.setItem(GLK,glassOn?'1':'0')}catch(e){}applyGlass()});applyGlass();
 pv.addEventListener('scroll',()=>{if(!olNav.hidden&&!olRaf)olRaf=requestAnimationFrame(olSpy)},{passive:true});
 pv.addEventListener('click',()=>{if(!olNav.hidden)olClose()});
 pv.addEventListener('load',olUpdate,true);
