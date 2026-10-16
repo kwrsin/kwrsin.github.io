@@ -21,8 +21,23 @@
 <link rel="stylesheet" href="style.css">
 <script src="https://cdn.jsdelivr.net/npm/marked@15.0.12/marked.min.js" defer></script>
 <script src="app.js" defer></script>
+<style>
+/* splash screen: covers everything until the first memo is on screen */
+#splash{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;background:#eef1ef;color:#16201b;font-family:system-ui,-apple-system,"Hiragino Sans","Yu Gothic UI",sans-serif;transition:opacity .2s,visibility 0s .2s}
+#splash.done{opacity:0;visibility:hidden;pointer-events:none}
+#splash .sp-in{display:grid;justify-items:center;gap:14px;opacity:0;animation:sp-in .25s ease .15s forwards}
+#splash svg{width:88px;height:88px;border-radius:20px;box-shadow:0 4px 16px rgba(0,0,0,.18)}
+#splash .sp-t{font-size:1.9rem;font-weight:700;letter-spacing:.12em}
+#splash .sp-n{font-size:.85rem;letter-spacing:.2em;opacity:.7}
+@keyframes sp-in{to{opacity:1}}
+@media(prefers-color-scheme:dark){#splash{background:#0e1311;color:#e6ece8}}
+@media(prefers-reduced-motion:reduce){#splash,#splash.done{transition:none}#splash .sp-in{animation:sp-in 0s linear .15s forwards}}
+</style>
+<noscript><style>#splash{display:none}</style></noscript>
 </head>
 <body>
+<div id="splash" aria-hidden="true"><div class="sp-in"><svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><rect width="512" height="512" rx="96" fill="#2f9e6b"/><rect x="132" y="96" width="248" height="320" rx="24" fill="#fff"/><g stroke="#2f9e6b" stroke-width="24" stroke-linecap="round"><path d="M176 172h160M176 232h160M176 292h160M176 352h100"/></g></svg><div class="sp-t">LWSM</div><div class="sp-n">NOW LOADING...</div></div></div>
+<script>setTimeout(function(){var s=document.getElementById('splash');if(s)s.className='done'},3000)</script>
 <main id="content">
   <header id="bar">
     <h1 class="sr">Light Weight Simple Memo</h1>

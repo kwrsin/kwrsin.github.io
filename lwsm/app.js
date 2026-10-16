@@ -468,5 +468,8 @@ applyFs();
 /* start: last used memo, in preview */
 const last=memos.find(m=>m.id===localStorage.getItem(KC))||memos.slice().sort((a,b)=>b.updated-a.updated)[0];
 if(last)load(last,true);else{load(newMemo(),false);ed.focus()}
+/* remove the splash screen once the first memo has been painted */
+const splash=document.getElementById('splash');
+if(splash)requestAnimationFrame(()=>requestAnimationFrame(()=>{splash.className='done';setTimeout(()=>splash.remove(),300)}));
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 })();
