@@ -16,7 +16,7 @@ const strip=l=>l.replace(/<[^>]*>/g,'').replace(/^[\s#>*\-+`_~|=]+/,'').trim();
 const title=t=>{const n=t.length;for(let p=0;p<=n;){let e=t.indexOf('\n',p);if(e<0)e=n;const s=strip(t.slice(p,Math.min(e,p+20000)));if(s)return s.slice(0,80);p=e+1}return''};  /* reads only up to the first line with visible text (no full split) */
 const ttl=m=>m.name||title(m.text);
 const BASE='Light Weight Simple Memo';
-const setTitle=()=>{const t=cur&&ttl(cur);const lab='['+(preview?'Preview':'Editing')+'] ';document.title=lab+(t?t+' - '+BASE:BASE);const h=$('ttl');h.textContent=t||'Untitled';h.title=t?t+'\n(Double-click or Alt+R to rename)':'';h.style.opacity=t?'':'.5';
+const setTitle=()=>{const t=cur&&ttl(cur);const lab=(preview?'👁️':'✏️')+' ';document.title=lab+(t?t+' - '+BASE:BASE);const h=$('ttl');h.textContent=t||'Untitled';h.title=t?t+'\n(Double-click or Alt+R to rename)':'';h.style.opacity=t?'':'.5';
   const g=$('tgs'),tg=(cur&&cur.tags)||[];g.textContent=tg.map(x=>'#'+x).join(' ');g.title=tg.length?'Tags: '+tg.join(', ')+' (click to edit)':'';drawFlt()};
 const isHtml=t=>/^\s*<(!doctype|html|head|body|[a-z][\w-]*)[\s>\/]/i.test(t);
 const fg=c=>{const n=parseInt(c.slice(1),16);return((n>>16)*299+(n>>8&255)*587+(n&255)*114)/1000>150?'#111':'#f2f2f2'};

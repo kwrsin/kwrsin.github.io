@@ -131,9 +131,9 @@ ul.hist li.hc{opacity:.7;font-size:.85rem;justify-content:center}
 #gtl.off{opacity:.4;pointer-events:none}
 #gerr{color:#e5484d;margin:8px 0 0;font-size:.85rem}
 #gerr[hidden]{display:none}
-#bOut{position:absolute;z-index:3;left:14px;bottom:14px;width:42px;height:42px;padding:0;display:grid;place-items:center;border-radius:50%;background:inherit;color:inherit;box-shadow:0 2px 8px rgba(0,0,0,.3);transition:bottom .2s}
+#bOut{position:absolute;z-index:3;right:22px;bottom:14px;width:42px;height:42px;padding:0;display:grid;place-items:center;border-radius:50%;background:inherit;color:inherit;box-shadow:0 2px 8px rgba(0,0,0,.3);transition:bottom .2s}
 #bOut[hidden],#outline[hidden]{display:none}
-#outline{position:absolute;z-index:3;left:14px;bottom:64px;width:min(340px,calc(100% - 28px));max-height:calc(100% - 64px - var(--hh,64px) - 14px);overflow:auto;background:inherit;color:inherit;border:1.5px solid currentColor;border-radius:8px;padding:4px;box-shadow:0 4px 16px rgba(0,0,0,.35);transition:bottom .2s}
+#outline{position:absolute;z-index:3;right:22px;bottom:64px;width:min(340px,calc(100% - 28px));max-height:calc(100% - 64px - var(--hh,64px) - 14px);overflow:auto;background:inherit;color:inherit;border:1.5px solid currentColor;border-radius:8px;padding:4px;box-shadow:0 4px 16px rgba(0,0,0,.35);transition:bottom .2s}
 #ol{list-style:none;margin:0;padding:0}
 #ol button{display:block;width:100%;text-align:left;border:0;padding:6px 8px;border-radius:4px;background:transparent;color:inherit;font:inherit;font-size:.9rem;line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #ol button.cur{font-weight:700;background:color-mix(in srgb,currentColor 14%,transparent)}
