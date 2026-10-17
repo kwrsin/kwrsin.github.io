@@ -8,7 +8,7 @@ const hitBox=$('hit'),clearHit=()=>{hitBox.textContent='';hit=null};
 const dGr=$('dGrep'),dD=$('dData'),dG=$('dTags'),gc=$('gc'),gs=$('gs'),gi=$('gi'),dM=$('dMng'),mg=$('mg'),dR=$('dRest'),tl=$('tl');
 const dT=$('dTitle'),ti=$('ti'),tt=$('ttl');
 const dL=$('dList'),fl=$('fl'),ul=$('ul');
-let ly=0,hit=null,memos=[],cur,tagSel=new Set(),rest=null,preview=true,timer,sel=0,view=[];
+let ly=0,noHideUntil=0,syncOn=false,hit=null,memos=[],cur,tagSel=new Set(),rest=null,preview=true,timer,sel=0,view=[];
 try{memos=JSON.parse(localStorage.getItem(KM)||'[]')}catch(e){}
 
 const newMemo=()=>({id:crypto.randomUUID?crypto.randomUUID():Date.now()+'-'+Math.random().toString(36).slice(2),text:'',bg:'',updated:Date.now()});
@@ -42,7 +42,13 @@ const clean=h=>{const d=new DOMParser().parseFromString(h,'text/html');
     if(n.startsWith('on')||(/^(href|src|xlink:href|action|formaction)$/.test(n)&&/^\s*(javascript:|data:text\/html)/i.test(a.value)))e.removeAttribute(a.name)});
     if(e.tagName==='A'&&!(e.getAttribute('href')||'').startsWith('#')){e.target='_blank';e.rel='noopener noreferrer'}});
   return d.body.innerHTML};
-const render=t=>clean(isHtml(t)?t:(window.marked?marked.parse(t,{gfm:true,breaks:true}):'<pre>'+esc(t)+'</pre>'));
+/* with scroll sync on, every top-level Markdown block is preceded by a comment <!--s123--> holding its offset in the source */
+const renderMd=t=>{if(!window.marked)return'<pre>'+esc(t)+'</pre>';const o={gfm:true,breaks:true};
+  if(!syncOn)return marked.parse(t,o);
+  const src=t.replace(/\r\n|\r/g,'\n'),toks=marked.lexer(src,o);let pos=0,out='';
+  for(const k of toks){const one=[k];one.links=toks.links;const h=marked.parser(one,o);let i=src.indexOf(k.raw,pos);if(i<0)i=pos;out+=(h?'<!--s'+i+'-->':'')+h;pos=i+k.raw.length}
+  return out};
+const render=t=>clean(isHtml(t)?t:renderMd(t));
 
 const applyBg=()=>{const c=cur.bg;box.style.background=c;box.style.color=c?fg(c):'';box.style.setProperty('--link',c?fg(c):'');box.style.setProperty('--mbg',c||'');
   bg.value=c||(matchMedia('(prefers-color-scheme:dark)').matches?'#171d1a':'#ffffff')};
@@ -198,7 +204,7 @@ addEventListener('resize',clearHit);
 $('done').onclick=()=>ed.blur();
 /* iOS pans the page when the keyboard opens; keep the close-keyboard button at the top of what is actually visible */
 if(window.visualViewport){const v=window.visualViewport,place=()=>{$('done').style.transform='translate('+v.offsetLeft+'px,'+v.offsetTop+'px)'};v.addEventListener('scroll',place);v.addEventListener('resize',place);place()}
-sw.addEventListener('click',()=>setMode(!preview,true));
+sw.addEventListener('click',()=>toggleMode());
 bg.addEventListener('input',()=>{cur.bg=bg.value;applyBg();changed()});
 $('bRst').onclick=()=>{cur.bg='';applyBg();changed()};
 $('bNew').onclick=doNew;$('bImp').onclick=doImport;$('bExp').onclick=doExport;$('bDel').onclick=doDelete;$('bDup').onclick=doDuplicate;$('bPrev').onclick=()=>rotate(-1);$('bNext').onclick=()=>rotate(1);$('bFind').onclick=openFind;$('bList').onclick=openList;
@@ -232,16 +238,19 @@ dL.addEventListener('keydown',e=>{if(e.isComposing)return;
 const kc={'[':'BracketLeft',']':'BracketRight'};
 if(navigator.keyboard&&navigator.keyboard.getLayoutMap)navigator.keyboard.getLayoutMap().then(m=>{for(const[c,v]of m)if(v==='['||v===']')kc[v]=c}).catch(()=>{});
 document.addEventListener('keydown',e=>{if(dL.open||dT.open||dG.open||dM.open||dR.open||dD.open||dGr.open)return;
-  if(e.key==='Escape'&&!olNav.hidden){e.preventDefault();olClose();return}const c=e.ctrlKey||e.metaKey,k=e.key.toLowerCase();
+  if(e.key==='Escape'&&!olNav.hidden){e.preventDefault();olClose();return}
+  if(!olNav.hidden){const kk=e.key.toLowerCase();
+    if(e.ctrlKey&&!e.altKey&&!e.metaKey&&(kk==='n'||kk==='p')){e.preventDefault();olStep(kk==='n'?1:-1);return}
+    if(e.key==='Enter'&&!e.ctrlKey&&!e.altKey&&!e.metaKey&&!e.isComposing&&!(e.target.closest&&e.target.closest('#ol'))){e.preventDefault();olClose();return}}const c=e.ctrlKey||e.metaKey,k=e.key.toLowerCase();
   if(e.altKey&&!c&&(e.code==='Comma'||e.code==='Period')){e.preventDefault();fsStep(e.code==='Comma'?-1:1);return}
   if(dS.open){if(e.key==='Escape'){e.preventDefault();dS.close()}return}
   if(dF.open){if(e.key==='F9'){e.preventDefault();kw.focus();kw.select()}else if(e.key==='Escape'){e.preventDefault();dF.close()}return}
   const run=f=>{e.preventDefault();f()},al=e.altKey&&!c,ak=x=>al&&e.code===x,kb=x=>e.key===x||e.code===kc[x];
   if(e.key==='F11')run(doNew);else if(c&&k==='o')run(doImport);else if(c&&k==='s')run(doExport);else if(e.key==='F9')run(openFind);
-  else if(al&&kb(']'))run(()=>rotate(1));else if(al&&kb('['))run(()=>rotate(-1));else if(al&&e.key==='Delete')run(doDelete);else if(al&&(k==='r'||e.code==='KeyR'))run(openTitle);else if(ak('KeyT'))run(openTags);else if(ak('KeyM'))run(openMng);else if(ak('KeyB'))run(doBackup);else if(ak('KeyO'))run(openRestore);else if(ak('KeyD'))run(openData);else if(ak('KeyC'))run(doDuplicate);else if(ak('KeyG'))run(openGrep);else if(ak('KeyH'))run(olToggle);else if(e.key==='F10')run(openList);else if(e.key==='F2')run(()=>setMode(!preview,true))});
+  else if(al&&kb(']'))run(()=>rotate(1));else if(al&&kb('['))run(()=>rotate(-1));else if(al&&e.key==='Delete')run(doDelete);else if(al&&(k==='r'||e.code==='KeyR'))run(openTitle);else if(ak('KeyT'))run(openTags);else if(ak('KeyM'))run(openMng);else if(ak('KeyB'))run(doBackup);else if(ak('KeyO'))run(openRestore);else if(ak('KeyD'))run(openData);else if(ak('KeyC'))run(doDuplicate);else if(ak('KeyG'))run(openGrep);else if(ak('KeyH'))run(olToggle);else if(e.key==='F10')run(openList);else if(e.key==='F2')run(()=>toggleMode())});
 pv.addEventListener('click',e=>{const a=e.target.closest('a[href]');if(!a||(a.getAttribute('href')||'').startsWith('#'))return;
   e.preventDefault();window.open(a.href,'_blank','noopener,noreferrer')});
-const onScroll=e=>{const y=e.target.scrollTop;if(y>ly+8&&y>60)bar.classList.add('hide');else if(y<ly-8||y<=0)bar.classList.remove('hide');ly=y};
+const onScroll=e=>{if(Date.now()<noHideUntil){ly=e.target.scrollTop;return}const y=e.target.scrollTop;if(y>ly+8&&y>60)bar.classList.add('hide');else if(y<ly-8||y<=0)bar.classList.remove('hide');ly=y};
 ed.addEventListener('scroll',onScroll);pv.addEventListener('scroll',onScroll);
 const flush=()=>{if(cur&&!ed.hidden)cur.text=ed.value;if(cur)save()};
 addEventListener('pagehide',flush);document.addEventListener('visibilitychange',()=>{if(document.hidden)flush()});
@@ -432,12 +441,14 @@ let olOn=true,heads=[],olRaf=0;try{olOn=localStorage.getItem(OLK)!=='0'}catch(e)
 const olNarrow=()=>matchMedia('(max-width:520px)').matches;
 const olClose=()=>{olNav.hidden=true;bOut.setAttribute('aria-expanded','false')};
 const olUpdate=()=>{const can=olOn&&preview&&heads.length>0&&pv.scrollHeight>pv.clientHeight+8;bOut.hidden=!can;if(!can)olClose()};
-const olSpy=()=>{olRaf=0;if(olNav.hidden)return;const top=pv.getBoundingClientRect().top+(olNarrow()?24:bar.offsetHeight+24);let c=0;
-  heads.forEach((h,i)=>{if(h.getBoundingClientRect().top<=top)c=i});
-  [...olUl.querySelectorAll('button')].forEach((b,i)=>b.classList.toggle('cur',i===c));
-  const li=olUl.children[c];if(li)li.scrollIntoView({block:'nearest'})};
-const olGo=i=>{const h=heads[i];if(!h)return;const m=olNarrow()?12:bar.offsetHeight+8;
-  pv.scrollTo({top:pv.scrollTop+h.getBoundingClientRect().top-pv.getBoundingClientRect().top-m,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});olClose()};
+let olCur=0,olLock=0,olLockT=0;
+const olHi=i=>{[...olUl.querySelectorAll('button')].forEach((b,k)=>b.classList.toggle('cur',k===i));const li=olUl.children[i];if(li)li.scrollIntoView({block:'nearest'})};
+const olSpy=()=>{olRaf=0;if(olNav.hidden||olLock)return;const top=pv.getBoundingClientRect().top+(olNarrow()?24:bar.offsetHeight+24);let c=0;
+  heads.forEach((h,i)=>{if(h.getBoundingClientRect().top<=top)c=i});olCur=c;olHi(c)};
+const olGo=(i,keep)=>{const h=heads[i];if(!h)return;const m=olNarrow()?12:bar.offsetHeight+8;
+  pv.scrollTo({top:pv.scrollTop+h.getBoundingClientRect().top-pv.getBoundingClientRect().top-m,behavior:keep||matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});if(!keep)olClose()};
+/* keyboard: Ctrl+N / Ctrl+P while the outline is open (wraps around); the list stays open */
+const olStep=d=>{const n=heads.length;if(!n)return;olCur=(olCur+d+n)%n;olLock=1;clearTimeout(olLockT);olLockT=setTimeout(()=>{olLock=0},250);olHi(olCur);olGo(olCur,true)};
 const olBuild=()=>{olClose();heads=[...pv.querySelectorAll('h1,h2,h3,h4,h5,h6')];olUl.textContent='';
   const min=Math.min(6,...heads.map(h=>+h.tagName[1]));
   heads.forEach((h,i)=>{const li=document.createElement('li'),b=document.createElement('button');b.type='button';
@@ -453,6 +464,51 @@ pv.addEventListener('scroll',()=>{if(!olNav.hidden&&!olRaf)olRaf=requestAnimatio
 pv.addEventListener('click',()=>{if(!olNav.hidden)olClose()});
 pv.addEventListener('load',olUpdate,true);
 new ResizeObserver(olUpdate).observe(pv);
+
+/* ---- keep the scroll position when switching preview <-> edit (Settings; off by default), mapped block by block ---- */
+const SYK='lwsm.sync',sSync=$('sSync');try{syncOn=localStorage.getItem(SYK)==='1'}catch(e){}
+sSync.checked=syncOn;
+sSync.addEventListener('change',()=>{syncOn=sSync.checked;try{localStorage.setItem(SYK,syncOn?'1':'0')}catch(e){}
+  if(preview&&cur){const st=pv.scrollTop;pv.innerHTML=render(cur.text);olBuild();pv.scrollTop=st}});
+const refMargin=()=>olNarrow()?8:bar.offsetHeight+4;     /* the line just below the header is the reference */
+const srcLen=()=>cur.text.replace(/\r\n|\r/g,'\n').length;
+const blockMarks=()=>{const out=[],w=document.createTreeWalker(pv,NodeFilter.SHOW_COMMENT);let n;
+  while((n=w.nextNode())){const m=/^s(\d+)$/.exec(n.data);if(!m||n.parentNode!==pv)continue;let el=n.nextSibling;while(el&&el.nodeType!==1)el=el.nextSibling;if(el)out.push({off:+m[1],el})}
+  return out};
+/* source offset of the line at height y inside the editor (one hidden div per source line) */
+const offsetAtY=y=>{const cs=getComputedStyle(ed),m=document.createElement('div'),lines=ed.value.split('\n');
+  m.style.cssText='position:absolute;visibility:hidden;top:0;left:0;box-sizing:border-box;white-space:pre-wrap;overflow-wrap:break-word;-webkit-text-size-adjust:100%;text-size-adjust:100%;width:'+ed.clientWidth+'px';
+  ['fontFamily','fontSize','fontWeight','lineHeight','letterSpacing','paddingLeft','paddingRight','tabSize'].forEach(p=>m.style[p]=cs[p]);
+  const fr=document.createDocumentFragment();for(const l of lines){const d=document.createElement('div');d.textContent=l||'\u200b';fr.append(d)}
+  m.append(fr);document.body.append(m);
+  const pt=parseFloat(cs.paddingTop)||0,kids=m.children;let lo=0,hi=kids.length-1;
+  while(lo<hi){const mid=(lo+hi+1)>>1;if(kids[mid].offsetTop+pt<=y)lo=mid;else hi=mid-1}
+  m.remove();let off=0;for(let k=0;k<lo;k++)off+=lines[k].length+1;return off};
+/* preview -> source offset (block at the reference line, interpolated inside the block) */
+const srcOfPreview=()=>{const mk=blockMarks();if(!mk.length)return -1;const ref=pv.getBoundingClientRect().top+refMargin();let i=0;
+  for(let k=0;k<mk.length;k++){if(mk[k].el.getBoundingClientRect().top<=ref)i=k;else break}
+  const top=mk[i].el.getBoundingClientRect().top,nx=mk[i+1],nTop=nx?nx.el.getBoundingClientRect().top:top+mk[i].el.offsetHeight,nOff=nx?nx.off:srcLen();
+  const f=nTop>top?Math.max(0,Math.min(1,(ref-top)/(nTop-top))):0;return Math.round(mk[i].off+f*(nOff-mk[i].off))};
+/* source offset -> preview scroll */
+const toPreview=off=>{const mk=blockMarks();if(!mk.length)return false;let i=0;for(let k=0;k<mk.length;k++){if(mk[k].off<=off)i=k;else break}
+  const pr=pv.getBoundingClientRect().top,top=mk[i].el.getBoundingClientRect().top-pr,nx=mk[i+1],nTop=nx?nx.el.getBoundingClientRect().top-pr:top+mk[i].el.offsetHeight,nOff=nx?nx.off:srcLen();
+  const f=nOff>mk[i].off?Math.max(0,Math.min(1,(off-mk[i].off)/(nOff-mk[i].off))):0;
+  pv.scrollTop=pv.scrollTop+top+f*(nTop-top)-refMargin();return true};
+const toggleMode=()=>{
+  if(!syncOn){setMode(!preview,true);return}
+  const toEdit=preview,from=toEdit?pv:ed,fm=from.scrollHeight-from.clientHeight;
+  if(fm<=1){setMode(!preview,true);return}                      /* short memo: nothing to sync */
+  const st=from.scrollTop,atTop=st<=2,atBot=st>=fm-2,ratio=st/fm,md=!isHtml(cur.text)&&!!window.marked;
+  let off=-1;try{if(md&&!atTop&&!atBot)off=toEdit?srcOfPreview():offsetAtY(st+refMargin())}catch(e){}
+  setMode(!preview,true);
+  const to=toEdit?ed:pv;let ok=false;
+  try{
+    if(atTop){to.scrollTop=0;ok=true}
+    else if(atBot){to.scrollTop=to.scrollHeight;ok=true}
+    else if(off>=0){ok=toEdit?(ed.scrollTop=Math.max(0,yOf(off)-refMargin()),true):toPreview(off)}
+    if(!ok){const tm=to.scrollHeight-to.clientHeight;if(tm>0)to.scrollTop=ratio*tm}     /* HTML memos / no block info: by proportion */
+  }catch(e){}
+  noHideUntil=Date.now()+200;ly=to.scrollTop;bar.classList.remove('hide')};
 
 /* settings: memo text size (5 levels, remembered) */
 const FS=[12,14,16,20,24],FN=['Extra small','Small','Medium','Large','Extra large'],KF='lwsm.fs';
