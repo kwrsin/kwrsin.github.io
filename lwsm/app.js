@@ -500,7 +500,7 @@ const toggleMode=()=>{
   if(fm<=1){setMode(!preview,true);return}                      /* short memo: nothing to sync */
   const st=from.scrollTop,atTop=st<=2,atBot=st>=fm-2,ratio=st/fm,md=!isHtml(cur.text)&&!!window.marked;
   let off=-1;try{if(md&&!atTop&&!atBot)off=toEdit?srcOfPreview():offsetAtY(st+refMargin())}catch(e){}
-  setMode(!preview,true);
+  setMode(!preview,false);                                       /* no focus: it would scroll the editor away from the synced position */
   const to=toEdit?ed:pv;let ok=false;
   try{
     if(atTop){to.scrollTop=0;ok=true}
