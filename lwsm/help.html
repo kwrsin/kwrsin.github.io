@@ -33,6 +33,7 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;padding:12px;border:1px solid va
 <li>The <b>eye / pencil button</b> in the header switches between <b>Preview</b> and <b>Edit</b> (<kbd>F2</kbd>). The icon shows what the button will switch to. The app opens the last memo you used, in preview.</li>
 <li>The browser tab title starts with <b>👁️</b> (preview) or <b>✏️</b> (editing), and the memo title in the header is shown in <i>italics</i> while you are editing.</li>
 <li><b>Scroll sync</b> (Settings, off by default): when on, switching between preview and edit with <kbd>F2</kbd> or the eye / pencil button moves the other view to about the same place in the text, block by block (paragraph, list, code block, &hellip;). It only matters when the memo is long enough to scroll. The cursor is not moved. Switching to another memo does not sync. HTML memos are matched by proportion only.</li>
+<li>On a phone or tablet, switching to edit mode does <b>not</b> open the soft keyboard (so the scroll position stays put). Tap the text where you want to type.</li>
 <li>Memos can be written in <b>Markdown</b> or <b>HTML</b>. A memo that starts with an HTML tag is treated as HTML. In preview, scripts, styles, and event attributes are removed for safety. <code>iframe</code> tags are removed too, except YouTube embeds (see below).</li>
 <li>Links in the preview open in a <b>new tab</b>.</li>
 <li><b>YouTube videos</b>: paste the embed code from YouTube (Share &rarr; Embed, an <code>&lt;iframe ... src="https://www.youtube.com/embed/..."&gt;</code> tag) into a memo. The video player is shown in preview, resized to the screen width (16:9) and loaded from <code>youtube-nocookie.com</code>. Only YouTube <code>/embed/</code> iframes are allowed; iframes from any other site are removed. A video needs an internet connection to play, and YouTube can see that you opened it. A code sample inside a Markdown code block (<code>```</code>) is shown as plain text.</li>
@@ -114,6 +115,12 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;padding:12px;border:1px solid va
 <li><kbd>Space</kbd> or <kbd>Enter</kbd> opens the selected memo and closes the list. While the Filter box has text, <kbd>Space</kbd> types a space; use <kbd>Enter</kbd>.</li>
 <li><kbd>Delete</kbd> deletes the selected memo after confirmation. The &times; button on a row does the same; <b>Delete all</b> removes every memo. When a tag or keyword filter is active, it becomes <b>Delete N shown</b> and removes only the memos shown in the list (after a confirmation); the filter is then cleared.</li>
 <li><kbd>Esc</kbd> or the &#10005; button closes the list. The same applies to Find.</li>
+</ul>
+
+<h2>Editing keys</h2>
+<ul>
+<li><b>Tab</b> in the editor types a tab character, or 2 or 4 spaces if you choose so in Settings (<i>Tab key in the editor</i>). With several lines selected, Tab indents all of them and <kbd>Shift</kbd>+<kbd>Tab</kbd> takes one level off. Undo (<kbd>Ctrl</kbd>+<kbd>Z</kbd>) works. To leave the editor with the keyboard, press <kbd>Esc</kbd> and then <kbd>Tab</kbd>.</li>
+<li><b>Auto-indent</b> (Settings, on by default): when you press <kbd>Enter</kbd>, the leading spaces or tabs of the current line are copied to the new line. On a line that contains only indentation, Enter removes the indentation instead, so you can step back out.</li>
 </ul>
 
 <h2>Outline (headings list)</h2>

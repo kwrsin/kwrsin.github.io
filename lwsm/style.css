@@ -26,6 +26,8 @@ input[type=color]{width:42px;height:42px;flex:0 0 auto;padding:2px;border:1.5px 
 #ed,#pv{position:absolute;inset:0;width:100%;height:100%;overflow:auto;padding:calc(var(--hh,64px) + 16px) clamp(14px,4vw,40px) 40px}
 #ed{border:0;resize:none;background:transparent;color:inherit;font:inherit;line-height:1.7}
 #ed:focus{outline:0}
+#ed{tab-size:4;-moz-tab-size:4}
+dialog select{font:inherit;color:inherit;background:transparent;border:1.5px solid var(--ink);border-radius:4px;padding:6px 8px;max-width:100%}
 #ed[hidden],#pv[hidden]{display:none}
 #pv{overflow-wrap:anywhere}
 #pv:focus{outline:none}

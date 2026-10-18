@@ -52,7 +52,7 @@ const render=t=>clean(isHtml(t)?t:renderMd(t));
 
 const applyBg=()=>{const c=cur.bg;box.style.background=c;box.style.color=c?fg(c):'';box.style.setProperty('--link',c?fg(c):'');box.style.setProperty('--mbg',c||'');
   bg.value=c||(matchMedia('(prefers-color-scheme:dark)').matches?'#171d1a':'#ffffff')};
-const setMode=(p,focus)=>{preview=p;document.body.dataset.mode=p?'preview':'edit';setTitle();if(p){pv.innerHTML=render(cur.text);olBuild()}else olUpdate();sw.dataset.mode=p?'preview':'edit';const sl=p?'Switch to edit (F2)':'Switch to preview (F2)';sw.title=sl;sw.setAttribute('aria-label',sl);ed.hidden=p;pv.hidden=!p;olUpdate();bar.classList.remove('hide');if(!p&&focus)ed.focus();if(p){clearHit();pv.focus({preventScroll:true})}};
+const setMode=(p,focus)=>{preview=p;document.body.dataset.mode=p?'preview':'edit';setTitle();if(p){pv.innerHTML=render(cur.text);olBuild()}else olUpdate();sw.dataset.mode=p?'preview':'edit';const sl=p?'Switch to edit (F2)':'Switch to preview (F2)';sw.title=sl;sw.setAttribute('aria-label',sl);ed.hidden=p;pv.hidden=!p;olUpdate();bar.classList.remove('hide');if(!p&&focus&&!coarse)ed.focus();if(p){clearHit();pv.focus({preventScroll:true})}};
 const load=(m,p)=>{cur=m;clearHit();setTitle();ed.value=m.text;applyBg();ed.hidden=pv.hidden=false;ed.scrollTop=pv.scrollTop=0;ly=0;setMode(p);try{localStorage.setItem(KC,m.id)}catch(e){}};
 const pool=()=>memos.filter(m=>[...tagSel].every(k=>hasTag(m,k)));
 const canRotate=()=>{const p=pool();return p.length>1||(p.length===1&&p[0].id!==cur.id)};
@@ -509,6 +509,44 @@ const toggleMode=()=>{
     if(!ok){const tm=to.scrollHeight-to.clientHeight;if(tm>0)to.scrollTop=ratio*tm}     /* HTML memos / no block info: by proportion */
   }catch(e){}
   noHideUntil=Date.now()+200;ly=to.scrollTop;bar.classList.remove('hide')};
+
+/* ---- editor keys: Tab / Shift+Tab (spaces or tab, set in Settings) and auto-indent on a new line ---- */
+const TBK='lwsm.tab',AIK='lwsm.autoindent',sTab=$('sTab'),sAuto=$('sAuto');
+let tabMode='tab',autoIndent=true,tabFree=false,inAuto=false;
+try{tabMode=localStorage.getItem(TBK)||'tab';autoIndent=localStorage.getItem(AIK)!=='0'}catch(e){}
+if(!['tab','s2','s4'].includes(tabMode))tabMode='tab';
+sTab.value=tabMode;sAuto.checked=autoIndent;
+sTab.addEventListener('change',()=>{tabMode=sTab.value;try{localStorage.setItem(TBK,tabMode)}catch(e){}});
+sAuto.addEventListener('change',()=>{autoIndent=sAuto.checked;try{localStorage.setItem(AIK,autoIndent?'1':'0')}catch(e){}});
+const tabUnit=()=>tabMode==='s2'?'  ':tabMode==='s4'?'    ':'\t';
+/* insert through the browser's editing command so Undo works; fall back to setRangeText */
+const insText=t=>{inAuto=true;try{if(!(typeof document.execCommand==='function'&&document.execCommand('insertText',false,t))){const s=ed.selectionStart,e=ed.selectionEnd;ed.setRangeText(t,s,e,'end');ed.dispatchEvent(new Event('input',{bubbles:true}))}}finally{inAuto=false}};
+ed.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){tabFree=true;return}                      /* Esc, then Tab: leave the editor as usual */
+  if(e.key!=='Tab'||e.ctrlKey||e.altKey||e.metaKey||e.isComposing){if(!['Shift','Control','Alt','Meta'].includes(e.key))tabFree=false;return}
+  if(tabFree){tabFree=false;return}
+  e.preventDefault();
+  const t=ed.value,s=ed.selectionStart,en=ed.selectionEnd,unit=tabUnit();
+  if(!e.shiftKey&&!t.slice(s,en).includes('\n')){insText(unit);return}
+  /* several lines (or Shift+Tab): indent / outdent whole lines */
+  const a=t.lastIndexOf('\n',s-1)+1;let b=t.indexOf('\n',en>s&&t[en-1]==='\n'?en-1:en);if(b<0)b=t.length;
+  let first=0,total=0;
+  const out=t.slice(a,b).split('\n').map((l,i)=>{let n=0,r=l;
+    if(e.shiftKey){if(l[0]==='\t'){r=l.slice(1);n=-1}else{const k=Math.min(unit==='\t'?4:unit.length,/^ */.exec(l)[0].length);r=l.slice(k);n=-k}}
+    else if(l){r=unit+l;n=unit.length}
+    if(i===0)first=n;total+=n;return r});
+  ed.setSelectionRange(a,b);insText(out.join('\n'));
+  const ns=Math.max(a,s+first);ed.setSelectionRange(ns,Math.max(ns,en+total))});
+ed.addEventListener('blur',()=>{tabFree=false});
+/* Enter: carry over the leading whitespace of the line (on a blank indented line it removes the indent instead) */
+ed.addEventListener('beforeinput',e=>{
+  if(inAuto||!autoIndent||e.isComposing||(e.inputType!=='insertLineBreak'&&e.inputType!=='insertParagraph'))return;
+  const t=ed.value,s=ed.selectionStart,en=ed.selectionEnd,a=t.lastIndexOf('\n',s-1)+1,pre=t.slice(a,s),ind=/^[ \t]*/.exec(pre)[0];
+  if(!ind)return;
+  e.preventDefault();
+  let le=t.indexOf('\n',en);if(le<0)le=t.length;
+  if(s===en&&pre===ind&&/^[ \t]*$/.test(t.slice(en,le))){ed.setSelectionRange(a,le);insText('\n');return}
+  insText('\n'+ind)});
 
 /* settings: memo text size (5 levels, remembered) */
 const FS=[12,14,16,20,24],FN=['Extra small','Small','Medium','Large','Extra large'],KF='lwsm.fs';
