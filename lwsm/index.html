@@ -131,6 +131,20 @@
   <p class="hint"><b>Backup</b> downloads all memos (with tags) as one .json file. While a tag filter is active, only the memos matching it are saved. <b>Restore</b> reads a backup file and lets you merge it into the current memos or replace them.</p>
 </dialog>
 
+<dialog id="dDis" role="alertdialog" aria-labelledby="disT" aria-describedby="disB">
+  <h2 class="dh" id="disT">Before you start</h2>
+  <div id="disB" class="dis-body">
+    <p>Light Weight Simple Memo (LWSM) is a small personal memo pad. It is provided <b>&ldquo;as is&rdquo;</b>, without warranty of any kind.</p>
+    <p><b>Your data stays on this device.</b> Memos are stored only in this browser (local storage) and are not sent to any server. Clearing site data, uninstalling the app, or switching browsers or devices can erase them permanently. Please make regular backups with the <b>Backup</b> button.</p>
+    <p><b>No liability.</b> The authors are not responsible for any loss of data or any other damage that may result from using this app.</p>
+    <p><b>Third-party content.</b> The app loads its Markdown library (marked) from a public CDN (jsDelivr). Images, links and YouTube videos in a memo are loaded from the sites they point to, and those sites may see your IP address.</p>
+    <p><b>Sensitive information.</b> Memos are not encrypted. Do not store passwords, card numbers or other highly sensitive information in them.</p>
+    <p>By pressing OK you acknowledge this notice.</p>
+    <p class="dis-by">Created by kwrsin + Claude (Anthropic).</p>
+  </div>
+  <div class="foot"><button id="bDisOk">OK</button></div>
+</dialog>
+
 <dialog id="dGrep" aria-label="Search all memos">
   <button class="x" id="xGr" aria-label="Close">✕</button>
   <h2 class="dh" id="gh">Search all memos</h2>

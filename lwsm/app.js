@@ -5,7 +5,7 @@ const ed=$('ed'),pv=$('pv'),sw=$('bSw'),bg=$('bg'),bar=$('bar'),box=$('content')
 const dF=$('dFind'),kw=$('kw'),rp=$('rp'),all=$('all'),cs=$('cs'),rx=$('rx'),st=$('st');
 const dS=$('dSet'),fsr=$('fs');
 const hitBox=$('hit'),clearHit=()=>{hitBox.textContent='';hit=null};
-const dGr=$('dGrep'),dD=$('dData'),dG=$('dTags'),gc=$('gc'),gs=$('gs'),gi=$('gi'),dM=$('dMng'),mg=$('mg'),dR=$('dRest'),tl=$('tl');
+const dDis=$('dDis'),dGr=$('dGrep'),dD=$('dData'),dG=$('dTags'),gc=$('gc'),gs=$('gs'),gi=$('gi'),dM=$('dMng'),mg=$('mg'),dR=$('dRest'),tl=$('tl');
 const dT=$('dTitle'),ti=$('ti'),tt=$('ttl');
 const dL=$('dList'),fl=$('fl'),ul=$('ul');
 let ly=0,noHideUntil=0,syncOn=false,hit=null,memos=[],cur,tagSel=new Set(),rest=null,preview=true,timer,sel=0,view=[];
@@ -237,7 +237,7 @@ dL.addEventListener('keydown',e=>{if(e.isComposing)return;
 /* bracket keys differ by keyboard layout and Option on macOS, so map by layout */
 const kc={'[':'BracketLeft',']':'BracketRight'};
 if(navigator.keyboard&&navigator.keyboard.getLayoutMap)navigator.keyboard.getLayoutMap().then(m=>{for(const[c,v]of m)if(v==='['||v===']')kc[v]=c}).catch(()=>{});
-document.addEventListener('keydown',e=>{if(dL.open||dT.open||dG.open||dM.open||dR.open||dD.open||dGr.open)return;
+document.addEventListener('keydown',e=>{if(dL.open||dT.open||dG.open||dM.open||dR.open||dD.open||dGr.open||dDis.open)return;
   if(e.key==='Escape'&&!olNav.hidden){e.preventDefault();olClose();return}
   if(!olNav.hidden){const kk=e.key.toLowerCase();
     if(e.ctrlKey&&!e.altKey&&!e.metaKey&&(kk==='n'||kk==='p')){e.preventDefault();olStep(kk==='n'?1:-1);return}
@@ -565,8 +565,15 @@ applyFs();
 /* start: last used memo, in preview */
 const last=memos.find(m=>m.id===localStorage.getItem(KC))||memos.slice().sort((a,b)=>b.updated-a.updated)[0];
 if(last)load(last,true);else{load(newMemo(),false);ed.focus()}
-/* remove the splash screen once the first memo has been painted */
+/* first-run notice: shown once per browser (again only when DIS_VER changes); OK is required to continue */
+const DIS_VER='1',DISK='lwsm.disclaimer';let disSeen=false;
+const askDisclaimer=()=>{let v=null;try{v=localStorage.getItem(DISK)}catch(e){}if(disSeen||v===DIS_VER)return;dDis.showModal();$('bDisOk').focus()};
+$('bDisOk').onclick=()=>{disSeen=true;try{localStorage.setItem(DISK,DIS_VER)}catch(e){}dDis.close()};
+dDis.addEventListener('cancel',e=>e.preventDefault());
+dDis.addEventListener('close',()=>{if(!disSeen)setTimeout(()=>{if(!dDis.open)dDis.showModal()},0);else focusBody()});   /* Esc cannot skip it */
+/* remove the splash screen once the first memo has been painted, then show the notice if needed */
 const splash=document.getElementById('splash');
-if(splash)requestAnimationFrame(()=>requestAnimationFrame(()=>{splash.className='done';setTimeout(()=>splash.remove(),300)}));
+if(splash)requestAnimationFrame(()=>requestAnimationFrame(()=>{splash.className='done';setTimeout(()=>{splash.remove();askDisclaimer()},300)}));
+else askDisclaimer();
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 })();

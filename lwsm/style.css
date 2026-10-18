@@ -147,4 +147,10 @@ ul.hist li.hc{opacity:.7;font-size:.85rem;justify-content:center}
 body.glass #bar,body.glass #bOut{background:color-mix(in srgb,var(--mbg,var(--paper)) 82%,transparent);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
 body.glass #outline{background:color-mix(in srgb,var(--mbg,var(--paper)) 86%,transparent);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
 }
+#dDis{width:min(560px,calc(100vw - 24px));padding:24px 22px 20px}
+#dDis .dh{margin-bottom:10px}
+.dis-body p{margin:.55em 0;font-size:.92rem;line-height:1.6}
+.dis-body .dis-by{opacity:.7;font-size:.82rem}
+#dDis .foot{margin-top:16px}
+#bDisOk{background:var(--accent);border-color:var(--accent);color:#fff;padding:8px 28px}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}.hit-rect{animation:none}}
