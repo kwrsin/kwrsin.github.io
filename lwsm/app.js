@@ -8,7 +8,7 @@ const hitBox=$('hit'),clearHit=()=>{hitBox.textContent='';hit=null};
 const dDis=$('dDis'),dGr=$('dGrep'),dD=$('dData'),dG=$('dTags'),gc=$('gc'),gs=$('gs'),gi=$('gi'),dM=$('dMng'),mg=$('mg'),dR=$('dRest'),tl=$('tl');
 const dT=$('dTitle'),ti=$('ti'),tt=$('ttl');
 const dL=$('dList'),fl=$('fl'),ul=$('ul');
-let ly=0,noHideUntil=0,syncOn=false,hit=null,memos=[],cur,tagSel=new Set(),rest=null,preview=true,timer,sel=0,view=[];
+let ly=0,barOff=false,noHideUntil=0,syncOn=false,hit=null,memos=[],cur,tagSel=new Set(),rest=null,preview=true,timer,sel=0,view=[];
 try{memos=JSON.parse(localStorage.getItem(KM)||'[]')}catch(e){}
 
 const newMemo=()=>({id:crypto.randomUUID?crypto.randomUUID():Date.now()+'-'+Math.random().toString(36).slice(2),text:'',bg:'',updated:Date.now()});
@@ -52,7 +52,7 @@ const render=t=>clean(isHtml(t)?t:renderMd(t));
 
 const applyBg=()=>{const c=cur.bg;box.style.background=c;box.style.color=c?fg(c):'';box.style.setProperty('--link',c?fg(c):'');box.style.setProperty('--mbg',c||'');
   bg.value=c||(matchMedia('(prefers-color-scheme:dark)').matches?'#171d1a':'#ffffff')};
-const setMode=(p,focus)=>{preview=p;document.body.dataset.mode=p?'preview':'edit';setTitle();if(p){pv.innerHTML=render(cur.text);olBuild()}else olUpdate();sw.dataset.mode=p?'preview':'edit';const sl=p?'Switch to edit (F2)':'Switch to preview (F2)';sw.title=sl;sw.setAttribute('aria-label',sl);ed.hidden=p;pv.hidden=!p;olUpdate();bar.classList.remove('hide');if(!p&&focus&&!coarse)ed.focus();if(p){clearHit();pv.focus({preventScroll:true})}};
+const setMode=(p,focus)=>{preview=p;document.body.dataset.mode=p?'preview':'edit';setTitle();if(p){pv.innerHTML=render(cur.text);olBuild()}else olUpdate();sw.dataset.mode=p?'preview':'edit';const sl=p?'Switch to edit (F2)':'Switch to preview (F2)';sw.title=sl;sw.setAttribute('aria-label',sl);ed.hidden=p;pv.hidden=!p;olUpdate();barOff=false;bar.classList.remove('hide');if(!p&&focus&&!coarse)ed.focus();if(p){clearHit();pv.focus({preventScroll:true})}};
 const load=(m,p)=>{cur=m;clearHit();setTitle();ed.value=m.text;applyBg();ed.hidden=pv.hidden=false;ed.scrollTop=pv.scrollTop=0;ly=0;setMode(p);try{localStorage.setItem(KC,m.id)}catch(e){}};
 const pool=()=>memos.filter(m=>[...tagSel].every(k=>hasTag(m,k)));
 const canRotate=()=>{const p=pool();return p.length>1||(p.length===1&&p[0].id!==cur.id)};
@@ -188,7 +188,7 @@ const delAll=()=>{const q=fl.value.trim(),filtered=!!(tagSel.size||q),t=filtered
 ed.addEventListener('input',changed);
 ed.addEventListener('focus',()=>{if(!ed.readOnly)document.body.classList.add('editing')});
 /* leaving the editor (also when only the soft keyboard was closed): bring the header back and undo the page shift iOS leaves behind */
-const leaveEdit=()=>{ed.readOnly=false;document.body.classList.remove('editing');bar.classList.remove('hide');ly=ed.scrollTop;scrollTo(0,0);setTimeout(()=>scrollTo(0,0),80)};
+const leaveEdit=()=>{ed.readOnly=false;document.body.classList.remove('editing');if(!barOff)bar.classList.remove('hide');ly=ed.scrollTop;scrollTo(0,0);setTimeout(()=>scrollTo(0,0),80)};
 ed.addEventListener('blur',leaveEdit);
 /* detect that the soft keyboard was closed (iOS can close it while the textarea keeps focus) */
 if(window.visualViewport){const vv=window.visualViewport;let base=0,kb=false,lw=innerWidth;
@@ -247,10 +247,10 @@ document.addEventListener('keydown',e=>{if(dL.open||dT.open||dG.open||dM.open||d
   if(dF.open){if(e.key==='F9'){e.preventDefault();kw.focus();kw.select()}else if(e.key==='Escape'){e.preventDefault();dF.close()}return}
   const run=f=>{e.preventDefault();f()},al=e.altKey&&!c,ak=x=>al&&e.code===x,kb=x=>e.key===x||e.code===kc[x];
   if(e.key==='F11')run(doNew);else if(c&&k==='o')run(doImport);else if(c&&k==='s')run(doExport);else if(e.key==='F9')run(openFind);
-  else if(al&&kb(']'))run(()=>rotate(1));else if(al&&kb('['))run(()=>rotate(-1));else if(al&&e.key==='Delete')run(doDelete);else if(al&&(k==='r'||e.code==='KeyR'))run(openTitle);else if(ak('KeyT'))run(openTags);else if(ak('KeyM'))run(openMng);else if(ak('KeyB'))run(doBackup);else if(ak('KeyO'))run(openRestore);else if(ak('KeyD'))run(openData);else if(ak('KeyC'))run(doDuplicate);else if(ak('KeyG'))run(openGrep);else if(ak('KeyH'))run(olToggle);else if(e.key==='F10')run(openList);else if(e.key==='F2')run(()=>toggleMode())});
+  else if(al&&kb(']'))run(()=>rotate(1));else if(al&&kb('['))run(()=>rotate(-1));else if(al&&e.key==='Delete')run(doDelete);else if(al&&(k==='r'||e.code==='KeyR'))run(openTitle);else if(ak('KeyT'))run(openTags);else if(ak('KeyM'))run(openMng);else if(ak('KeyB'))run(doBackup);else if(ak('KeyO'))run(openRestore);else if(ak('KeyD'))run(openData);else if(ak('KeyC'))run(doDuplicate);else if(ak('KeyG'))run(openGrep);else if(ak('KeyH'))run(olToggle);else if(ak('KeyV'))run(toggleBar);else if(e.key==='F10')run(openList);else if(e.key==='F2')run(()=>toggleMode())});
 pv.addEventListener('click',e=>{const a=e.target.closest('a[href]');if(!a||(a.getAttribute('href')||'').startsWith('#'))return;
   e.preventDefault();window.open(a.href,'_blank','noopener,noreferrer')});
-const onScroll=e=>{if(Date.now()<noHideUntil){ly=e.target.scrollTop;return}const y=e.target.scrollTop;if(y>ly+8&&y>60)bar.classList.add('hide');else if(y<ly-8||y<=0)bar.classList.remove('hide');ly=y};
+const onScroll=e=>{if(Date.now()<noHideUntil||barOff){ly=e.target.scrollTop;return}const y=e.target.scrollTop;if(y>ly+8&&y>60)bar.classList.add('hide');else if(y<ly-8||y<=0)bar.classList.remove('hide');ly=y};
 ed.addEventListener('scroll',onScroll);pv.addEventListener('scroll',onScroll);
 const flush=()=>{if(cur&&!ed.hidden)cur.text=ed.value;if(cur)save()};
 addEventListener('pagehide',flush);document.addEventListener('visibilitychange',()=>{if(document.hidden)flush()});
@@ -463,7 +463,12 @@ sGlass.checked=glassOn;sGlass.addEventListener('change',()=>{glassOn=sGlass.chec
 pv.addEventListener('scroll',()=>{if(!olNav.hidden&&!olRaf)olRaf=requestAnimationFrame(olSpy)},{passive:true});
 pv.addEventListener('click',()=>{if(!olNav.hidden)olClose()});
 pv.addEventListener('load',olUpdate,true);
-new ResizeObserver(olUpdate).observe(pv);
+/* wide PC window: keep the outline button next to the right edge of the centered text column */
+const colSync=()=>{if(!matchMedia('(min-width:1000px) and (pointer:fine)').matches){box.style.removeProperty('--colr');return}
+  const p=(parseFloat(getComputedStyle(pv).paddingRight)||0)+(pv.offsetWidth-pv.clientWidth);box.style.setProperty('--colr',Math.max(22,Math.round(p+8))+'px')};
+new ResizeObserver(()=>{olUpdate();colSync()}).observe(pv);colSync();
+/* Alt+V: hide / show the header until it is toggled again (switching memo or mode brings it back) */
+const toggleBar=()=>{barOff=!barOff;bar.classList.toggle('hide',barOff)};
 
 /* ---- keep the scroll position when switching preview <-> edit (Settings; off by default), mapped block by block ---- */
 const SYK='lwsm.sync',sSync=$('sSync');try{syncOn=localStorage.getItem(SYK)==='1'}catch(e){}
@@ -551,7 +556,7 @@ ed.addEventListener('beforeinput',e=>{
 /* settings: memo text size (5 levels, remembered) */
 const FS=[12,14,16,20,24],FN=['Extra small','Small','Medium','Large','Extra large'],KF='lwsm.fs';
 let fsLv=3;try{const v=+localStorage.getItem(KF);if(v>=1&&v<=5)fsLv=v}catch(e){}
-const applyFs=(keep)=>{clearHit();olUpdate();document.documentElement.style.setProperty('--fs',FS[fsLv-1]+'px');fsr.value=fsLv;$('fo').textContent=FN[fsLv-1]+' ('+FS[fsLv-1]+'px)';
+const applyFs=(keep)=>{clearHit();olUpdate();colSync();document.documentElement.style.setProperty('--fs',FS[fsLv-1]+'px');fsr.value=fsLv;$('fo').textContent=FN[fsLv-1]+' ('+FS[fsLv-1]+'px)';
   if(keep)try{localStorage.setItem(KF,fsLv)}catch(e){}};
 const openSet=()=>{if(!dS.open)dS.show();fsr.focus()};
 fsr.addEventListener('input',()=>{fsLv=+fsr.value;applyFs(true)});

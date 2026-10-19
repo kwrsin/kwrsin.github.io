@@ -133,9 +133,9 @@ ul.hist li.hc{opacity:.7;font-size:.85rem;justify-content:center}
 #gtl.off{opacity:.4;pointer-events:none}
 #gerr{color:#e5484d;margin:8px 0 0;font-size:.85rem}
 #gerr[hidden]{display:none}
-#bOut{position:absolute;z-index:3;right:22px;bottom:14px;width:42px;height:42px;padding:0;display:grid;place-items:center;border-radius:50%;background:inherit;color:inherit;box-shadow:0 2px 8px rgba(0,0,0,.3);transition:bottom .2s}
+#bOut{position:absolute;z-index:3;right:var(--colr,22px);bottom:14px;width:42px;height:42px;padding:0;display:grid;place-items:center;border-radius:50%;background:inherit;color:inherit;box-shadow:0 2px 8px rgba(0,0,0,.3);transition:bottom .2s}
 #bOut[hidden],#outline[hidden]{display:none}
-#outline{position:absolute;z-index:3;right:22px;bottom:64px;width:min(340px,calc(100% - 28px));max-height:calc(100% - 64px - var(--hh,64px) - 14px);overflow:auto;background:inherit;color:inherit;border:1.5px solid currentColor;border-radius:8px;padding:4px;box-shadow:0 4px 16px rgba(0,0,0,.35);transition:bottom .2s}
+#outline{position:absolute;z-index:3;right:var(--colr,22px);bottom:64px;width:min(340px,calc(100% - 28px));max-height:calc(100% - 64px - var(--hh,64px) - 14px);overflow:auto;background:inherit;color:inherit;border:1.5px solid currentColor;border-radius:8px;padding:4px;box-shadow:0 4px 16px rgba(0,0,0,.35);transition:bottom .2s}
 #ol{list-style:none;margin:0;padding:0}
 #ol button{display:block;width:100%;text-align:left;border:0;padding:6px 8px;border-radius:4px;background:transparent;color:inherit;font:inherit;font-size:.9rem;line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #ol button.cur{font-weight:700;background:color-mix(in srgb,currentColor 14%,transparent)}
@@ -144,8 +144,8 @@ ul.hist li.hc{opacity:.7;font-size:.85rem;justify-content:center}
 #bar.hide~#bOut{bottom:14px}#bar.hide~#outline{bottom:64px;max-height:calc(100% - 78px)}#pv :is(h1,h2,h3,h4,h5,h6){scroll-margin-top:12px}}
 /* optional translucent + blurred header / outline (Settings); browsers without backdrop-filter keep the normal look */
 @supports (backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px)){
-body.glass #bar,body.glass #bOut{background:color-mix(in srgb,var(--mbg,var(--paper)) 82%,transparent);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
-body.glass #outline{background:color-mix(in srgb,var(--mbg,var(--paper)) 86%,transparent);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
+body.glass #bar,body.glass #bOut{background:color-mix(in srgb,var(--mbg,var(--paper)) 60%,transparent);-webkit-backdrop-filter:blur(14px) saturate(1.3);backdrop-filter:blur(14px) saturate(1.3)}
+body.glass #outline{background:color-mix(in srgb,var(--mbg,var(--paper)) 68%,transparent);-webkit-backdrop-filter:blur(14px) saturate(1.3);backdrop-filter:blur(14px) saturate(1.3)}
 }
 #dDis{width:min(560px,calc(100vw - 24px));padding:24px 22px 20px}
 #dDis .dh{margin-bottom:10px}
@@ -153,4 +153,11 @@ body.glass #outline{background:color-mix(in srgb,var(--mbg,var(--paper)) 86%,tra
 .dis-body .dis-by{opacity:.7;font-size:.82rem}
 #dDis .foot{margin-top:16px}
 #bDisOk{background:var(--accent);border-color:var(--accent);color:#fff;padding:8px 28px}
+/* no zoom by double-tap on the header and the floating buttons (pinch zoom and scrolling still work) */
+#bar,#bar *,#bOut,#outline,#outline *,#done{touch-action:manipulation}
+/* PC / Mac with a wide window: the header buttons and the text column are centered as blocks */
+@media (min-width:1000px) and (pointer:fine){
+.tools>:first-child{margin-left:auto}.tools>:last-child{margin-right:auto}
+#ed,#pv{padding-left:max(clamp(14px,4vw,40px),calc((100% - 76ch)/2));padding-right:max(clamp(14px,4vw,40px),calc((100% - 76ch)/2))}
+}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}.hit-rect{animation:none}}
