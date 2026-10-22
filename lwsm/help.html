@@ -37,6 +37,7 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;padding:12px;border:1px solid va
 <li>Memos can be written in <b>Markdown</b> or <b>HTML</b>. A memo that starts with an HTML tag is treated as HTML. In preview, scripts, styles, and event attributes are removed for safety. <code>iframe</code> tags are removed too, except YouTube embeds (see below).</li>
 <li>Links in the preview open in a <b>new tab</b>.</li>
 <li><b>YouTube videos</b>: paste the embed code from YouTube (Share &rarr; Embed, an <code>&lt;iframe ... src="https://www.youtube.com/embed/..."&gt;</code> tag) into a memo. The video player is shown in preview, resized to the screen width (16:9) and loaded from <code>youtube-nocookie.com</code>. Only YouTube <code>/embed/</code> iframes are allowed; iframes from any other site are removed. A video needs an internet connection to play, and YouTube can see that you opened it. A code sample inside a Markdown code block (<code>```</code>) is shown as plain text.</li>
+<li>For safety, links and images with script-type addresses (<code>javascript:</code>, <code>vbscript:</code>, <code>data:</code> links, <code>blob:</code>, <code>file:</code>) are disabled in preview, even if the address is disguised with tabs or line breaks. Other links (<code>https:</code>, <code>mailto:</code>, <code>tel:</code>, app links such as <code>obsidian://</code>) work as before, and embedded <code>data:image/&hellip;</code> pictures still show.</li>
 <li>On a touch screen, in <b>preview</b> mode, <b>swipe left or right</b> to go to the next or previous memo (it wraps around). Swipes that start at the very edge of the screen, or on content that scrolls sideways, are ignored. Swiping is off while editing.</li>
 <li><b>Drag and drop</b> Markdown, HTML, or text files onto the window to open them as new memos.</li>
 <li>On narrow screens the header buttons do not wrap; <b>swipe the header sideways</b> to reach all of them (on a PC: two-finger swipe, or <kbd>Shift</kbd> + mouse wheel). The scroll bar is hidden; a soft fade at the edge shows that more buttons are out of view.</li>
@@ -164,7 +165,7 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;padding:12px;border:1px solid va
 </ul>
 
 <h2>Open-source licenses</h2>
-<p>This app uses <a href="https://github.com/markedjs/marked" target="_blank" rel="noopener">marked</a> to render Markdown. It is loaded from the jsDelivr CDN and cached for offline use.</p>
+<p>This app uses <a href="https://github.com/markedjs/marked" target="_blank" rel="noopener">marked</a> to render Markdown. It is bundled with the app (<code>marked.min.js</code>), so nothing is loaded from other sites to render Markdown.</p>
 <pre>The MIT License (MIT)
 
 Copyright (c) 2018+, MarkedJS (https://github.com/markedjs/marked)
@@ -196,7 +197,7 @@ THE SOFTWARE.</pre>
 <p>Light Weight Simple Memo (LWSM) is a small personal memo pad. It is provided <b>&ldquo;as is&rdquo;</b>, without warranty of any kind.</p>
 <p><b>Your data stays on this device.</b> Memos are stored only in this browser (local storage) and are not sent to any server. Clearing site data, uninstalling the app, or switching browsers or devices can erase them permanently. Please make regular backups with the <b>Backup</b> button.</p>
 <p><b>No liability.</b> The authors are not responsible for any loss of data or any other damage that may result from using this app.</p>
-<p><b>Third-party content.</b> The app loads its Markdown library (marked) from a public CDN (jsDelivr). Images, links and YouTube videos in a memo are loaded from the sites they point to, and those sites may see your IP address.</p>
+<p><b>Third-party content.</b> Images, links and YouTube videos in a memo are loaded from the sites they point to, and those sites may see your IP address.</p>
 <p><b>Sensitive information.</b> Memos are not encrypted. Do not store passwords, card numbers or other highly sensitive information in them.</p>
 </main>
 </body>

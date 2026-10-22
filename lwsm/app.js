@@ -27,8 +27,15 @@ const save=()=>{clearTimeout(timer);if(!title(cur.text))return false;cur.updated
 const changed=()=>{cur.text=ed.value;clearHit();setTitle();clearTimeout(timer);timer=setTimeout(save,400)};
 
 const YT=['www.youtube.com','youtube.com','www.youtube-nocookie.com','youtube-nocookie.com'];
+/* Link / image addresses. Browsers ignore tabs, newlines and control characters inside a URL, so the address is normalised first;
+   then script-type schemes are refused (any other scheme, e.g. obsidian://, mailto:, https:, still works). data:image/... is allowed for pictures only. */
+const BAD_SCHEMES=['javascript','vbscript','data','blob','file'];
+const schemeOf=v=>{const m=/^([a-z][a-z0-9+.\-]*):/i.exec(String(v).replace(/[\u0000-\u0020\u007f-\u009f\u00ad\u200b-\u200f\u2028\u2029\ufeff]/g,''));return m?m[1].toLowerCase():''};
+const okImgData=v=>/^data:image\/(png|jpe?g|gif|webp|avif|bmp|svg\+xml)[;,]/i.test(String(v).replace(/[\u0000-\u0020]/g,''));
+const urlBlocked=(v,img)=>{const sc=schemeOf(v);return BAD_SCHEMES.includes(sc)&&!(img&&sc==='data'&&okImgData(v))};
+const URL_ATTRS=/^(href|src|xlink:href|action|formaction|poster|background|data|longdesc|cite)$/;
 const clean=h=>{const d=new DOMParser().parseFromString(h,'text/html');
-  d.querySelectorAll('script,style,iframe,object,embed,link,meta,base,form').forEach(e=>{
+  d.querySelectorAll('script,style,iframe,object,embed,link,meta,base,form,animate,set,animatemotion,animateMotion,animatetransform,animateTransform').forEach(e=>{
     if(e.tagName==='IFRAME'){let u;try{u=new URL(e.getAttribute('src')||'','https://invalid.example/')}catch(x){}
       if(u&&u.protocol==='https:'&&YT.includes(u.hostname)&&/^\/embed\/[\w-]+\/?$/.test(u.pathname)&&!u.username&&!u.password){
         u.hostname='www.youtube-nocookie.com';const n=d.createElement('iframe');n.src=u.href;
@@ -38,8 +45,9 @@ const clean=h=>{const d=new DOMParser().parseFromString(h,'text/html');
         n.setAttribute('sandbox','allow-scripts allow-same-origin allow-presentation allow-popups allow-popups-to-escape-sandbox');
         e.replaceWith(n);return}}
     e.remove()});
-  d.body.querySelectorAll('*').forEach(e=>{[...e.attributes].forEach(a=>{const n=a.name.toLowerCase();
-    if(n.startsWith('on')||(/^(href|src|xlink:href|action|formaction)$/.test(n)&&/^\s*(javascript:|data:text\/html)/i.test(a.value)))e.removeAttribute(a.name)});
+  d.body.querySelectorAll('*').forEach(e=>{const img=['img','source','image'].includes(e.tagName.toLowerCase());
+    [...e.attributes].forEach(a=>{const n=a.name.toLowerCase();
+      if(n.startsWith('on')||n==='ping'||(URL_ATTRS.test(n)&&urlBlocked(a.value,img))||(n==='srcset'&&a.value.split(',').some(c=>urlBlocked(c.trim().split(/\s+/)[0],true))))e.removeAttribute(a.name)});
     if(e.tagName==='A'&&!(e.getAttribute('href')||'').startsWith('#')){e.target='_blank';e.rel='noopener noreferrer'}});
   return d.body.innerHTML};
 /* with scroll sync on, every top-level Markdown block is preceded by a comment <!--s123--> holding its offset in the source */
@@ -249,7 +257,7 @@ document.addEventListener('keydown',e=>{if(dL.open||dT.open||dG.open||dM.open||d
   if(e.key==='F11')run(doNew);else if(c&&k==='o')run(doImport);else if(c&&k==='s')run(doExport);else if(e.key==='F9')run(openFind);
   else if(al&&kb(']'))run(()=>rotate(1));else if(al&&kb('['))run(()=>rotate(-1));else if(al&&e.key==='Delete')run(doDelete);else if(al&&(k==='r'||e.code==='KeyR'))run(openTitle);else if(ak('KeyT'))run(openTags);else if(ak('KeyM'))run(openMng);else if(ak('KeyB'))run(doBackup);else if(ak('KeyO'))run(openRestore);else if(ak('KeyD'))run(openData);else if(ak('KeyC'))run(doDuplicate);else if(ak('KeyG'))run(openGrep);else if(ak('KeyH'))run(olToggle);else if(ak('KeyV'))run(toggleBar);else if(e.key==='F10')run(openList);else if(e.key==='F2')run(()=>toggleMode())});
 pv.addEventListener('click',e=>{const a=e.target.closest('a[href]');if(!a||(a.getAttribute('href')||'').startsWith('#'))return;
-  e.preventDefault();window.open(a.href,'_blank','noopener,noreferrer')});
+  e.preventDefault();if(BAD_SCHEMES.includes(schemeOf(a.href)))return;window.open(a.href,'_blank','noopener,noreferrer')});
 const onScroll=e=>{if(Date.now()<noHideUntil||barOff){ly=e.target.scrollTop;return}const y=e.target.scrollTop;if(y>ly+8&&y>60)bar.classList.add('hide');else if(y<ly-8||y<=0)bar.classList.remove('hide');ly=y};
 ed.addEventListener('scroll',onScroll);pv.addEventListener('scroll',onScroll);
 const flush=()=>{if(cur&&!ed.hidden)cur.text=ed.value;if(cur)save()};

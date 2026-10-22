@@ -35,6 +35,7 @@ dialog select{font:inherit;color:inherit;background:transparent;border:1.5px sol
 #pv>*{max-width:76ch}
 #pv a{color:var(--link)}
 #pv img{max-width:100%}
+#pv a:not([href]){color:inherit;text-decoration:none}
 #pv iframe{display:block;width:100%;max-width:640px;height:auto;aspect-ratio:16/9;border:0;border-radius:6px;margin:1em 0;background:#000}
 #pv pre,#pv code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.92em}
 #pv pre{padding:12px;overflow:auto;background:color-mix(in srgb,currentColor 9%,transparent);border-radius:6px}
