@@ -92,17 +92,20 @@ const stat=t=>st.textContent=t;
 const openFind=()=>{if(!preview){const s=ed.value.slice(ed.selectionStart,ed.selectionEnd);if(s&&!s.includes('\n'))kw.value=s}
   if(!dF.open)dF.show();kw.focus();kw.select()};
 /* y position of a character offset inside the textarea (accounts for soft wraps) */
-const yOf=i=>{const cs=getComputedStyle(ed),m=document.createElement('div');
+/* A hidden copy of the editor text (same width, font and wrapping) with a <span> around [i, i+len).
+   The rest of that line is included too: where a line wraps also depends on what FOLLOWS the hit (a long URL moves to the next line as a whole),
+   so a copy cut off at the hit would wrap differently from the real editor and the marker would land on the wrong line. */
+const mirrorAt=(i,len)=>{const cs=getComputedStyle(ed),m=document.createElement('div'),t=ed.value;
   m.style.cssText='position:absolute;visibility:hidden;top:0;left:0;box-sizing:border-box;white-space:pre-wrap;overflow-wrap:break-word;-webkit-text-size-adjust:100%;text-size-adjust:100%;width:'+ed.clientWidth+'px';
   ['fontFamily','fontSize','fontWeight','lineHeight','letterSpacing','paddingLeft','paddingRight','tabSize'].forEach(p=>m.style[p]=cs[p]);
-  m.textContent=ed.value.slice(0,i);const s=document.createElement('span');s.textContent='|';m.append(s);document.body.append(m);
-  const y=s.offsetTop+(parseFloat(cs.paddingTop)||0);m.remove();return y};
+  let e=t.indexOf('\n',i+len);if(e<0||e-(i+len)>5000)e=Math.min(t.length,i+len+5000);
+  const s=document.createElement('span');s.textContent=t.slice(i,i+len)||'\u200b';
+  m.append(document.createTextNode(t.slice(0,i)),s,document.createTextNode(t.slice(i+len,e)));document.body.append(m);return{m,s,cs}};
+/* y position of a character offset inside the textarea (accounts for soft wraps) */
+const yOf=i=>{const {m,s,cs}=mirrorAt(i,1);const y=s.offsetTop+(parseFloat(cs.paddingTop)||0);m.remove();return y};
 /* select the hit in the editor so it is highlighted, keep the dialog open, scroll the hit below the dialog */
 /* yellow marker over the hit (stays until you type, click in the editor, or change memo / text size) */
-const drawHit=(i,len)=>{hitBox.textContent='';const cs=getComputedStyle(ed),m=document.createElement('div');
-  m.style.cssText='position:absolute;visibility:hidden;top:0;left:0;box-sizing:border-box;white-space:pre-wrap;overflow-wrap:break-word;-webkit-text-size-adjust:100%;text-size-adjust:100%;width:'+ed.clientWidth+'px';
-  ['fontFamily','fontSize','fontWeight','lineHeight','letterSpacing','paddingLeft','paddingRight','tabSize'].forEach(p=>m.style[p]=cs[p]);
-  m.append(document.createTextNode(ed.value.slice(0,i)));const s=document.createElement('span');s.textContent=ed.value.slice(i,i+len);m.append(s);document.body.append(m);
+const drawHit=(i,len)=>{hitBox.textContent='';const {m,s,cs}=mirrorAt(i,len);
   const mr=m.getBoundingClientRect(),pt=parseFloat(cs.paddingTop)||0;
   for(const r of (s.getClientRects?s.getClientRects():[])){const d=document.createElement('div');d.className='hit-rect';
     d.style.cssText='left:'+(r.left-mr.left-2)+'px;top:'+(r.top-mr.top+pt-1)+'px;width:'+(r.width+4)+'px;height:'+(r.height+2)+'px';hitBox.append(d)}
