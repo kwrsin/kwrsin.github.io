@@ -34,6 +34,22 @@ const schemeOf=v=>{const m=/^([a-z][a-z0-9+.\-]*):/i.exec(String(v).replace(/[\u
 const okImgData=v=>/^data:image\/(png|jpe?g|gif|webp|avif|bmp|svg\+xml)[;,]/i.test(String(v).replace(/[\u0000-\u0020]/g,''));
 const urlBlocked=(v,img)=>{const sc=schemeOf(v);return BAD_SCHEMES.includes(sc)&&!(img&&sc==='data'&&okImgData(v))};
 const URL_ATTRS=/^(href|src|xlink:href|action|formaction|poster|background|data|longdesc|cite)$/;
+/* draw.io SVG with "edit on click": such a diagram carries an onclick that opens viewer.diagrams.net and sends the diagram to it.
+   That script is NEVER run (onclick stays removed, and the CSP forbids inline handlers). Instead only the viewer's address is read from it,
+   checked strictly (https, host viewer.diagrams.net, client=1, harmless parameters), and the app itself opens the viewer when the diagram is clicked. */
+const DIO='https://viewer.diagrams.net';
+const drawioUrl=u=>{try{const x=new URL(String(u).replace(/&amp;/g,'&'));if(x.protocol!=='https:'||x.host!=='viewer.diagrams.net'||x.username||x.password)return'';
+  const p=x.searchParams,ed=p.get('edit')||'_blank',pg=p.get('page')||'1';
+  if(p.get('client')!=='1'||!/^[A-Za-z0-9_]{1,20}$/.test(ed)||!/^\d{1,4}$/.test(pg))return'';
+  return DIO+'/?client=1&page='+pg+'&edit='+ed}catch(e){return''}};
+let dioWin=null,dioXml='';
+const openDrawio=sv=>{const url=drawioUrl(sv.getAttribute('data-drawio-viewer')||''),raw=sv.getAttribute('content')||'';
+  if(!url||!raw||raw.length>2e6)return;
+  let xml;try{xml=decodeURIComponent(raw)}catch(x){xml=raw}
+  if(dioWin&&!dioWin.closed&&dioXml===xml){dioWin.focus();return}
+  const win=window.open(url,'_blank');if(!win)return;dioWin=win;dioXml=xml;      /* no "noopener": the viewer answers its opener */
+  const onMsg=ev=>{if(ev.source!==win||ev.origin!==DIO||ev.data!=='ready')return;win.postMessage(xml,DIO);removeEventListener('message',onMsg)};
+  addEventListener('message',onMsg);setTimeout(()=>removeEventListener('message',onMsg),60000)};
 const clean=h=>{const d=new DOMParser().parseFromString(h,'text/html');
   d.querySelectorAll('script,style,iframe,object,embed,link,meta,base,form,animate,set,animatemotion,animateMotion,animatetransform,animateTransform').forEach(e=>{
     if(e.tagName==='IFRAME'){let u;try{u=new URL(e.getAttribute('src')||'','https://invalid.example/')}catch(x){}
@@ -45,10 +61,13 @@ const clean=h=>{const d=new DOMParser().parseFromString(h,'text/html');
         n.setAttribute('sandbox','allow-scripts allow-same-origin allow-presentation allow-popups allow-popups-to-escape-sandbox');
         e.replaceWith(n);return}}
     e.remove()});
+  const dio=new Map();
+  d.body.querySelectorAll('svg').forEach(sv=>{const m=/window\.open\(\s*'(https:\/\/viewer\.diagrams\.net\/[^']*)'/.exec(sv.getAttribute('onclick')||'');const v=m&&drawioUrl(m[1]);if(v&&sv.hasAttribute('content'))dio.set(sv,v)});
   d.body.querySelectorAll('*').forEach(e=>{const img=['img','source','image'].includes(e.tagName.toLowerCase());
     [...e.attributes].forEach(a=>{const n=a.name.toLowerCase();
-      if(n.startsWith('on')||n==='ping'||(URL_ATTRS.test(n)&&urlBlocked(a.value,img))||(n==='srcset'&&a.value.split(',').some(c=>urlBlocked(c.trim().split(/\s+/)[0],true))))e.removeAttribute(a.name)});
-    if(e.tagName==='A'&&!(e.getAttribute('href')||'').startsWith('#')){e.target='_blank';e.rel='noopener noreferrer'}});
+      if(n.startsWith('on')||n.startsWith('data-drawio')||n==='ping'||(URL_ATTRS.test(n)&&urlBlocked(a.value,img))||(n==='srcset'&&a.value.split(',').some(c=>urlBlocked(c.trim().split(/\s+/)[0],true))))e.removeAttribute(a.name)});
+    if(e.localName==='a'){const hv=e.getAttribute('href')||e.getAttribute('xlink:href')||'';if(hv&&!hv.startsWith('#')){e.setAttribute('target','_blank');e.setAttribute('rel','noopener noreferrer')}}});
+  dio.forEach((v,sv)=>sv.setAttribute('data-drawio-viewer',v));
   return d.body.innerHTML};
 /* with scroll sync on, every top-level Markdown block is preceded by a comment <!--s123--> holding its offset in the source */
 const renderMd=t=>{if(!window.marked)return'<pre>'+esc(t)+'</pre>';const o={gfm:true,breaks:true};
@@ -260,8 +279,13 @@ document.addEventListener('keydown',e=>{if(dL.open||dT.open||dG.open||dM.open||d
   const run=f=>{e.preventDefault();f()},al=e.altKey&&!c,ak=x=>al&&e.code===x,kb=x=>e.key===x||e.code===kc[x];
   if(ak('KeyN'))run(doNew);else if(c&&k==='o')run(doImport);else if(c&&k==='s')run(doExport);else if(e.key==='F9')run(openFind);
   else if(al&&kb(']'))run(()=>rotate(1));else if(al&&kb('['))run(()=>rotate(-1));else if(al&&e.key==='Delete')run(doDelete);else if(al&&(k==='r'||e.code==='KeyR'))run(openTitle);else if(ak('KeyT'))run(openTags);else if(ak('KeyM'))run(openMng);else if(ak('KeyB'))run(doBackup);else if(ak('KeyO'))run(openRestore);else if(ak('KeyD'))run(openData);else if(ak('KeyC'))run(doDuplicate);else if(ak('KeyG'))run(openGrep);else if(ak('KeyH'))run(olToggle);else if(ak('KeyV'))run(toggleBar);else if(ak('KeyL'))run(openList);else if(e.key==='F2')run(()=>toggleMode())});
-pv.addEventListener('click',e=>{const a=e.target.closest('a[href]');if(!a||(a.getAttribute('href')||'').startsWith('#'))return;
-  e.preventDefault();if(BAD_SCHEMES.includes(schemeOf(a.href)))return;window.open(a.href,'_blank','noopener,noreferrer')});
+/* links in the preview: HTML <a href> and also links on SVG shapes (<a href> / <a xlink:href>, whose .href is not a string) */
+pv.addEventListener('click',e=>{
+  const dv=e.target.closest('svg[data-drawio-viewer]');if(dv&&!e.target.closest('a')){e.preventDefault();openDrawio(dv);return}   /* draw.io diagram: a link on a shape still works as a link */
+  const a=e.target.closest('a');if(!a)return;
+  const raw=a.getAttribute('href')||a.getAttribute('xlink:href')||'';if(!raw||raw.startsWith('#'))return;
+  e.preventDefault();let u;try{u=new URL(raw,document.baseURI).href}catch(x){return}
+  if(BAD_SCHEMES.includes(schemeOf(u)))return;window.open(u,'_blank','noopener,noreferrer')});
 const onScroll=e=>{if(Date.now()<noHideUntil||barOff){ly=e.target.scrollTop;return}const y=e.target.scrollTop;if(y>ly+8&&y>60)bar.classList.add('hide');else if(y<ly-8||y<=0)bar.classList.remove('hide');ly=y};
 ed.addEventListener('scroll',onScroll);pv.addEventListener('scroll',onScroll);
 const flush=()=>{if(cur&&!ed.hidden)cur.text=ed.value;if(cur)save()};
