@@ -50,7 +50,44 @@ const openDrawio=sv=>{const url=drawioUrl(sv.getAttribute('data-drawio-viewer')|
   const win=window.open(url,'_blank');if(!win)return;dioWin=win;dioXml=xml;      /* no "noopener": the viewer answers its opener */
   const onMsg=ev=>{if(ev.source!==win||ev.origin!==DIO||ev.data!=='ready')return;win.postMessage(xml,DIO);removeEventListener('message',onMsg)};
   addEventListener('message',onMsg);setTimeout(()=>removeEventListener('message',onMsg),60000)};
-const clean=h=>{const d=new DOMParser().parseFromString(h,'text/html');
+/* Inline style="" attributes: only harmless properties are kept. Everything else (position, top/left, z-index, transform, filter, mask, animation, content,
+   custom properties ...) and every value that could load something (url() other than a #fragment or a data:image, image-set(), expression() ...) is dropped.
+   position:fixed and the like could otherwise cover the whole app with a fake screen. Declarations that were dropped are listed in the console. */
+const STYLE_OK=new RegExp('^(?:'+[
+ 'color','opacity','visibility','display','overflow(?:-[xy])?','text-overflow','box-sizing',
+ 'background(?:-(?:color|image|position(?:-[xy])?|size|repeat|clip|origin|attachment))?',
+ '(?:min-|max-)?(?:width|height)','aspect-ratio','(?:margin|padding)(?:-(?:top|right|bottom|left))?','(?:row-|column-)?gap',
+ 'border(?:-(?:top|right|bottom|left))?(?:-(?:width|style|color))?','border-(?:collapse|spacing)','border-radius','border-(?:top|bottom)-(?:left|right)-radius',
+ 'box-shadow','text-shadow','font(?:-(?:family|size|style|weight|variant|stretch))?','line-height','letter-spacing','word-spacing',
+ 'text-(?:align|align-last|decoration|decoration-(?:line|color|style|thickness)|indent|transform|underline-offset|wrap)',
+ 'vertical-align','white-space','word-break','word-wrap','overflow-wrap','hyphens','tab-size','direction','unicode-bidi','writing-mode','text-orientation',
+ 'list-style(?:-(?:type|position))?',
+ 'flex(?:-(?:direction|wrap|flow|grow|shrink|basis))?','justify-(?:content|items|self)','align-(?:items|content|self)','place-(?:items|content|self)','order',
+ 'grid(?:-(?:template(?:-(?:columns|rows|areas))?|column(?:-(?:start|end))?|row(?:-(?:start|end))?|auto-(?:columns|rows|flow)|area|gap))?',
+ 'table-layout','caption-side','empty-cells','object-fit','object-position','cursor','pointer-events','color-scheme',
+ 'fill','fill-opacity','fill-rule','stroke(?:-(?:width|opacity|dasharray|dashoffset|linecap|linejoin|miterlimit))?','stop-color','stop-opacity','text-anchor','dominant-baseline','alignment-baseline','vector-effect','shape-rendering'
+].join('|')+')$');
+const styleValueOk=v=>{const x=v.replace(/\/\*[\s\S]*?\*\//g,'').toLowerCase();
+  if(x.length>1500||/\\/.test(x))return false;
+  if(/expression\s*\(|javascript:|vbscript:|@import|-moz-binding|behavior\s*:|image-set\s*\(|element\s*\(|paint\s*\(|cross-fade\s*\(/.test(x))return false;
+  const u=/url\s*\(\s*['"]?\s*([^)'"]*)/g;let m;
+  while((m=u.exec(x))){const t=m[1].trim();if(t[0]!=='#'&&!/^data:image\/(png|jpe?g|gif|webp|avif|bmp|svg\+xml)[;,]/.test(t))return false}
+  return true};
+const splitDecls=s=>{const out=[];let cur='',q='',d=0;
+  for(const ch of s.replace(/\/\*[\s\S]*?\*\//g,'')){
+    if(q){cur+=ch;if(ch===q)q='';continue}
+    if(ch==='"'||ch==="'"){q=ch;cur+=ch;continue}
+    if(ch==='(')d++;else if(ch===')')d=Math.max(0,d-1);
+    if(ch===';'&&d===0){out.push(cur);cur=''}else cur+=ch}
+  out.push(cur);return out.map(x=>x.trim()).filter(Boolean)};
+const styleDrops=[];
+const safeStyle=v=>{const keep=[];
+  for(const d of splitDecls(String(v))){const i=d.indexOf(':');
+    if(i>0){const p=d.slice(0,i).trim().toLowerCase(),val=d.slice(i+1).trim();
+      if(STYLE_OK.test(p)&&val&&styleValueOk(val)){keep.push(p+':'+val);continue}}
+    styleDrops.push(d)}
+  return keep.join(';')};
+const clean=h=>{styleDrops.length=0;const d=new DOMParser().parseFromString(h,'text/html');
   d.querySelectorAll('script,style,iframe,object,embed,link,meta,base,form,animate,set,animatemotion,animateMotion,animatetransform,animateTransform').forEach(e=>{
     if(e.tagName==='IFRAME'){let u;try{u=new URL(e.getAttribute('src')||'','https://invalid.example/')}catch(x){}
       if(u&&u.protocol==='https:'&&YT.includes(u.hostname)&&/^\/embed\/[\w-]+\/?$/.test(u.pathname)&&!u.username&&!u.password){
@@ -65,9 +102,11 @@ const clean=h=>{const d=new DOMParser().parseFromString(h,'text/html');
   d.body.querySelectorAll('svg').forEach(sv=>{const m=/window\.open\(\s*'(https:\/\/viewer\.diagrams\.net\/[^']*)'/.exec(sv.getAttribute('onclick')||'');const v=m&&drawioUrl(m[1]);if(v&&sv.hasAttribute('content'))dio.set(sv,v)});
   d.body.querySelectorAll('*').forEach(e=>{const img=['img','source','image'].includes(e.tagName.toLowerCase());
     [...e.attributes].forEach(a=>{const n=a.name.toLowerCase();
+      if(n==='style'){const r=safeStyle(a.value);if(r)e.setAttribute('style',r);else e.removeAttribute('style');return}
       if(n.startsWith('on')||n.startsWith('data-drawio')||n==='ping'||(URL_ATTRS.test(n)&&urlBlocked(a.value,img))||(n==='srcset'&&a.value.split(',').some(c=>urlBlocked(c.trim().split(/\s+/)[0],true))))e.removeAttribute(a.name)});
     if(e.localName==='a'){const hv=e.getAttribute('href')||e.getAttribute('xlink:href')||'';if(hv&&!hv.startsWith('#')){e.setAttribute('target','_blank');e.setAttribute('rel','noopener noreferrer')}}});
   dio.forEach((v,sv)=>sv.setAttribute('data-drawio-viewer',v));
+  if(styleDrops.length&&window.console&&console.info)console.info('LWSM: removed '+styleDrops.length+' unsafe style declaration(s):',[...new Set(styleDrops.map(x=>x.split(':')[0].trim().toLowerCase()))].join(', '));
   return d.body.innerHTML};
 /* with scroll sync on, every top-level Markdown block is preceded by a comment <!--s123--> holding its offset in the source */
 const renderMd=t=>{if(!window.marked)return'<pre>'+esc(t)+'</pre>';const o={gfm:true,breaks:true};

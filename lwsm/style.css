@@ -31,6 +31,7 @@ dialog select{font:inherit;color:inherit;background:transparent;border:1.5px sol
 #ed[hidden],#pv[hidden]{display:none}
 #pv{overflow-wrap:anywhere}
 #pv:focus{outline:none}
+#pv{contain:paint}
 #pv:empty::before{content:"Nothing here yet. Press F2 to edit.";opacity:.55}
 #pv>*{max-width:76ch}
 #pv a{color:var(--link)}
