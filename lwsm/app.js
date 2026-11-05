@@ -65,7 +65,7 @@ const STYLE_OK=new RegExp('^(?:'+[
  'flex(?:-(?:direction|wrap|flow|grow|shrink|basis))?','justify-(?:content|items|self)','align-(?:items|content|self)','place-(?:items|content|self)','order',
  'grid(?:-(?:template(?:-(?:columns|rows|areas))?|column(?:-(?:start|end))?|row(?:-(?:start|end))?|auto-(?:columns|rows|flow)|area|gap))?',
  'table-layout','caption-side','empty-cells','object-fit','object-position','cursor','pointer-events','color-scheme',
- 'fill','fill-opacity','fill-rule','stroke(?:-(?:width|opacity|dasharray|dashoffset|linecap|linejoin|miterlimit))?','stop-color','stop-opacity','text-anchor','dominant-baseline','alignment-baseline','vector-effect','shape-rendering'
+ 'fill','fill-opacity','fill-rule','stroke(?:-(?:width|opacity|dasharray|dashoffset|linecap|linejoin|miterlimit))?','stop-color','stop-opacity','text-anchor','dominant-baseline','alignment-baseline','vector-effect','shape-rendering','float','shape(?:-(?:outside|margin))?'
 ].join('|')+')$');
 const styleValueOk=v=>{const x=v.replace(/\/\*[\s\S]*?\*\//g,'').toLowerCase();
   if(x.length>1500||/\\/.test(x))return false;
