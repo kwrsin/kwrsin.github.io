@@ -118,7 +118,7 @@ const render=t=>clean(isHtml(t)?t:renderMd(t));
 
 const applyBg=()=>{const c=cur.bg;box.style.background=c;box.style.color=c?fg(c):'';box.style.setProperty('--link',c?fg(c):'');box.style.setProperty('--mbg',c||'');
   bg.value=c||(matchMedia('(prefers-color-scheme:dark)').matches?'#171d1a':'#ffffff')};
-const setMode=(p,focus)=>{preview=p;document.body.dataset.mode=p?'preview':'edit';setTitle();if(p){pv.innerHTML=render(cur.text);olBuild()}else olUpdate();sw.dataset.mode=p?'preview':'edit';const sl=p?'Switch to edit (F2)':'Switch to preview (F2)';sw.title=sl;sw.setAttribute('aria-label',sl);ed.hidden=p;pv.hidden=!p;olUpdate();barOff=false;bar.classList.remove('hide');if(!p&&focus&&!coarse)ed.focus();if(p){clearHit();pv.focus({preventScroll:true})}};
+const setMode=(p,focus)=>{preview=p;document.body.dataset.mode=p?'preview':'edit';setTitle();if(p){pv.innerHTML=render(cur.text);olBuild()}else olUpdate();sw.dataset.mode=p?'preview':'edit';const sl=p?'Switch to edit (Alt+Enter)':'Switch to preview (Alt+Enter)';sw.title=sl;sw.setAttribute('aria-label',sl);ed.hidden=p;pv.hidden=!p;olUpdate();barOff=false;bar.classList.remove('hide');if(!p&&focus&&!coarse)ed.focus();if(p){clearHit();pv.focus({preventScroll:true})}};
 const load=(m,p)=>{cur=m;clearHit();setTitle();ed.value=m.text;applyBg();ed.hidden=pv.hidden=false;ed.scrollTop=pv.scrollTop=0;ly=0;setMode(p);try{localStorage.setItem(KC,m.id)}catch(e){}};
 const pool=()=>memos.filter(m=>[...tagSel].every(k=>hasTag(m,k)));
 const canRotate=()=>{const p=pool();return p.length>1||(p.length===1&&p[0].id!==cur.id)};
@@ -306,18 +306,25 @@ dL.addEventListener('keydown',e=>{if(e.isComposing)return;
 /* bracket keys differ by keyboard layout and Option on macOS, so map by layout */
 const kc={'[':'BracketLeft',']':'BracketRight'};
 if(navigator.keyboard&&navigator.keyboard.getLayoutMap)navigator.keyboard.getLayoutMap().then(m=>{for(const[c,v]of m)if(v==='['||v===']')kc[v]=c}).catch(()=>{});
+/* Is the IME converting text right now? Alt shortcuts must not fire then. Tracked with composition events: a keyCode of 229 alone is not enough,
+   because some browsers send it for every key while the IME is merely switched on. A short grace time covers browsers that end the composition just before the key event. */
+let composing=false,compEnd=0;
+document.addEventListener('compositionstart',()=>{composing=true},true);
+document.addEventListener('compositionend',()=>{composing=false;compEnd=Date.now()},true);
+addEventListener('blur',()=>{composing=false},true);
+const imeBusy=e=>e.isComposing||composing||Date.now()-compEnd<50;
 document.addEventListener('keydown',e=>{if(dL.open||dT.open||dG.open||dM.open||dR.open||dD.open||dGr.open||dDis.open)return;
   if(e.key==='Escape'&&!olNav.hidden){e.preventDefault();olClose();return}
   if(!olNav.hidden){const kk=e.key.toLowerCase();
     if(e.ctrlKey&&!e.altKey&&!e.metaKey&&(kk==='n'||kk==='p')){e.preventDefault();olStep(kk==='n'?1:-1);return}
     if(e.key==='Enter'&&!e.ctrlKey&&!e.altKey&&!e.metaKey&&!e.isComposing&&!(e.target.closest&&e.target.closest('#ol'))){e.preventDefault();olClose();return}}const c=e.ctrlKey||e.metaKey,k=e.key.toLowerCase();
+  if(e.altKey&&imeBusy(e))return;                         /* IME conversion in progress */
   if(e.altKey&&!c&&(e.code==='Comma'||e.code==='Period')){e.preventDefault();fsStep(e.code==='Comma'?-1:1);return}
   if(dS.open){if(e.key==='Escape'){e.preventDefault();dS.close()}return}
-  if(dF.open){if(e.key==='F9'){e.preventDefault();kw.focus();kw.select()}else if(e.key==='Escape'){e.preventDefault();dF.close()}return}
-  if(e.altKey&&(e.isComposing||e.keyCode===229))return;     /* IME conversion in progress */
+  if(dF.open){if(e.altKey&&!c&&e.code==='KeyW'){e.preventDefault();kw.focus();kw.select()}else if(e.key==='Escape'){e.preventDefault();dF.close()}return}
   const run=f=>{e.preventDefault();f()},al=e.altKey&&!c,ak=x=>al&&e.code===x,kb=x=>e.key===x||e.code===kc[x];
-  if(ak('KeyN'))run(doNew);else if(c&&k==='o')run(doImport);else if(c&&k==='s')run(doExport);else if(e.key==='F9')run(openFind);
-  else if(al&&kb(']'))run(()=>rotate(1));else if(al&&kb('['))run(()=>rotate(-1));else if(al&&e.key==='Delete')run(doDelete);else if(al&&(k==='r'||e.code==='KeyR'))run(openTitle);else if(ak('KeyT'))run(openTags);else if(ak('KeyM'))run(openMng);else if(ak('KeyB'))run(doBackup);else if(ak('KeyO'))run(openRestore);else if(ak('KeyD'))run(openData);else if(ak('KeyC'))run(doDuplicate);else if(ak('KeyG'))run(openGrep);else if(ak('KeyH'))run(olToggle);else if(ak('KeyV'))run(toggleBar);else if(ak('KeyL'))run(openList);else if(e.key==='F2')run(()=>toggleMode())});
+  if(ak('KeyN'))run(doNew);else if(c&&k==='o')run(doImport);else if(c&&k==='s')run(doExport);else if(ak('KeyW'))run(openFind);
+  else if(al&&kb(']'))run(()=>rotate(1));else if(al&&kb('['))run(()=>rotate(-1));else if(al&&e.key==='Delete')run(doDelete);else if(al&&(k==='r'||e.code==='KeyR'))run(openTitle);else if(ak('KeyT'))run(openTags);else if(ak('KeyM'))run(openMng);else if(ak('KeyB'))run(doBackup);else if(ak('KeyO'))run(openRestore);else if(ak('KeyD'))run(openData);else if(ak('KeyC'))run(doDuplicate);else if(ak('KeyG'))run(openGrep);else if(ak('KeyH'))run(olToggle);else if(ak('KeyV'))run(toggleBar);else if(ak('KeyL'))run(openList);else if(al&&(e.key==='Enter'||e.code==='NumpadEnter'))run(()=>toggleMode({kbd:true}))});
 /* links in the preview: HTML <a href> and also links on SVG shapes (<a href> / <a xlink:href>, whose .href is not a string) */
 pv.addEventListener('click',e=>{
   const dv=e.target.closest('svg[data-drawio-viewer]');if(dv&&!e.target.closest('a')){e.preventDefault();openDrawio(dv);return}   /* draw.io diagram: a link on a shape still works as a link */
@@ -574,10 +581,18 @@ const toPreview=off=>{const mk=blockMarks();if(!mk.length)return false;let i=0;f
   const pr=pv.getBoundingClientRect().top,top=mk[i].el.getBoundingClientRect().top-pr,nx=mk[i+1],nTop=nx?nx.el.getBoundingClientRect().top-pr:top+mk[i].el.offsetHeight,nOff=nx?nx.off:srcLen();
   const f=nOff>mk[i].off?Math.max(0,Math.min(1,(off-mk[i].off)/(nOff-mk[i].off))):0;
   pv.scrollTop=pv.scrollTop+top+f*(nTop-top)-refMargin();return true};
-const toggleMode=()=>{
-  if(!syncOn){setMode(!preview,true);return}
-  const toEdit=preview,from=toEdit?pv:ed,fm=from.scrollHeight-from.clientHeight;
-  if(fm<=1){setMode(!preview,true);return}                      /* short memo: nothing to sync */
+/* Alt+Enter on a PC: the editor gets the focus. The caret stays where it was if that is on screen, otherwise it moves to the first visible line.
+   The caret is already inside the visible part, so the browser has no reason to scroll the editor (a synced position survives in Firefox / Safari too). */
+const focusEditor=()=>{if(coarse)return;
+  const top=ed.scrollTop,limit=top+ed.clientHeight-(olNarrow()?bar.offsetHeight:0)-40;let pos=ed.selectionStart;
+  try{const y=yOf(pos);if(y<top+refMargin()-2||y>limit)pos=offsetAtY(top+refMargin())}catch(e){}
+  ed.setSelectionRange(pos,pos);ed.focus({preventScroll:true});
+  ed.scrollTop=top;requestAnimationFrame(()=>{ed.scrollTop=top})};
+const toggleMode=opt=>{
+  const toEdit=preview,kbd=!!(opt&&opt.kbd);                    /* kbd: switched with Alt+Enter */
+  if(!syncOn){setMode(!preview,!kbd);if(kbd&&toEdit)focusEditor();return}
+  const from=toEdit?pv:ed,fm=from.scrollHeight-from.clientHeight;
+  if(fm<=1){setMode(!preview,!kbd);if(kbd&&toEdit)focusEditor();return}                      /* short memo: nothing to sync */
   const st=from.scrollTop,atTop=st<=2,atBot=st>=fm-2,ratio=st/fm,md=!isHtml(cur.text)&&!!window.marked;
   let off=-1;try{if(md&&!atTop&&!atBot)off=toEdit?srcOfPreview():offsetAtY(st+refMargin())}catch(e){}
   setMode(!preview,false);                                       /* no focus: it would scroll the editor away from the synced position */
@@ -588,7 +603,7 @@ const toggleMode=()=>{
     else if(off>=0){ok=toEdit?(ed.scrollTop=Math.max(0,yOf(off)-refMargin()),true):toPreview(off)}
     if(!ok){const tm=to.scrollHeight-to.clientHeight;if(tm>0)to.scrollTop=ratio*tm}     /* HTML memos / no block info: by proportion */
   }catch(e){}
-  noHideUntil=Date.now()+200;ly=to.scrollTop;bar.classList.remove('hide')};
+  noHideUntil=Date.now()+200;ly=to.scrollTop;bar.classList.remove('hide');if(kbd&&toEdit)focusEditor()};
 
 /* ---- editor keys: Tab / Shift+Tab (spaces or tab, set in Settings) and auto-indent on a new line ---- */
 const TBK='lwsm.tab',AIK='lwsm.autoindent',sTab=$('sTab'),sAuto=$('sAuto');
