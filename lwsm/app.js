@@ -172,7 +172,12 @@ const showHit=(i,len)=>{   /* no text selection: only the yellow marker; the hit
   const db=dF.open?dF.getBoundingClientRect().bottom-ed.getBoundingClientRect().top:0;
   const vv=window.visualViewport,avail=Math.min(ed.clientHeight,(vv?vv.height:innerHeight)-ed.getBoundingClientRect().top);
   const want=Math.max(db+24,Math.min(Math.max(db+48,avail*.42),avail-120));
-  if(!coarse)ed.setSelectionRange(i,i);   /* cursor just before the keyword (PC only; no selection) */
+  if(!coarse){   /* cursor just before the keyword (PC only; no selection) */
+    const af=document.activeElement,ks=kw.selectionStart,ke=kw.selectionEnd;
+    ed.setSelectionRange(i,i);
+    /* Safari moves the focus into the editor when its selection is set. While Find is open the focus must stay where it was (Keyword box, Replace box, a button),
+       or Enter would no longer find the next match and Esc would not reach the panel. */
+    if(dF.open&&af&&af!==ed&&af!==document.body&&af.focus){af.focus({preventScroll:true});if(af===kw)try{kw.setSelectionRange(ks,ke)}catch(e){}}}
   ed.scrollTop=Math.max(0,yOf(i)-want);drawHit(i,len);hit={i,len}};
 /* ---- regular expressions + keyword history (shared by Find and Search all memos) ---- */
 const reEsc=s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
@@ -285,7 +290,8 @@ bRpT.onclick=()=>{setRp(rpx.hidden);if(!rpx.hidden)rp.focus()};
 kw.addEventListener('input',()=>{stat('');clearHit()});
 const fHist=histUI(kw,$('hF'),$('hlF'),h=>{kw.value=h.k;cs.checked=h.cs;rx.checked=h.re;kw.dispatchEvent(new Event('input'))});
 cs.addEventListener('change',()=>{stat('');clearHit()});rx.addEventListener('change',()=>{stat('');clearHit()});
-dF.addEventListener('close',()=>fHist.close());
+dF.addEventListener('close',()=>{fHist.close();
+  if(!coarse&&!preview){const a=document.activeElement;if(!a||a===document.body||dF.contains(a))ed.focus({preventScroll:true})}});
 $('bDoRep').onclick=replace;$('bDelAll').onclick=delAll;
 kw.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.isComposing){e.preventDefault();find()}});
 rp.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.isComposing){e.preventDefault();replace()}});
@@ -321,6 +327,7 @@ for(const d of [dF,dS]){
     if(d===dF&&!$('hlF').hidden)return;                 /* the keyword history is open: Esc closes only that list */
     e.preventDefault();e.stopPropagation();d.close()},true);
   d.addEventListener('cancel',e=>{e.preventDefault();d.close()})}
+ed.addEventListener('keydown',e=>{if(dF.open&&isEsc(e)&&!imeBusy(e)){e.preventDefault();e.stopImmediatePropagation();dF.close()}},true);
 document.addEventListener('keydown',e=>{if(dL.open||dT.open||dG.open||dM.open||dR.open||dD.open||dGr.open||dDis.open)return;
   if(isEsc(e)&&!imeBusy(e)&&!olNav.hidden){e.preventDefault();olClose();return}
   if(!olNav.hidden){const kk=e.key.toLowerCase();
@@ -333,7 +340,7 @@ document.addEventListener('keydown',e=>{if(dL.open||dT.open||dG.open||dM.open||d
   if(dF.open){if(e.altKey&&!c&&e.code==='KeyF'){e.preventDefault();kw.focus();kw.select()}else if(isEsc(e)&&!imeBusy(e)){e.preventDefault();dF.close()}return}
   const run=f=>{e.preventDefault();f()},al=e.altKey&&!c,ak=x=>al&&e.code===x,kb=x=>e.key===x||e.code===kc[x];
   if(ak('KeyN'))run(doNew);else if(c&&k==='o')run(doImport);else if(c&&k==='s')run(doExport);else if(ak('KeyF'))run(openFind);
-  else if(al&&kb(']'))run(()=>rotate(1));else if(al&&kb('['))run(()=>rotate(-1));else if(al&&e.key==='Backspace')run(doDelete);else if(al&&(k==='r'||e.code==='KeyR'))run(openTitle);else if(ak('KeyT'))run(openTags);else if(ak('KeyM'))run(openMng);else if(ak('KeyB'))run(doBackup);else if(ak('KeyO'))run(openRestore);else if(ak('KeyD'))run(openData);else if(ak('KeyC'))run(doDuplicate);else if(ak('KeyG'))run(openGrep);else if(ak('KeyH'))run(olToggle);else if(ak('KeyV'))run(toggleBar);else if(ak('KeyL'))run(openList);else if(al&&(e.key==='Enter'||e.code==='NumpadEnter'))run(toggleMode)});
+  else if(al&&kb(']'))run(()=>rotate(1));else if(al&&kb('['))run(()=>rotate(-1));else if(al&&(e.code==='Backspace'||e.key==='Backspace'))run(doDelete);else if(al&&(k==='r'||e.code==='KeyR'))run(openTitle);else if(ak('KeyT'))run(openTags);else if(ak('KeyM'))run(openMng);else if(ak('KeyB'))run(doBackup);else if(ak('KeyO'))run(openRestore);else if(ak('KeyD'))run(openData);else if(ak('KeyC'))run(doDuplicate);else if(ak('KeyG'))run(openGrep);else if(ak('KeyH'))run(olToggle);else if(ak('KeyV'))run(toggleBar);else if(ak('KeyL'))run(openList);else if(al&&(e.key==='Enter'||e.code==='NumpadEnter'))run(toggleMode)});
 /* links in the preview: HTML <a href> and also links on SVG shapes (<a href> / <a xlink:href>, whose .href is not a string) */
 pv.addEventListener('click',e=>{
   const dv=e.target.closest('svg[data-drawio-viewer]');if(dv&&!e.target.closest('a')){e.preventDefault();openDrawio(dv);return}   /* draw.io diagram: a link on a shape still works as a link */
