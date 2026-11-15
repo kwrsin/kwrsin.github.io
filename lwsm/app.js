@@ -313,18 +313,27 @@ document.addEventListener('compositionstart',()=>{composing=true},true);
 document.addEventListener('compositionend',()=>{composing=false;compEnd=Date.now()},true);
 addEventListener('blur',()=>{composing=false},true);
 const imeBusy=e=>e.isComposing||composing||Date.now()-compEnd<50;
+/* Esc closes the two non-modal panels (Find, Settings). Safari on a Mac can deliver Esc from a text box in an unusual form (key "Process", keyCode 229, or only as a
+   "cancel" request), so Esc is recognised by key, code and keyCode, and each panel also listens in the capture phase and for cancel. */
+const isEsc=e=>e.key==='Escape'||e.key==='Esc'||e.code==='Escape'||e.keyCode===27;
+for(const d of [dF,dS]){
+  d.addEventListener('keydown',e=>{if(!d.open||!isEsc(e)||imeBusy(e))return;
+    if(d===dF&&!$('hlF').hidden)return;                 /* the keyword history is open: Esc closes only that list */
+    e.preventDefault();e.stopPropagation();d.close()},true);
+  d.addEventListener('cancel',e=>{e.preventDefault();d.close()})}
 document.addEventListener('keydown',e=>{if(dL.open||dT.open||dG.open||dM.open||dR.open||dD.open||dGr.open||dDis.open)return;
-  if(e.key==='Escape'&&!olNav.hidden){e.preventDefault();olClose();return}
+  if(isEsc(e)&&!imeBusy(e)&&!olNav.hidden){e.preventDefault();olClose();return}
   if(!olNav.hidden){const kk=e.key.toLowerCase();
     if(e.ctrlKey&&!e.altKey&&!e.metaKey&&(kk==='n'||kk==='p')){e.preventDefault();olStep(kk==='n'?1:-1);return}
+    if(!e.ctrlKey&&!e.altKey&&!e.metaKey&&!e.shiftKey&&!e.isComposing&&(e.key==='ArrowDown'||e.key==='ArrowUp')&&!dS.open&&!dF.open&&!(e.target.closest&&e.target.closest('input,select,textarea'))){e.preventDefault();olStep(e.key==='ArrowDown'?1:-1);return}
     if(e.key==='Enter'&&!e.ctrlKey&&!e.altKey&&!e.metaKey&&!e.isComposing&&!(e.target.closest&&e.target.closest('#ol'))){e.preventDefault();olClose();return}}const c=e.ctrlKey||e.metaKey,k=e.key.toLowerCase();
   if(e.altKey&&imeBusy(e))return;                         /* IME conversion in progress */
   if(e.altKey&&!c&&(e.code==='Comma'||e.code==='Period')){e.preventDefault();fsStep(e.code==='Comma'?-1:1);return}
-  if(dS.open){if(e.key==='Escape'){e.preventDefault();dS.close()}return}
-  if(dF.open){if(e.altKey&&!c&&e.code==='KeyW'){e.preventDefault();kw.focus();kw.select()}else if(e.key==='Escape'){e.preventDefault();dF.close()}return}
+  if(dS.open){if(isEsc(e)&&!imeBusy(e)){e.preventDefault();dS.close()}return}
+  if(dF.open){if(e.altKey&&!c&&e.code==='KeyW'){e.preventDefault();kw.focus();kw.select()}else if(isEsc(e)&&!imeBusy(e)){e.preventDefault();dF.close()}return}
   const run=f=>{e.preventDefault();f()},al=e.altKey&&!c,ak=x=>al&&e.code===x,kb=x=>e.key===x||e.code===kc[x];
   if(ak('KeyN'))run(doNew);else if(c&&k==='o')run(doImport);else if(c&&k==='s')run(doExport);else if(ak('KeyW'))run(openFind);
-  else if(al&&kb(']'))run(()=>rotate(1));else if(al&&kb('['))run(()=>rotate(-1));else if(al&&e.key==='Delete')run(doDelete);else if(al&&(k==='r'||e.code==='KeyR'))run(openTitle);else if(ak('KeyT'))run(openTags);else if(ak('KeyM'))run(openMng);else if(ak('KeyB'))run(doBackup);else if(ak('KeyO'))run(openRestore);else if(ak('KeyD'))run(openData);else if(ak('KeyC'))run(doDuplicate);else if(ak('KeyG'))run(openGrep);else if(ak('KeyH'))run(olToggle);else if(ak('KeyV'))run(toggleBar);else if(ak('KeyL'))run(openList);else if(al&&(e.key==='Enter'||e.code==='NumpadEnter'))run(()=>toggleMode({kbd:true}))});
+  else if(al&&kb(']'))run(()=>rotate(1));else if(al&&kb('['))run(()=>rotate(-1));else if(al&&e.key==='Delete')run(doDelete);else if(al&&(k==='r'||e.code==='KeyR'))run(openTitle);else if(ak('KeyT'))run(openTags);else if(ak('KeyM'))run(openMng);else if(ak('KeyB'))run(doBackup);else if(ak('KeyO'))run(openRestore);else if(ak('KeyD'))run(openData);else if(ak('KeyC'))run(doDuplicate);else if(ak('KeyG'))run(openGrep);else if(ak('KeyH'))run(olToggle);else if(ak('KeyV'))run(toggleBar);else if(ak('KeyL'))run(openList);else if(al&&(e.key==='Enter'||e.code==='NumpadEnter'))run(toggleMode)});
 /* links in the preview: HTML <a href> and also links on SVG shapes (<a href> / <a xlink:href>, whose .href is not a string) */
 pv.addEventListener('click',e=>{
   const dv=e.target.closest('svg[data-drawio-viewer]');if(dv&&!e.target.closest('a')){e.preventDefault();openDrawio(dv);return}   /* draw.io diagram: a link on a shape still works as a link */
@@ -581,18 +590,18 @@ const toPreview=off=>{const mk=blockMarks();if(!mk.length)return false;let i=0;f
   const pr=pv.getBoundingClientRect().top,top=mk[i].el.getBoundingClientRect().top-pr,nx=mk[i+1],nTop=nx?nx.el.getBoundingClientRect().top-pr:top+mk[i].el.offsetHeight,nOff=nx?nx.off:srcLen();
   const f=nOff>mk[i].off?Math.max(0,Math.min(1,(off-mk[i].off)/(nOff-mk[i].off))):0;
   pv.scrollTop=pv.scrollTop+top+f*(nTop-top)-refMargin();return true};
-/* Alt+Enter on a PC: the editor gets the focus. The caret stays where it was if that is on screen, otherwise it moves to the first visible line.
+/* Switching to the editor on a PC (Alt+Enter or the header button): the editor gets the focus. The caret stays where it was if that is on screen, otherwise it moves to the first visible line.
    The caret is already inside the visible part, so the browser has no reason to scroll the editor (a synced position survives in Firefox / Safari too). */
 const focusEditor=()=>{if(coarse)return;
   const top=ed.scrollTop,limit=top+ed.clientHeight-(olNarrow()?bar.offsetHeight:0)-40;let pos=ed.selectionStart;
   try{const y=yOf(pos);if(y<top+refMargin()-2||y>limit)pos=offsetAtY(top+refMargin())}catch(e){}
   ed.setSelectionRange(pos,pos);ed.focus({preventScroll:true});
   ed.scrollTop=top;requestAnimationFrame(()=>{ed.scrollTop=top})};
-const toggleMode=opt=>{
-  const toEdit=preview,kbd=!!(opt&&opt.kbd);                    /* kbd: switched with Alt+Enter */
-  if(!syncOn){setMode(!preview,!kbd);if(kbd&&toEdit)focusEditor();return}
+const toggleMode=()=>{
+  const toEdit=preview;
+  if(!syncOn){setMode(!preview,false);if(toEdit)focusEditor();return}
   const from=toEdit?pv:ed,fm=from.scrollHeight-from.clientHeight;
-  if(fm<=1){setMode(!preview,!kbd);if(kbd&&toEdit)focusEditor();return}                      /* short memo: nothing to sync */
+  if(fm<=1){setMode(!preview,false);if(toEdit)focusEditor();return}                      /* short memo: nothing to sync */
   const st=from.scrollTop,atTop=st<=2,atBot=st>=fm-2,ratio=st/fm,md=!isHtml(cur.text)&&!!window.marked;
   let off=-1;try{if(md&&!atTop&&!atBot)off=toEdit?srcOfPreview():offsetAtY(st+refMargin())}catch(e){}
   setMode(!preview,false);                                       /* no focus: it would scroll the editor away from the synced position */
@@ -603,7 +612,7 @@ const toggleMode=opt=>{
     else if(off>=0){ok=toEdit?(ed.scrollTop=Math.max(0,yOf(off)-refMargin()),true):toPreview(off)}
     if(!ok){const tm=to.scrollHeight-to.clientHeight;if(tm>0)to.scrollTop=ratio*tm}     /* HTML memos / no block info: by proportion */
   }catch(e){}
-  noHideUntil=Date.now()+200;ly=to.scrollTop;bar.classList.remove('hide');if(kbd&&toEdit)focusEditor()};
+  noHideUntil=Date.now()+200;ly=to.scrollTop;bar.classList.remove('hide');if(toEdit)focusEditor()};
 
 /* ---- editor keys: Tab / Shift+Tab (spaces or tab, set in Settings) and auto-indent on a new line ---- */
 const TBK='lwsm.tab',AIK='lwsm.autoindent',sTab=$('sTab'),sAuto=$('sAuto');
