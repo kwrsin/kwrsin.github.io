@@ -117,7 +117,7 @@ const renderMd=t=>{if(!window.marked)return'<pre>'+esc(t)+'</pre>';const o={gfm:
 const render=t=>clean(isHtml(t)?t:renderMd(t));
 
 const applyBg=()=>{const c=cur.bg;box.style.background=c;box.style.color=c?fg(c):'';box.style.setProperty('--link',c?fg(c):'');box.style.setProperty('--mbg',c||'');
-  bg.value=c||(matchMedia('(prefers-color-scheme:dark)').matches?'#171d1a':'#ffffff')};
+  bg.value=c||(matchMedia('(prefers-color-scheme:dark)').matches?'#222831':'#eeeeee')};
 const setMode=(p,focus)=>{preview=p;document.body.dataset.mode=p?'preview':'edit';setTitle();if(p){pv.innerHTML=render(cur.text);olBuild()}else olUpdate();sw.dataset.mode=p?'preview':'edit';const sl=p?'Switch to edit (Alt+Enter)':'Switch to preview (Alt+Enter)';sw.title=sl;sw.setAttribute('aria-label',sl);ed.hidden=p;pv.hidden=!p;olUpdate();barOff=false;bar.classList.remove('hide');if(!p&&focus&&!coarse)ed.focus();if(p){clearHit();pv.focus({preventScroll:true})}};
 const load=(m,p)=>{cur=m;clearHit();setTitle();ed.value=m.text;applyBg();ed.hidden=pv.hidden=false;ed.scrollTop=pv.scrollTop=0;ly=0;setMode(p);try{localStorage.setItem(KC,m.id)}catch(e){}};
 const pool=()=>memos.filter(m=>[...tagSel].every(k=>hasTag(m,k)));
@@ -291,7 +291,8 @@ kw.addEventListener('input',()=>{stat('');clearHit()});
 const fHist=histUI(kw,$('hF'),$('hlF'),h=>{kw.value=h.k;cs.checked=h.cs;rx.checked=h.re;kw.dispatchEvent(new Event('input'))});
 cs.addEventListener('change',()=>{stat('');clearHit()});rx.addEventListener('change',()=>{stat('');clearHit()});
 dF.addEventListener('close',()=>{fHist.close();
-  if(!coarse&&!preview){const a=document.activeElement;if(!a||a===document.body||dF.contains(a))ed.focus({preventScroll:true})}});
+  if(!coarse&&!preview){const a=document.activeElement;if(!a||a===document.body||dF.contains(a))ed.focus({preventScroll:true});
+    if(document.activeElement===ed)clearCaretOfBar()}});
 $('bDoRep').onclick=replace;$('bDelAll').onclick=delAll;
 kw.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.isComposing){e.preventDefault();find()}});
 rp.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.isComposing){e.preventDefault();replace()}});
@@ -445,7 +446,7 @@ const gotoHit=h=>{const m=memos.find(x=>x.id===h.id);if(!m){say('That memo no lo
   else{let best=-1,bd=Infinity,r;re.lastIndex=0;
     while((r=re.exec(t))){if(!r[0].length){re.lastIndex++;continue}const d=Math.abs(r.index-h.off);if(d<bd){bd=d;best=r.index;len=r[0].length}else if(r.index>h.off)break}
     if(best<0){say('The keyword is no longer in this memo',2200);return}off=best;say('The memo has changed; showing the nearest match',2000)}
-  showHit(off,len)};
+  showHit(off,len);clearCaretOfBar()};
 const openGrep=()=>{if(dGr.open)return;save();drawGScope();gShow(gRun);drawGRes();dGr.showModal();gk.focus();gk.select()};
 $('bGrep').onclick=openGrep;$('xGr').onclick=()=>dGr.close();$('bGr').onclick=runGrep;$('bGc').onclick=()=>{gAbort=true};
 dGr.addEventListener('close',()=>{if(gRun)gAbort=true});
@@ -574,6 +575,13 @@ sSync.checked=syncOn;
 sSync.addEventListener('change',()=>{syncOn=sSync.checked;try{localStorage.setItem(SYK,syncOn?'1':'0')}catch(e){}
   if(preview&&cur){const st=pv.scrollTop;pv.innerHTML=render(cur.text);olBuild();pv.scrollTop=st}});
 const refMargin=()=>olNarrow()?8:bar.offsetHeight+4;     /* the line just below the header is the reference */
+/* The header floats over the text. When the caret has been moved (Find / Search all closed, switched to the editor) and its line is under the header
+   or touching it, hide the header for now. It comes back when you scroll up, or with Alt+V. */
+const clearCaretOfBar=()=>{
+  if(preview||ed.hidden||barOff||bar.classList.contains('hide'))return;
+  let y;try{y=ed.getBoundingClientRect().top+yOf(ed.selectionStart)-ed.scrollTop}catch(e){return}
+  const r=bar.getBoundingClientRect(),lh=parseFloat(getComputedStyle(ed).lineHeight)||24,m=6;
+  if(y+lh>r.top-m&&y<r.bottom+m){bar.classList.add('hide');noHideUntil=Date.now()+250;ly=ed.scrollTop}};
 const srcLen=()=>cur.text.replace(/\r\n|\r/g,'\n').length;
 const blockMarks=()=>{const out=[],w=document.createTreeWalker(pv,NodeFilter.SHOW_COMMENT);let n;
   while((n=w.nextNode())){const m=/^s(\d+)$/.exec(n.data);if(!m||n.parentNode!==pv)continue;let el=n.nextSibling;while(el&&el.nodeType!==1)el=el.nextSibling;if(el)out.push({off:+m[1],el})}
@@ -603,7 +611,7 @@ const focusEditor=()=>{if(coarse)return;
   const top=ed.scrollTop,limit=top+ed.clientHeight-(olNarrow()?bar.offsetHeight:0)-40;let pos=ed.selectionStart;
   try{const y=yOf(pos);if(y<top+refMargin()-2||y>limit)pos=offsetAtY(top+refMargin())}catch(e){}
   ed.setSelectionRange(pos,pos);ed.focus({preventScroll:true});
-  ed.scrollTop=top;requestAnimationFrame(()=>{ed.scrollTop=top})};
+  ed.scrollTop=top;requestAnimationFrame(()=>{ed.scrollTop=top});clearCaretOfBar()};
 const toggleMode=()=>{
   const toEdit=preview;
   if(!syncOn){setMode(!preview,false);if(toEdit)focusEditor();return}
