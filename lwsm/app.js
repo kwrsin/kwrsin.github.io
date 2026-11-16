@@ -341,7 +341,7 @@ document.addEventListener('keydown',e=>{if(dL.open||dT.open||dG.open||dM.open||d
   if(dF.open){if(e.altKey&&!c&&e.code==='KeyF'){e.preventDefault();kw.focus();kw.select()}else if(isEsc(e)&&!imeBusy(e)){e.preventDefault();dF.close()}return}
   const run=f=>{e.preventDefault();f()},al=e.altKey&&!c,ak=x=>al&&e.code===x,kb=x=>e.key===x||e.code===kc[x];
   if(ak('KeyN'))run(doNew);else if(c&&k==='o')run(doImport);else if(c&&k==='s')run(doExport);else if(ak('KeyF'))run(openFind);
-  else if(al&&kb(']'))run(()=>rotate(1));else if(al&&kb('['))run(()=>rotate(-1));else if(al&&(e.code==='Backspace'||e.key==='Backspace'))run(doDelete);else if(al&&(k==='r'||e.code==='KeyR'))run(openTitle);else if(ak('KeyT'))run(openTags);else if(ak('KeyM'))run(openMng);else if(ak('KeyB'))run(doBackup);else if(ak('KeyO'))run(openRestore);else if(ak('KeyD'))run(openData);else if(ak('KeyC'))run(doDuplicate);else if(ak('KeyG'))run(openGrep);else if(ak('KeyH'))run(olToggle);else if(ak('KeyV'))run(toggleBar);else if(ak('KeyL'))run(openList);else if(al&&(e.key==='Enter'||e.code==='NumpadEnter'))run(toggleMode)});
+  else if(al&&kb(']'))run(()=>rotate(1));else if(al&&kb('['))run(()=>rotate(-1));else if(al&&(e.code==='Backspace'||e.key==='Backspace'))run(doDelete);else if(al&&(k==='r'||e.code==='KeyR'))run(openTitle);else if(ak('KeyT'))run(openTags);else if(ak('KeyM'))run(openMng);else if(ak('KeyB'))run(doBackup);else if(ak('KeyO'))run(openRestore);else if(ak('KeyD'))run(openData);else if(ak('KeyC'))run(doDuplicate);else if(ak('KeyG'))run(openGrep);else if(ak('KeyH'))run(olToggle);else if(ak('KeyV'))run(toggleBar);else if(ak('KeyL'))run(openList);else if(al&&(e.key==='Enter'||e.code==='NumpadEnter'))run(toggleMode);else if(c&&!e.altKey&&e.code==='KeyU'&&!preview&&document.activeElement===ed&&!imeBusy(e))run(()=>convCase(e.shiftKey))});
 /* links in the preview: HTML <a href> and also links on SVG shapes (<a href> / <a xlink:href>, whose .href is not a string) */
 pv.addEventListener('click',e=>{
   const dv=e.target.closest('svg[data-drawio-viewer]');if(dv&&!e.target.closest('a')){e.preventDefault();openDrawio(dv);return}   /* draw.io diagram: a link on a shape still works as a link */
@@ -640,6 +640,11 @@ sAuto.addEventListener('change',()=>{autoIndent=sAuto.checked;try{localStorage.s
 const tabUnit=()=>tabMode==='s2'?'  ':tabMode==='s4'?'    ':'\t';
 /* insert through the browser's editing command so Undo works; fall back to setRangeText */
 const insText=t=>{inAuto=true;try{if(!(typeof document.execCommand==='function'&&document.execCommand('insertText',false,t))){const s=ed.selectionStart,e=ed.selectionEnd;ed.setRangeText(t,s,e,'end');ed.dispatchEvent(new Event('input',{bubbles:true}))}}finally{inAuto=false}};
+/* Ctrl+U / Ctrl+Shift+U (Cmd on a Mac): the selected text to UPPER / lower case (editor only). Nothing selected, or no change: nothing happens.
+   toUpperCase / toLowerCase do not depend on the browser language (no Turkish i). The result stays selected, so the keys can be pressed again. */
+const convCase=lower=>{const s=ed.selectionStart,e=ed.selectionEnd;if(s===e)return;
+  const t=ed.value.slice(s,e),n=lower?t.toLowerCase():t.toUpperCase();if(n===t)return;
+  insText(n);ed.setSelectionRange(s,s+n.length)};
 ed.addEventListener('keydown',e=>{
   if(e.key==='Escape'){tabFree=true;return}                      /* Esc, then Tab: leave the editor as usual */
   if(e.key!=='Tab'||e.ctrlKey||e.altKey||e.metaKey||e.isComposing){if(!['Shift','Control','Alt','Meta'].includes(e.key))tabFree=false;return}
