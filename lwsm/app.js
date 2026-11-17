@@ -27,6 +27,22 @@ const save=()=>{clearTimeout(timer);if(!title(cur.text))return false;cur.updated
 const changed=()=>{cur.text=ed.value;clearHit();setTitle();clearTimeout(timer);timer=setTimeout(save,400)};
 
 const YT=['www.youtube.com','youtube.com','www.youtube-nocookie.com','youtube-nocookie.com'];
+/* CodePen embed (iframe code): https://codepen.io/<user>/embed/[preview/]<id>[?default-tab=..&theme-id=..&editable=true]. Only that address form is accepted.
+   The frame is rebuilt: nothing is copied from the pasted tag except the title and the height (100-1000 px, default 300). */
+const codepenFrame=(e,u,d)=>{
+  if(!u||u.protocol!=='https:'||!['codepen.io','www.codepen.io'].includes(u.hostname)||u.username||u.password||u.port)return null;
+  const m=/^\/([A-Za-z0-9_-]{1,60})\/embed\/(preview\/)?([A-Za-z0-9]{3,20})\/?$/.exec(u.pathname);if(!m)return null;
+  const q=new URL('https://codepen.io/'+m[1]+'/embed/'+(m[2]||'')+m[3]);
+  const tab=u.searchParams.get('default-tab');if(tab&&/^(?:html|css|js|result)(?:,(?:html|css|js|result)){0,3}$/.test(tab))q.searchParams.set('default-tab',tab);
+  const th=u.searchParams.get('theme-id');if(th&&/^[\w-]{1,20}$/.test(th))q.searchParams.set('theme-id',th);
+  if(u.searchParams.get('editable')==='true')q.searchParams.set('editable','true');
+  const hs=e.getAttribute('height')||'';let h=/^\s*\d+(?:px)?\s*$/.test(hs)?parseInt(hs,10):300;h=Math.max(100,Math.min(1000,h));
+  const n=d.createElement('iframe');n.src=q.href;
+  n.title=(e.getAttribute('title')||'CodePen embed').slice(0,100);
+  n.setAttribute('loading','lazy');n.setAttribute('referrerpolicy','strict-origin-when-cross-origin');
+  n.setAttribute('sandbox','allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-forms allow-modals');   /* no top navigation */
+  n.setAttribute('data-embed','codepen');n.setAttribute('style','height:'+h+'px');
+  return n};
 /* Link / image addresses. Browsers ignore tabs, newlines and control characters inside a URL, so the address is normalised first;
    then script-type schemes are refused (any other scheme, e.g. obsidian://, mailto:, https:, still works). data:image/... is allowed for pictures only. */
 const BAD_SCHEMES=['javascript','vbscript','data','blob','file'];
@@ -96,7 +112,8 @@ const clean=h=>{styleDrops.length=0;const d=new DOMParser().parseFromString(h,'t
         n.setAttribute('allowfullscreen','');n.setAttribute('loading','lazy');n.setAttribute('referrerpolicy','strict-origin-when-cross-origin');
         n.setAttribute('allow','encrypted-media; picture-in-picture');
         n.setAttribute('sandbox','allow-scripts allow-same-origin allow-presentation allow-popups allow-popups-to-escape-sandbox');
-        e.replaceWith(n);return}}
+        e.replaceWith(n);return}
+      const cp=codepenFrame(e,u,d);if(cp){e.replaceWith(cp);return}}
     e.remove()});
   const dio=new Map();
   d.body.querySelectorAll('svg').forEach(sv=>{const m=/window\.open\(\s*'(https:\/\/viewer\.diagrams\.net\/[^']*)'/.exec(sv.getAttribute('onclick')||'');const v=m&&drawioUrl(m[1]);if(v&&sv.hasAttribute('content'))dio.set(sv,v)});
