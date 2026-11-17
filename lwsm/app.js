@@ -31,7 +31,7 @@ const YT=['www.youtube.com','youtube.com','www.youtube-nocookie.com','youtube-no
    The frame is rebuilt: nothing is copied from the pasted tag except the title and the height (100-1000 px, default 300). */
 const codepenFrame=(e,u,d)=>{
   if(!u||u.protocol!=='https:'||!['codepen.io','www.codepen.io'].includes(u.hostname)||u.username||u.password||u.port)return null;
-  const m=/^\/([A-Za-z0-9_-]{1,60})\/embed\/(preview\/)?([A-Za-z0-9]{3,20})\/?$/.exec(u.pathname);if(!m)return null;
+  const m=/^(?:\/editor)?\/([A-Za-z0-9_-]{1,60})\/embed\/(preview\/)?([A-Za-z0-9-]{3,40})\/?$/.exec(u.pathname);if(!m)return null;
   const q=new URL('https://codepen.io/'+m[1]+'/embed/'+(m[2]||'')+m[3]);
   const tab=u.searchParams.get('default-tab');if(tab&&/^(?:html|css|js|result)(?:,(?:html|css|js|result)){0,3}$/.test(tab))q.searchParams.set('default-tab',tab);
   const th=u.searchParams.get('theme-id');if(th&&/^[\w-]{1,20}$/.test(th))q.searchParams.set('theme-id',th);
