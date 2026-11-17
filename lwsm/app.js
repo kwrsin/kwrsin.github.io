@@ -654,9 +654,15 @@ if(!['tab','s2','s4'].includes(tabMode))tabMode='tab';
 sTab.value=tabMode;sAuto.checked=autoIndent;
 sTab.addEventListener('change',()=>{tabMode=sTab.value;try{localStorage.setItem(TBK,tabMode)}catch(e){}});
 sAuto.addEventListener('change',()=>{autoIndent=sAuto.checked;try{localStorage.setItem(AIK,autoIndent?'1':'0')}catch(e){}});
+const LAK='lwsm.listassist',sList=$('sList');let listAssist=true;
+try{listAssist=localStorage.getItem(LAK)!=='0'}catch(e){}
+sList.checked=listAssist;
+sList.addEventListener('change',()=>{listAssist=sList.checked;try{localStorage.setItem(LAK,listAssist?'1':'0')}catch(e){}});
 const tabUnit=()=>tabMode==='s2'?'  ':tabMode==='s4'?'    ':'\t';
 /* insert through the browser's editing command so Undo works; fall back to setRangeText */
-const insText=t=>{inAuto=true;try{if(!(typeof document.execCommand==='function'&&document.execCommand('insertText',false,t))){const s=ed.selectionStart,e=ed.selectionEnd;ed.setRangeText(t,s,e,'end');ed.dispatchEvent(new Event('input',{bubbles:true}))}}finally{inAuto=false}};
+const insText=t=>{if(t===''&&ed.selectionStart===ed.selectionEnd)return;     /* nothing to insert, nothing selected */
+  inAuto=true;try{const done=typeof document.execCommand==='function'&&(t===''?document.execCommand('delete'):document.execCommand('insertText',false,t));   /* '' = delete the selection */
+    if(!done){const s=ed.selectionStart,e=ed.selectionEnd;ed.setRangeText(t,s,e,'end');ed.dispatchEvent(new Event('input',{bubbles:true}))}}finally{inAuto=false}};
 /* Ctrl+U / Ctrl+Shift+U (Cmd on a Mac): the selected text to UPPER / lower case (editor only). Nothing selected, or no change: nothing happens.
    toUpperCase / toLowerCase do not depend on the browser language (no Turkish i). The result stays selected, so the keys can be pressed again. */
 const convCase=lower=>{const s=ed.selectionStart,e=ed.selectionEnd;if(s===e)return;
@@ -679,9 +685,34 @@ ed.addEventListener('keydown',e=>{
   ed.setSelectionRange(a,b);insText(out.join('\n'));
   const ns=Math.max(a,s+first);ed.setSelectionRange(ns,Math.max(ns,en+total))});
 ed.addEventListener('blur',()=>{tabFree=false});
+/* List assist: Enter at the end of (or inside) a list line starts the next item.  - / * / +   1. / 1)   and the task form  - [ ]  (a checked task starts an unchecked one).
+   The indentation is kept and numbers go up by one. On an item with no text Enter removes the marker (the indentation stays) and the assist stops for that line.
+   Not used: with a selection, with the caret inside the marker, inside a fenced code block, in an HTML memo, or while the IME is converting.
+   The numbers that follow are not renumbered. */
+const LIST_RE=/^([ \t]*)([-*+]|\d{1,9}[.)])([ \t]+)(\[[ xX]\](?:[ \t]+|$))?(.*)$/;
+const inFence=(t,upto)=>{let open=null;
+  for(const line of t.slice(0,upto).split('\n')){const m=/^ {0,3}(`{3,}|~{3,})(.*)$/.exec(line);
+    if(!open){if(m&&!(m[1][0]==='`'&&m[2].includes('`')))open={c:m[1][0],n:m[1].length}}
+    else if(m&&m[1][0]===open.c&&m[1].length>=open.n&&m[2].trim()==='')open=null}
+  return !!open};
+const listEnter=e=>{
+  const t=ed.value,s=ed.selectionStart;if(s!==ed.selectionEnd)return false;
+  const a=t.lastIndexOf('\n',s-1)+1;let le=t.indexOf('\n',a);if(le<0)le=t.length;
+  const line=t.slice(a,le),m=LIST_RE.exec(line);if(!m)return false;
+  if(/^[ \t]*([-*_])([ \t]*\1){2,}[ \t]*$/.test(line))return false;             /* a horizontal rule such as * * *  */
+  const ind=m[1],mark=m[2],gap=m[3],box=m[4],body=m[5];
+  if(s<a+ind.length+mark.length+gap.length+(box||'').length)return false;      /* the caret is inside the marker */
+  if(isHtml(t)||inFence(t,a))return false;
+  e.preventDefault();
+  if(body.trim()===''){ed.setSelectionRange(a,le);insText(ind);return true}      /* empty item: drop the marker, keep the indentation */
+  const num=/^(\d+)([.)])$/.exec(mark);
+  const next=num?(num[1][0]==='0'&&num[1].length>1?String(+num[1]+1).padStart(num[1].length,'0'):String(+num[1]+1))+num[2]:mark;
+  insText('\n'+ind+next+gap+(box?'[ ] ':''));return true};
 /* Enter: carry over the leading whitespace of the line (on a blank indented line it removes the indent instead) */
 ed.addEventListener('beforeinput',e=>{
-  if(inAuto||!autoIndent||e.isComposing||(e.inputType!=='insertLineBreak'&&e.inputType!=='insertParagraph'))return;
+  if(inAuto||e.isComposing||(e.inputType!=='insertLineBreak'&&e.inputType!=='insertParagraph'))return;
+  if(listAssist&&listEnter(e))return;
+  if(!autoIndent)return;
   const t=ed.value,s=ed.selectionStart,en=ed.selectionEnd,a=t.lastIndexOf('\n',s-1)+1,pre=t.slice(a,s),ind=/^[ \t]*/.exec(pre)[0];
   if(!ind)return;
   e.preventDefault();
