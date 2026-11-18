@@ -49,7 +49,10 @@ dialog select{font:inherit;color:inherit;background:transparent;border:1.5px sol
 #pv table{border-collapse:collapse}#pv th,#pv td{border:1px solid var(--line);padding:4px 10px}
 dialog{width:min(520px,calc(100vw - 24px));border:1.5px solid var(--ink);border-radius:8px;background:var(--paper);color:var(--ink);padding:44px 22px 22px}
 #dTitle,#dTags,#dMng,#dRest,#dData,#dGrep{position:fixed;top:12px;bottom:auto}
-dialog{max-height:calc(100dvh - 24px)}
+dialog{max-height:calc(100vh - 24px);max-height:calc(100dvh - 24px)}
+/* Settings is a non-modal dialog (show()), which the browser does not scroll by itself: its body scrolls (short phone screens), the close button stays in place */
+#dSet[open]{display:flex;flex-direction:column;overflow:hidden}
+#dSet .dbody{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
 .hint{margin:10px 0 0;font-size:.85rem;opacity:.7}
 #dFind,#dSet{position:fixed;top:12px;bottom:auto;z-index:10;box-shadow:0 6px 24px rgba(0,0,0,.35)}
 dialog::backdrop{background:rgba(0,0,0,.5)}

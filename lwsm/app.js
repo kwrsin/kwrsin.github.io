@@ -358,7 +358,7 @@ document.addEventListener('keydown',e=>{if(dL.open||dT.open||dG.open||dM.open||d
   if(dF.open){if(e.altKey&&!c&&e.code==='KeyF'){e.preventDefault();kw.focus();kw.select()}else if(isEsc(e)&&!imeBusy(e)){e.preventDefault();dF.close()}return}
   const run=f=>{e.preventDefault();f()},al=e.altKey&&!c,ak=x=>al&&e.code===x,kb=x=>e.key===x||e.code===kc[x];
   if(ak('KeyN'))run(doNew);else if(c&&k==='o')run(doImport);else if(c&&k==='s')run(doExport);else if(ak('KeyF'))run(openFind);
-  else if(al&&kb(']'))run(()=>rotate(1));else if(al&&kb('['))run(()=>rotate(-1));else if(al&&(e.code==='Backspace'||e.key==='Backspace'))run(doDelete);else if(al&&(k==='r'||e.code==='KeyR'))run(openTitle);else if(ak('KeyT'))run(openTags);else if(ak('KeyM'))run(openMng);else if(ak('KeyB'))run(doBackup);else if(ak('KeyO'))run(openRestore);else if(ak('KeyD'))run(openData);else if(ak('KeyC'))run(doDuplicate);else if(ak('KeyG'))run(openGrep);else if(ak('KeyH'))run(olToggle);else if(ak('KeyV'))run(toggleBar);else if(ak('KeyL'))run(openList);else if(al&&(e.key==='Enter'||e.code==='NumpadEnter'))run(toggleMode);else if(c&&!e.altKey&&e.code==='KeyU'&&!preview&&document.activeElement===ed&&!imeBusy(e))run(()=>convCase(e.shiftKey))});
+  else if(al&&kb(']'))run(()=>rotate(1));else if(al&&kb('['))run(()=>rotate(-1));else if(al&&(e.code==='Backspace'||e.key==='Backspace'))run(doDelete);else if(al&&(k==='r'||e.code==='KeyR'))run(openTitle);else if(ak('KeyT'))run(openTags);else if(ak('KeyM'))run(openMng);else if(ak('KeyB'))run(doBackup);else if(ak('KeyO'))run(openRestore);else if(ak('KeyD'))run(openData);else if(ak('KeyC'))run(doDuplicate);else if(ak('KeyG'))run(openGrep);else if(ak('KeyH'))run(olToggle);else if(ak('KeyV'))run(toggleBar);else if(ak('KeyL'))run(openList);else if(al&&(e.key==='Enter'||e.code==='NumpadEnter'))run(toggleMode);else if(c&&!e.altKey&&e.code==='KeyU'&&!preview&&document.activeElement===ed&&!imeBusy(e))run(()=>convCase(e.shiftKey));else if(ak('KeyX')&&!e.shiftKey&&!preview&&document.activeElement===ed)run(delLine);else if(ak('KeyZ')&&!e.shiftKey&&!preview&&document.activeElement===ed)run(dupLine);else if(e.shiftKey&&!e.altKey&&!c&&(e.key==='Enter'||e.code==='NumpadEnter')&&!preview&&document.activeElement===ed&&!imeBusy(e))run(blankBelow)});
 /* links in the preview: HTML <a href> and also links on SVG shapes (<a href> / <a xlink:href>, whose .href is not a string) */
 pv.addEventListener('click',e=>{
   const dv=e.target.closest('svg[data-drawio-viewer]');if(dv&&!e.target.closest('a')){e.preventDefault();openDrawio(dv);return}   /* draw.io diagram: a link on a shape still works as a link */
@@ -668,6 +668,21 @@ const insText=t=>{if(t===''&&ed.selectionStart===ed.selectionEnd)return;     /* 
 const convCase=lower=>{const s=ed.selectionStart,e=ed.selectionEnd;if(s===e)return;
   const t=ed.value.slice(s,e),n=lower?t.toLowerCase():t.toUpperCase();if(n===t)return;
   insText(n);ed.setSelectionRange(s,s+n.length)};
+/* Line commands (editor only): Shift+Enter = a blank line below, Alt+X = delete the line(s), Alt+Z = duplicate. Each is one edit, so one Undo. */
+const lineStart=(t,p)=>p<=0?0:t.lastIndexOf('\n',p-1)+1;
+const lineEnd=(t,p)=>{const i=t.indexOf('\n',p);return i<0?t.length:i};
+/* [start of the first, end (before the line break) of the last] line touched by the selection; a selection that ends at the very start of a line does not touch that line */
+const selLines=(t,s,e)=>{const p=(e>s&&t[e-1]==='\n')?e-1:e;return [lineStart(t,s),lineEnd(t,p)]};
+const blankBelow=()=>{const t=ed.value,s=ed.selectionStart,e=ed.selectionEnd,d=ed.selectionDirection,b=selLines(t,s,e)[1];
+  ed.setSelectionRange(b,b);insText('\n');ed.setSelectionRange(s,e,d)};          /* the caret / selection stays where it was */
+const delLine=()=>{const t=ed.value,[a,b]=selLines(t,ed.selectionStart,ed.selectionEnd);if(t==='')return;
+  const last=b>=t.length,from=(last&&a>0)?a-1:a,to=last?b:b+1;                      /* the line break goes with the line (for the last line: the one before it) */
+  const caret=last&&a>0?lineStart(t,a-1):a;                                         /* the start of the line that moved up */
+  ed.setSelectionRange(from,to);insText('');ed.setSelectionRange(caret,caret)};
+const dupLine=()=>{const t=ed.value,s=ed.selectionStart,e=ed.selectionEnd,d=ed.selectionDirection;
+  if(s===e){const a=lineStart(t,s),b=lineEnd(t,s);ed.setSelectionRange(b,b);insText('\n'+t.slice(a,b))}      /* no selection: the line, below it */
+  else{ed.setSelectionRange(e,e);insText(t.slice(s,e))}                                                  /* a selection: right after it */
+  ed.setSelectionRange(s,e,d)};                                                                          /* the caret / selection stays on the original */
 ed.addEventListener('keydown',e=>{
   if(e.key==='Escape'){tabFree=true;return}                      /* Esc, then Tab: leave the editor as usual */
   if(e.key!=='Tab'||e.ctrlKey||e.altKey||e.metaKey||e.isComposing){if(!['Shift','Control','Alt','Meta'].includes(e.key))tabFree=false;return}
