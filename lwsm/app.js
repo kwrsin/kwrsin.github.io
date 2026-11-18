@@ -358,7 +358,7 @@ document.addEventListener('keydown',e=>{if(dL.open||dT.open||dG.open||dM.open||d
   if(dF.open){if(e.altKey&&!c&&e.code==='KeyF'){e.preventDefault();kw.focus();kw.select()}else if(isEsc(e)&&!imeBusy(e)){e.preventDefault();dF.close()}return}
   const run=f=>{e.preventDefault();f()},al=e.altKey&&!c,ak=x=>al&&e.code===x,kb=x=>e.key===x||e.code===kc[x];
   if(ak('KeyN'))run(doNew);else if(c&&k==='o')run(doImport);else if(c&&k==='s')run(doExport);else if(ak('KeyF'))run(openFind);
-  else if(al&&kb(']'))run(()=>rotate(1));else if(al&&kb('['))run(()=>rotate(-1));else if(al&&(e.code==='Backspace'||e.key==='Backspace'))run(doDelete);else if(al&&(k==='r'||e.code==='KeyR'))run(openTitle);else if(ak('KeyT'))run(openTags);else if(ak('KeyM'))run(openMng);else if(ak('KeyB'))run(doBackup);else if(ak('KeyO'))run(openRestore);else if(ak('KeyD'))run(openData);else if(ak('KeyC'))run(doDuplicate);else if(ak('KeyG'))run(openGrep);else if(ak('KeyH'))run(olToggle);else if(ak('KeyV'))run(toggleBar);else if(ak('KeyL'))run(openList);else if(al&&(e.key==='Enter'||e.code==='NumpadEnter'))run(toggleMode);else if(c&&!e.altKey&&e.code==='KeyU'&&!preview&&document.activeElement===ed&&!imeBusy(e))run(()=>convCase(e.shiftKey));else if(ak('KeyX')&&!e.shiftKey&&!preview&&document.activeElement===ed)run(delLine);else if(ak('KeyZ')&&!e.shiftKey&&!preview&&document.activeElement===ed)run(dupLine);else if(e.shiftKey&&!e.altKey&&!c&&(e.key==='Enter'||e.code==='NumpadEnter')&&!preview&&document.activeElement===ed&&!imeBusy(e))run(blankBelow)});
+  else if(al&&kb(']'))run(()=>rotate(1));else if(al&&kb('['))run(()=>rotate(-1));else if(al&&(e.code==='Backspace'||e.key==='Backspace'))run(doDelete);else if(al&&(k==='r'||e.code==='KeyR'))run(openTitle);else if(ak('KeyT'))run(openTags);else if(ak('KeyM'))run(openMng);else if(ak('KeyB'))run(doBackup);else if(ak('KeyO'))run(openRestore);else if(ak('KeyD'))run(openData);else if(ak('KeyC'))run(doDuplicate);else if(ak('KeyG'))run(openGrep);else if(ak('KeyH'))run(olToggle);else if(ak('KeyV'))run(toggleBar);else if(ak('KeyL'))run(openList);else if(al&&(e.key==='Enter'||e.code==='NumpadEnter'))run(toggleMode);else if(c&&!e.altKey&&e.code==='KeyU'&&!preview&&document.activeElement===ed&&!imeBusy(e))run(()=>convCase(e.shiftKey));else if(ak('KeyX')&&!e.shiftKey&&!preview&&document.activeElement===ed)run(delLine);else if(ak('KeyZ')&&!e.shiftKey&&!preview&&document.activeElement===ed)run(dupLine);else if(ak('KeyW')&&!e.shiftKey&&!preview&&document.activeElement===ed)run(selectLines);else if(e.shiftKey&&!e.altKey&&!c&&(e.key==='Enter'||e.code==='NumpadEnter')&&!preview&&document.activeElement===ed&&!imeBusy(e))run(blankBelow)});
 /* links in the preview: HTML <a href> and also links on SVG shapes (<a href> / <a xlink:href>, whose .href is not a string) */
 pv.addEventListener('click',e=>{
   const dv=e.target.closest('svg[data-drawio-viewer]');if(dv&&!e.target.closest('a')){e.preventDefault();openDrawio(dv);return}   /* draw.io diagram: a link on a shape still works as a link */
@@ -668,17 +668,42 @@ const insText=t=>{if(t===''&&ed.selectionStart===ed.selectionEnd)return;     /* 
 const convCase=lower=>{const s=ed.selectionStart,e=ed.selectionEnd;if(s===e)return;
   const t=ed.value.slice(s,e),n=lower?t.toLowerCase():t.toUpperCase();if(n===t)return;
   insText(n);ed.setSelectionRange(s,s+n.length)};
-/* Line commands (editor only): Shift+Enter = a blank line below, Alt+X = delete the line(s), Alt+Z = duplicate. Each is one edit, so one Undo. */
+/* Line commands (editor only): Shift+Enter = a blank line below, Alt+X = cut the line(s), Alt+Z = duplicate, Alt+W = select lines. Each is one edit, so one Undo. */
 const lineStart=(t,p)=>p<=0?0:t.lastIndexOf('\n',p-1)+1;
 const lineEnd=(t,p)=>{const i=t.indexOf('\n',p);return i<0?t.length:i};
 /* [start of the first, end (before the line break) of the last] line touched by the selection; a selection that ends at the very start of a line does not touch that line */
 const selLines=(t,s,e)=>{const p=(e>s&&t[e-1]==='\n')?e-1:e;return [lineStart(t,s),lineEnd(t,p)]};
 const blankBelow=()=>{const t=ed.value,s=ed.selectionStart,e=ed.selectionEnd,d=ed.selectionDirection,b=selLines(t,s,e)[1];
   ed.setSelectionRange(b,b);insText('\n');ed.setSelectionRange(s,e,d)};          /* the caret / selection stays where it was */
-const delLine=()=>{const t=ed.value,[a,b]=selLines(t,ed.selectionStart,ed.selectionEnd);if(t==='')return;
+/* copy text to the clipboard through a temporary text box (works without a secure connection); true if it worked. The editor's focus and selection are put back. */
+const copyText=t=>{try{
+  const af=document.activeElement,s=ed.selectionStart,e=ed.selectionEnd,d=ed.selectionDirection;
+  const ta=document.createElement('textarea');ta.value=t;ta.setAttribute('readonly','');ta.style.cssText='position:fixed;left:-9999px;top:0;opacity:0';document.body.appendChild(ta);
+  ta.focus({preventScroll:true});ta.select();ta.setSelectionRange(0,t.length);
+  let ok=false;try{ok=!!document.execCommand('copy')}catch(x){}
+  ta.remove();if(af&&af.focus)af.focus({preventScroll:true});ed.setSelectionRange(s,e,d);return ok}catch(x){return false}};
+/* Alt+X = cut the line(s): the clipboard gets the lines and their line break, the lines are deleted. The browser's own cut does both in one step (one Undo).
+   The last line (no line break after it) also takes the line break before it; then the text is copied first and nothing is deleted if the copy fails. */
+const delLine=()=>{const t=ed.value,s0=ed.selectionStart,e0=ed.selectionEnd,d0=ed.selectionDirection,[a,b]=selLines(t,s0,e0);if(t==='')return;
   const last=b>=t.length,from=(last&&a>0)?a-1:a,to=last?b:b+1;                      /* the line break goes with the line (for the last line: the one before it) */
   const caret=last&&a>0?lineStart(t,a-1):a;                                         /* the start of the line that moved up */
-  ed.setSelectionRange(from,to);insText('');ed.setSelectionRange(caret,caret)};
+  const text=t.slice(a,b)+'\n',fail=()=>{ed.setSelectionRange(s0,e0,d0);say('Could not copy to the clipboard; nothing was deleted',2500)};
+  const del=()=>{ed.setSelectionRange(from,to);insText('');ed.setSelectionRange(caret,caret)};
+  if(!last){ed.setSelectionRange(from,to);let ok=false;try{ok=typeof document.execCommand==='function'&&document.execCommand('cut')}catch(x){}
+    if(ok){ed.setSelectionRange(caret,caret);return}}
+  if(copyText(text)){del();return}
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(()=>{if(ed.value===t)del()},fail);return}
+  fail()};
+/* make sure the line holding position p is on screen (not under the header) */
+const revealPos=p=>{try{const y=yOf(p),lh=parseFloat(getComputedStyle(ed).lineHeight)||24,top=ed.scrollTop,vh=ed.clientHeight,topM=olNarrow()?8:refMargin(),botM=(olNarrow()?bar.offsetHeight:0)+8;
+  if(y+lh>top+vh-botM)ed.scrollTop=y+lh-vh+botM;else if(y<top+topM)ed.scrollTop=Math.max(0,y-topM)}catch(x){}};
+/* Alt+W = select the line (with its line break); pressing it again adds the next line below, one at a time. Judged from the selection itself: a selection made another way counts. */
+const selectLines=()=>{const t=ed.value,s=ed.selectionStart,e=ed.selectionEnd;let ns,ne;
+  const aligned=e>s&&s===lineStart(t,s)&&(e===t.length||t[e-1]==='\n');                  /* whole lines already */
+  if(s===e){ns=lineStart(t,s);ne=Math.min(lineEnd(t,s)+1,t.length)}
+  else if(aligned){ns=s;ne=e>=t.length?e:Math.min(lineEnd(t,e)+1,t.length)}              /* one more line */
+  else{const [a,b]=selLines(t,s,e);ns=a;ne=Math.min(b+1,t.length)}                      /* complete the lines it touches */
+  ed.setSelectionRange(ns,ne,'forward');revealPos((ne>ns&&t[ne-1]==='\n')?ne-1:ne)};
 const dupLine=()=>{const t=ed.value,s=ed.selectionStart,e=ed.selectionEnd,d=ed.selectionDirection;
   if(s===e){const a=lineStart(t,s),b=lineEnd(t,s);ed.setSelectionRange(b,b);insText('\n'+t.slice(a,b))}      /* no selection: the line, below it */
   else{ed.setSelectionRange(e,e);insText(t.slice(s,e))}                                                  /* a selection: right after it */
