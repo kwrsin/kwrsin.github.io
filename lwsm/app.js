@@ -125,8 +125,18 @@ const clean=h=>{styleDrops.length=0;const d=new DOMParser().parseFromString(h,'t
   dio.forEach((v,sv)=>sv.setAttribute('data-drawio-viewer',v));
   if(styleDrops.length&&window.console&&console.info)console.info('LWSM: removed '+styleDrops.length+' unsafe style declaration(s):',[...new Set(styleDrops.map(x=>x.split(':')[0].trim().toLowerCase()))].join(', '));
   return d.body.innerHTML};
+/* Fenced code blocks (``` and ~~~) get a slim bar with a Copy button at the right end. Indented code blocks and a <pre> written in HTML are left as they are.
+   The renderer goes into the options of every parse call (marked.parser, used with scroll sync, does not take over what marked.use registers). */
+const cbRenderer=window.marked?new marked.Renderer():null;
+if(cbRenderer){const baseCode=cbRenderer.code.bind(cbRenderer),ea=s=>esc(s).replace(/"/g,'&quot;');
+  cbRenderer.code=token=>{if(token.codeBlockStyle==='indented')return baseCode(token);
+    /* The title (left of the bar) comes from the first word of the info string: "ruby" -> ruby;  "ruby:main.rb" (Qiita / Zenn style) -> main.rb, and the language stays ruby.
+       Nothing after that first word is used. No info string: no title, only the button. */
+    const word=((token.lang||'').match(/^\S*/)||[''])[0],ci=word.indexOf(':'),lang=ci<0?word:word.slice(0,ci),name=ci<0?'':word.slice(ci+1),title=(name||lang).slice(0,100);
+    return '<div class="codeblock"><div class="cb-head">'+(title?'<span class="cb-title" title="'+ea(title)+'">'+esc(title)+'</span>':'')
+      +'<button type="button" class="cb-copy" aria-label="Copy code" title="Copy code">Copy</button></div>'+baseCode(Object.assign({},token,{lang}))+'</div>\n'}}
 /* with scroll sync on, every top-level Markdown block is preceded by a comment <!--s123--> holding its offset in the source */
-const renderMd=t=>{if(!window.marked)return'<pre>'+esc(t)+'</pre>';const o={gfm:true,breaks:true};
+const renderMd=t=>{if(!window.marked)return'<pre>'+esc(t)+'</pre>';const o={gfm:true,breaks:true,renderer:cbRenderer};
   if(!syncOn)return marked.parse(t,o);
   const src=t.replace(/\r\n|\r/g,'\n'),toks=marked.lexer(src,o);let pos=0,out='';
   for(const k of toks){const one=[k];one.links=toks.links;const h=marked.parser(one,o);let i=src.indexOf(k.raw,pos);if(i<0)i=pos;out+=(h?'<!--s'+i+'-->':'')+h;pos=i+k.raw.length}
@@ -358,7 +368,7 @@ document.addEventListener('keydown',e=>{if(dL.open||dT.open||dG.open||dM.open||d
   if(dF.open){if(e.altKey&&!c&&e.code==='KeyF'){e.preventDefault();kw.focus();kw.select()}else if(isEsc(e)&&!imeBusy(e)){e.preventDefault();dF.close()}return}
   const run=f=>{e.preventDefault();f()},al=e.altKey&&!c,ak=x=>al&&e.code===x,kb=x=>e.key===x||e.code===kc[x];
   if(ak('KeyN'))run(doNew);else if(c&&k==='o')run(doImport);else if(c&&k==='s')run(doExport);else if(ak('KeyF'))run(openFind);
-  else if(al&&kb(']'))run(()=>rotate(1));else if(al&&kb('['))run(()=>rotate(-1));else if(al&&(e.code==='Backspace'||e.key==='Backspace'))run(doDelete);else if(al&&(k==='r'||e.code==='KeyR'))run(openTitle);else if(ak('KeyT'))run(openTags);else if(ak('KeyM'))run(openMng);else if(ak('KeyB'))run(doBackup);else if(ak('KeyO'))run(openRestore);else if(ak('KeyD'))run(openData);else if(ak('KeyC'))run(doDuplicate);else if(ak('KeyG'))run(openGrep);else if(ak('KeyH'))run(olToggle);else if(ak('KeyV'))run(toggleBar);else if(ak('KeyL'))run(openList);else if(al&&(e.key==='Enter'||e.code==='NumpadEnter'))run(toggleMode);else if(c&&!e.altKey&&e.code==='KeyU'&&!preview&&document.activeElement===ed&&!imeBusy(e))run(()=>convCase(e.shiftKey));else if(ak('KeyX')&&!e.shiftKey&&!preview&&document.activeElement===ed)run(delLine);else if(ak('KeyZ')&&!e.shiftKey&&!preview&&document.activeElement===ed)run(dupLine);else if(ak('KeyW')&&!e.shiftKey&&!preview&&document.activeElement===ed)run(selectLines);else if(e.shiftKey&&!e.altKey&&!c&&(e.key==='Enter'||e.code==='NumpadEnter')&&!preview&&document.activeElement===ed&&!imeBusy(e))run(blankBelow)});
+  else if(al&&kb(']'))run(()=>rotate(1));else if(al&&kb('['))run(()=>rotate(-1));else if(al&&e.shiftKey&&(e.code==='Backspace'||e.key==='Backspace'))run(doDelete);else if(al&&(k==='r'||e.code==='KeyR'))run(openTitle);else if(ak('KeyT'))run(openTags);else if(ak('KeyM'))run(openMng);else if(ak('KeyB'))run(doBackup);else if(ak('KeyO'))run(openRestore);else if(ak('KeyD'))run(openData);else if(ak('KeyC'))run(doDuplicate);else if(ak('KeyG'))run(openGrep);else if(ak('KeyH'))run(olToggle);else if(ak('KeyV'))run(toggleBar);else if(ak('KeyL'))run(openList);else if(al&&(e.key==='Enter'||e.code==='NumpadEnter'))run(toggleMode);else if(c&&!e.altKey&&e.code==='KeyU'&&!preview&&document.activeElement===ed&&!imeBusy(e))run(()=>convCase(e.shiftKey));else if(ak('KeyX')&&!e.shiftKey&&!preview&&document.activeElement===ed)run(delLine);else if(ak('KeyZ')&&!e.shiftKey&&!preview&&document.activeElement===ed)run(dupLine);else if(ak('KeyW')&&!e.shiftKey&&!preview&&document.activeElement===ed)run(selectLines);else if(e.shiftKey&&!e.altKey&&!c&&(e.key==='Enter'||e.code==='NumpadEnter')&&!preview&&document.activeElement===ed&&!imeBusy(e))run(blankBelow)});
 /* links in the preview: HTML <a href> and also links on SVG shapes (<a href> / <a xlink:href>, whose .href is not a string) */
 pv.addEventListener('click',e=>{
   const dv=e.target.closest('svg[data-drawio-viewer]');if(dv&&!e.target.closest('a')){e.preventDefault();openDrawio(dv);return}   /* draw.io diagram: a link on a shape still works as a link */
@@ -676,12 +686,21 @@ const selLines=(t,s,e)=>{const p=(e>s&&t[e-1]==='\n')?e-1:e;return [lineStart(t,
 const blankBelow=()=>{const t=ed.value,s=ed.selectionStart,e=ed.selectionEnd,d=ed.selectionDirection,b=selLines(t,s,e)[1];
   ed.setSelectionRange(b,b);insText('\n');ed.setSelectionRange(s,e,d)};          /* the caret / selection stays where it was */
 /* copy text to the clipboard through a temporary text box (works without a secure connection); true if it worked. The editor's focus and selection are put back. */
-const copyText=t=>{try{
-  const af=document.activeElement,s=ed.selectionStart,e=ed.selectionEnd,d=ed.selectionDirection;
+const clipCopy=t=>{try{
+  const af=document.activeElement;
   const ta=document.createElement('textarea');ta.value=t;ta.setAttribute('readonly','');ta.style.cssText='position:fixed;left:-9999px;top:0;opacity:0';document.body.appendChild(ta);
   ta.focus({preventScroll:true});ta.select();ta.setSelectionRange(0,t.length);
   let ok=false;try{ok=!!document.execCommand('copy')}catch(x){}
-  ta.remove();if(af&&af.focus)af.focus({preventScroll:true});ed.setSelectionRange(s,e,d);return ok}catch(x){return false}};
+  ta.remove();if(af&&af.focus)af.focus({preventScroll:true});return ok}catch(x){return false}};
+const copyText=t=>{const s=ed.selectionStart,e=ed.selectionEnd,d=ed.selectionDirection,ok=clipCopy(t);ed.setSelectionRange(s,e,d);return ok};   /* the editor's focus and selection are put back */
+/* the Copy button of a code block in the preview: the code as shown, without the final line break */
+const copyCode=(text,btn)=>{
+  const done=()=>{btn.textContent='Copied';btn.classList.add('ok');clearTimeout(btn._t);btn._t=setTimeout(()=>{btn.textContent='Copy';btn.classList.remove('ok')},1200)};
+  const legacy=()=>{if(clipCopy(text))done();else say('Could not copy to the clipboard',2000)};
+  if(navigator.clipboard&&navigator.clipboard.writeText&&window.isSecureContext!==false)navigator.clipboard.writeText(text).then(done,legacy);else legacy()};
+pv.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('button.cb-copy');if(!b)return;
+  const box=b.closest('.codeblock'),pre=box&&box.querySelector('pre');if(!pre)return;
+  e.preventDefault();copyCode(pre.textContent.replace(/\n$/,''),b)});
 /* Alt+X = cut the line(s): the clipboard gets the lines and their line break, the lines are deleted. The browser's own cut does both in one step (one Undo).
    The last line (no line break after it) also takes the line break before it; then the text is copied first and nothing is deleted if the copy fails. */
 const delLine=()=>{const t=ed.value,s0=ed.selectionStart,e0=ed.selectionEnd,d0=ed.selectionDirection,[a,b]=selLines(t,s0,e0);if(t==='')return;
