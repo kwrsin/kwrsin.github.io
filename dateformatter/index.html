@@ -4,20 +4,44 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Date Formatter</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="app-card">
     <header class="app-header">
       <h1 class="app-title">Date Formatter</h1>
-      <span class="locale-badge" id="localeBadge" title="Detected Locale">Locale: en-US</span>
+      <div class="header-actions">
+        <button type="button" class="theme-toggle-btn" id="themeToggleBtn" aria-label="Toggle dark mode" title="Toggle Dark/Light Mode">
+          <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+          <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+        </button>
+        <span class="locale-badge" id="localeBadge" title="Detected Locale">Locale: en-US</span>
+      </div>
     </header>
 
     <!-- 上段: フォーマットされた日付表示 & コピー -->
     <section class="section section-result">
       <div class="result-box">
-        <div class="result-text" id="resultText">--</div>
-        <button class="copy-button" id="copyBtn" type="button" aria-label="Copy to clipboard" title="Copy">
+        <div class="result-text-container">
+          <div class="result-text" id="resultText">--</div>
+          <div class="result-meta">
+            <span class="relative-time-badge" id="relativeTimeBadge">今</span>
+          </div>
+        </div>
+        <button class="copy-button" id="copyBtn" type="button" aria-label="Copy to clipboard (Ctrl+C / ⌘C)" title="Copy (Ctrl+C / ⌘C)">
           <svg class="copy-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
             <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
@@ -41,6 +65,15 @@
       <div class="calendar-grid">
         <div class="weekdays-row" id="weekdaysRow"></div>
         <div class="days-grid" id="daysGrid"></div>
+      </div>
+
+      <!-- クイック日付シフト -->
+      <div class="quick-shift-bar">
+        <button type="button" class="shift-btn" data-shift-days="-7" title="1 week earlier">-7d</button>
+        <button type="button" class="shift-btn" data-shift-days="-1" title="1 day earlier">-1d</button>
+        <button type="button" class="shift-btn shift-btn-today" id="shiftTodayBtn" title="Jump to today">Today</button>
+        <button type="button" class="shift-btn" data-shift-days="1" title="1 day later">+1d</button>
+        <button type="button" class="shift-btn" data-shift-days="7" title="1 week later">+7d</button>
       </div>
 
       <div class="time-picker-bar">
@@ -68,7 +101,8 @@
       </div>
 
       <details class="tokens-guide">
-        <summary>Token Reference (Click to view)</summary>
+        <summary>Token Reference (Click to insert)</summary>
+        <p class="tokens-hint">Click any token below to insert it at the cursor position.</p>
         <div class="tokens-table-wrapper">
           <table class="tokens-table">
             <thead>
@@ -79,24 +113,34 @@
               </tr>
             </thead>
             <tbody>
-              <tr><td><code>YYYY</code></td><td>Year (4 digits)</td><td>2026</td></tr>
-              <tr><td><code>YY</code></td><td>Year (2 digits)</td><td>26</td></tr>
-              <tr><td><code>MMMM</code></td><td>Month (full name)</td><td>November / 11月</td></tr>
-              <tr><td><code>MMM</code></td><td>Month (short name)</td><td>Nov / 11月</td></tr>
-              <tr><td><code>MM</code></td><td>Month (01-12)</td><td>11</td></tr>
-              <tr><td><code>M</code></td><td>Month (1-12)</td><td>11</td></tr>
-              <tr><td><code>DD</code></td><td>Day (01-31)</td><td>19</td></tr>
-              <tr><td><code>D</code></td><td>Day (1-31)</td><td>19</td></tr>
-              <tr><td><code>dddd</code></td><td>Weekday (full)</td><td>Thursday / 木曜日</td></tr>
-              <tr><td><code>ddd</code></td><td>Weekday (short)</td><td>Thu / 木</td></tr>
-              <tr><td><code>HH</code></td><td>Hours 24h (00-23)</td><td>20</td></tr>
-              <tr><td><code>H</code></td><td>Hours 24h (0-23)</td><td>20</td></tr>
-              <tr><td><code>hh</code></td><td>Hours 12h (01-12)</td><td>08</td></tr>
-              <tr><td><code>h</code></td><td>Hours 12h (1-12)</td><td>8</td></tr>
-              <tr><td><code>mm</code></td><td>Minutes (00-59)</td><td>45</td></tr>
-              <tr><td><code>ss</code></td><td>Seconds (00-59)</td><td>00</td></tr>
-              <tr><td><code>A</code> / <code>a</code></td><td>AM/PM / am/pm</td><td>PM / pm</td></tr>
-              <tr><td><code>[...]</code></td><td>Literal escape</td><td>[Date:] YYYY</td></tr>
+              <tr><td><code class="clickable-token" title="Click to insert">YYYY</code></td><td>Year (4 digits)</td><td>2026</td></tr>
+              <tr><td><code class="clickable-token" title="Click to insert">YY</code></td><td>Year (2 digits)</td><td>26</td></tr>
+              <tr><td><code class="clickable-token" title="Click to insert">ggg</code></td><td>Japanese era with year / 和暦 (元号+年)</td><td>令和8年 / 令和元年</td></tr>
+              <tr><td><code class="clickable-token" title="Click to insert">gg</code></td><td>Japanese era name / 和暦元号</td><td>令和 / 平成</td></tr>
+              <tr><td><code class="clickable-token" title="Click to insert">g</code></td><td>Japanese era initial / 和暦頭文字</td><td>R / H</td></tr>
+              <tr><td><code class="clickable-token" title="Click to insert">MMMM</code></td><td>Month (full name)</td><td>November / 11月</td></tr>
+              <tr><td><code class="clickable-token" title="Click to insert">MMM</code></td><td>Month (short name)</td><td>Nov / 11月</td></tr>
+              <tr><td><code class="clickable-token" title="Click to insert">MM</code></td><td>Month (01-12)</td><td>11</td></tr>
+              <tr><td><code class="clickable-token" title="Click to insert">M</code></td><td>Month (1-12)</td><td>11</td></tr>
+              <tr><td><code class="clickable-token" title="Click to insert">DD</code></td><td>Day (01-31)</td><td>19</td></tr>
+              <tr><td><code class="clickable-token" title="Click to insert">D</code></td><td>Day (1-31)</td><td>19</td></tr>
+              <tr><td><code class="clickable-token" title="Click to insert">dddd</code></td><td>Weekday (full)</td><td>Thursday / 木曜日</td></tr>
+              <tr><td><code class="clickable-token" title="Click to insert">ddd</code></td><td>Weekday (short)</td><td>Thu / 木</td></tr>
+              <tr><td><code class="clickable-token" title="Click to insert">HH</code></td><td>Hours 24h (00-23)</td><td>20</td></tr>
+              <tr><td><code class="clickable-token" title="Click to insert">H</code></td><td>Hours 24h (0-23)</td><td>20</td></tr>
+              <tr><td><code class="clickable-token" title="Click to insert">hh</code></td><td>Hours 12h (01-12)</td><td>08</td></tr>
+              <tr><td><code class="clickable-token" title="Click to insert">h</code></td><td>Hours 12h (1-12)</td><td>8</td></tr>
+              <tr><td><code class="clickable-token" title="Click to insert">mm</code></td><td>Minutes (00-59)</td><td>45</td></tr>
+              <tr><td><code class="clickable-token" title="Click to insert">m</code></td><td>Minutes (0-59)</td><td>45</td></tr>
+              <tr><td><code class="clickable-token" title="Click to insert">ss</code></td><td>Seconds (00-59)</td><td>00</td></tr>
+              <tr><td><code class="clickable-token" title="Click to insert">s</code></td><td>Seconds (0-59)</td><td>0</td></tr>
+              <tr><td><code class="clickable-token" title="Click to insert">SSS</code></td><td>Milliseconds (000-999)</td><td>123</td></tr>
+              <tr><td><code class="clickable-token" title="Click to insert">A</code> / <code class="clickable-token" title="Click to insert">a</code></td><td>AM/PM / am/pm</td><td>PM / pm</td></tr>
+              <tr><td><code class="clickable-token" title="Click to insert">X</code></td><td>Unix Timestamp (seconds)</td><td>1763587400</td></tr>
+              <tr><td><code class="clickable-token" title="Click to insert">x</code></td><td>Unix Timestamp (milliseconds)</td><td>1763587400123</td></tr>
+              <tr><td><code class="clickable-token" title="Click to insert">Z</code></td><td>Timezone offset (e.g. +09:00)</td><td>+09:00</td></tr>
+              <tr><td><code class="clickable-token" title="Click to insert">ZZ</code></td><td>Timezone offset compact (e.g. +0900)</td><td>+0900</td></tr>
+              <tr><td><code class="clickable-token" title="Click to insert">[...]</code></td><td>Literal escape</td><td>[Date:] YYYY</td></tr>
             </tbody>
           </table>
         </div>
