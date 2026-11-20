@@ -282,8 +282,8 @@ const delAll=()=>{const q=fl.value.trim(),filtered=!!(tagSel.size||q),t=filtered
   const ids=new Set(t.map(m=>m.id));memos=memos.filter(m=>!ids.has(m.id));
   tagSel.clear();fl.value='';sel=0;drawFlt();
   if(ids.has(cur.id)||!memos.length){const n=memos.slice().sort((a,b)=>b.updated-a.updated)[0];n?load(n,true):load(newMemo(),false)}
-  persist();
-  if(!memos.length){dL.close();ed.focus()}else{drawList();say('Deleted '+t.length+' memo'+(t.length>1?'s':''),1800)}};
+  persist();drawList();say('Deleted '+t.length+' memo'+(t.length>1?'s':''),1800);   /* the memo list stays open, even when it is empty now */
+  if(!memos.length)fl.focus()};                                                      /* (the Delete button is disabled then) */
 
 /* events */
 ed.addEventListener('input',changed);
@@ -509,6 +509,8 @@ const parseBackup=t=>{let d;try{d=JSON.parse(t)}catch(e){return null}
     if(Array.isArray(m.tags)){const tg=[];for(const x of m.tags){if(typeof x!=='string')continue;const n=norm(x);if(n&&!tg.some(z=>z.toLowerCase()===n.toLowerCase()))tg.push(n)}if(tg.length)o.tags=tg}
     if(title(o.text))ms.push(o)}
   return{memos:ms,fontLevel:d.settings&&d.settings.fontLevel,exported:d.exported,partial:d.partial===true,filter:Array.isArray(d.filter)?d.filter.filter(x=>typeof x==='string').map(norm).filter(Boolean).slice(0,10):[]}};
+/* a restore finished while the memo list is open (Backup & Restore was opened from it): show the memos that are there now */
+const afterRestore=()=>{if(dL.open){drawFlt();sel=0;drawList();fl.focus()}};
 const startRestore=p=>{if(!p.memos.length){alert('This backup has no memos.');return}rest=p;
   const dt=new Date(p.exported),n=p.memos.length;
   $('rs').textContent=n+' memo'+(n>1?'s':'')+' in this backup'+(isNaN(dt)?'':' (made '+dt.toLocaleString()+')')+'. You have '+memos.length+' now.'+(p.partial?' This is a PARTIAL backup (only memos with tags: '+(p.filter.length?p.filter.map(t=>'#'+t).join(' '):'selected')+').':'');
@@ -516,13 +518,13 @@ const startRestore=p=>{if(!p.memos.length){alert('This backup has no memos.');re
 const doMerge=()=>{if(!rest)return;save();let a=0,u=0;
   for(const m of rest.memos){const i=memos.findIndex(x=>x.id===m.id);if(i<0){memos.push(m);a++}else if(m.updated>memos[i].updated){memos[i]=m;u++}}
   const keep=memos.find(x=>x.id===cur.id)||memos.slice().sort((x,y)=>y.updated-x.updated)[0];
-  load(keep,true);persist();rest=null;dR.close();say('Merged: '+a+' added, '+u+' updated',2500)};
+  load(keep,true);persist();rest=null;dR.close();afterRestore();say('Merged: '+a+' added, '+u+' updated',2500)};
 const doReplace=()=>{if(!rest)return;
   const ft=rest.filter&&rest.filter.length?' (tags: '+rest.filter.map(t=>'#'+t).join(' ')+')':'';
   if(!confirm(!memos.length?'Load the backup ('+rest.memos.length+' memos)?':rest.partial?'This is a PARTIAL backup: it holds only some of your memos'+ft+'.\nReplacing ALL current memos ('+memos.length+') with these '+rest.memos.length+' will remove every other memo.\nA backup of the current memos is downloaded first.\n\nContinue?':'Replace ALL current memos ('+memos.length+') with the backup ('+rest.memos.length+')?\nA backup of the current memos is downloaded first.'))return;
   if(memos.length)doBackup(true);
   memos=rest.memos;const n=memos.length;if(Number.isInteger(rest.fontLevel)&&rest.fontLevel>=1&&rest.fontLevel<=5){fsLv=rest.fontLevel;applyFs(true)}
-  tagSel.clear();drawFlt();load(memos.slice().sort((x,y)=>y.updated-x.updated)[0],true);persist();rest=null;dR.close();say('Restored '+n+' memos',2500)};
+  tagSel.clear();drawFlt();load(memos.slice().sort((x,y)=>y.updated-x.updated)[0],true);persist();rest=null;dR.close();afterRestore();say('Restored '+n+' memos',2500)};
 const ri=document.createElement('input');ri.type='file';ri.accept='.json,application/json';
 ri.onchange=async()=>{const f=ri.files[0];ri.value='';if(!f)return;const p=parseBackup(await f.text());if(!p){alert('This is not a valid LWSM backup file.');return}startRestore(p)};
 const openRestore=()=>ri.click();
@@ -530,7 +532,7 @@ const openData=()=>{if(dD.open)return;save();const n=memos.length,k=pool().lengt
   $('dn').textContent=part?'Backup will include '+k+' of '+n+' memos (tags: '+fltText()+'). Clear the tag filter to back up all memos.':n+' memo'+(n===1?'':'s')+' saved on this device.';
   $('bBk').textContent=part?'Backup '+k+' of '+n:'Backup';dD.showModal()};
 $('fx').onclick=()=>{tagSel.clear();drawFlt();if(dL.open)drawList()};$('bTag').onclick=openTags;$('tgs').addEventListener('click',openTags);$('bBkL').onclick=openData;
-dD.addEventListener('close',()=>{if(dL.open){drawFlt();sel=0;drawList();$('bBkL').focus()}});   /* opened from the memo list: back to the list, refreshed (a restore may have changed the memos) */$('xD').onclick=()=>dD.close();$('xG').onclick=()=>dG.close();$('bGa').onclick=()=>addTag(gi.value);
+dD.addEventListener('close',()=>{if(dL.open&&!dR.open){drawFlt();sel=0;drawList();$('bBkL').focus()}});   /* opened from the memo list: back to the list (a restore in progress refreshes it when it is done) */$('xD').onclick=()=>dD.close();$('xG').onclick=()=>dG.close();$('bGa').onclick=()=>addTag(gi.value);
 gi.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.isComposing){e.preventDefault();addTag(gi.value)}});
 $('xM').onclick=()=>dM.close();$('xR').onclick=()=>dR.close();
 $('bTagM').onclick=openMng;$('bBk').onclick=()=>doBackup();$('bRs').onclick=openRestore;
