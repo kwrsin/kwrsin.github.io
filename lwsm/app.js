@@ -43,6 +43,35 @@ const codepenFrame=(e,u,d)=>{
   n.setAttribute('sandbox','allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-forms allow-modals');   /* no top navigation */
   n.setAttribute('data-embed','codepen');n.setAttribute('style','height:'+h+'px');
   return n};
+
+/* Google Maps embed (the iframe code of "Share > Embed a map" and of My Maps "Embed on my site"):
+     https://www.google.com/maps/embed?pb=<value>
+     https://www.google.com/maps/d/embed?mid=<id>[&hl=..&ehbc=..&ll=..&z=..]
+   Only these addresses are accepted and the frame is rebuilt: from the pasted tag only the validated address, the title and the height (150-1000 px, default 450) are used. */
+const mapsFrame=(e,u,d)=>{
+  if(!u||u.protocol!=='https:'||!['www.google.com','google.com'].includes(u.hostname)||u.username||u.password||u.port)return null;
+  let src;
+  if(u.pathname==='/maps/embed'){                                                   /* the value is kept exactly as it is (URLSearchParams would re-encode it) */
+    const m=/^\?pb=([A-Za-z0-9!%_.~-]{10,2000})$/.exec(u.search);if(!m)return null;
+    let dec;try{dec=decodeURIComponent(m[1])}catch(x){return null}
+    if(/[\s"'<>`\\\x00-\x1f\x7f]/.test(dec))return null;                         /* what the value means once decoded: no space, quote, angle bracket, backslash or control character */
+    src='https://www.google.com/maps/embed?pb='+m[1]}
+  else if(u.pathname==='/maps/d/embed'){
+    const p=u.searchParams,mid=p.get('mid');if(!mid||!/^[A-Za-z0-9_-]{10,80}$/.test(mid))return null;
+    const q=new URL('https://www.google.com/maps/d/embed');q.searchParams.set('mid',mid);
+    const hl=p.get('hl');if(hl&&/^[A-Za-z]{2,3}(?:-[A-Za-z0-9]{2,4})?$/.test(hl))q.searchParams.set('hl',hl);
+    const eh=p.get('ehbc');if(eh&&/^[0-9A-Fa-f]{6}$/.test(eh))q.searchParams.set('ehbc',eh);
+    const ll=p.get('ll');if(ll&&/^-?\d{1,3}(?:\.\d{1,12})?,-?\d{1,3}(?:\.\d{1,12})?$/.test(ll))q.searchParams.set('ll',ll);
+    const z=p.get('z');if(z&&/^\d{1,2}$/.test(z))q.searchParams.set('z',z);
+    src=q.href}
+  else return null;
+  const hs=e.getAttribute('height')||'';let h=/^\s*\d+(?:px)?\s*$/.test(hs)?parseInt(hs,10):450;h=Math.max(150,Math.min(1000,h));
+  const n=d.createElement('iframe');n.src=src;
+  n.title=(e.getAttribute('title')||'Google Map').slice(0,100);
+  n.setAttribute('loading','lazy');n.setAttribute('referrerpolicy','strict-origin-when-cross-origin');n.setAttribute('allowfullscreen','');
+  n.setAttribute('sandbox','allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox');      /* no top navigation, no forms */
+  n.setAttribute('data-embed','gmap');n.setAttribute('style','height:'+h+'px');
+  return n};
 /* Link / image addresses. Browsers ignore tabs, newlines and control characters inside a URL, so the address is normalised first;
    then script-type schemes are refused (any other scheme, e.g. obsidian://, mailto:, https:, still works). data:image/... is allowed for pictures only. */
 const BAD_SCHEMES=['javascript','vbscript','data','blob','file'];
@@ -113,7 +142,8 @@ const clean=h=>{styleDrops.length=0;const d=new DOMParser().parseFromString(h,'t
         n.setAttribute('allow','encrypted-media; picture-in-picture');
         n.setAttribute('sandbox','allow-scripts allow-same-origin allow-presentation allow-popups allow-popups-to-escape-sandbox');
         e.replaceWith(n);return}
-      const cp=codepenFrame(e,u,d);if(cp){e.replaceWith(cp);return}}
+      const cp=codepenFrame(e,u,d);if(cp){e.replaceWith(cp);return}
+      const gm=mapsFrame(e,u,d);if(gm){e.replaceWith(gm);return}}
     e.remove()});
   const dio=new Map();
   d.body.querySelectorAll('svg').forEach(sv=>{const m=/window\.open\(\s*'(https:\/\/viewer\.diagrams\.net\/[^']*)'/.exec(sv.getAttribute('onclick')||'');const v=m&&drawioUrl(m[1]);if(v&&sv.hasAttribute('content'))dio.set(sv,v)});
