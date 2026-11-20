@@ -73,7 +73,6 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;padding:12px;border:1px solid va
 <tr><td>Import (arrow down)</td><td>Open one or more .md, .markdown, .txt, .html, or .htm files as new memos. You can also drag and drop files onto the window. A <b>.json</b> backup file offers a Restore instead. <kbd>Ctrl</kbd>+<kbd>O</kbd></td></tr>
 <tr><td>Export (arrow up)</td><td>Download the current memo as .md or .html. <kbd>Ctrl</kbd>+<kbd>S</kbd></td></tr>
 <tr><td>Settings (gear)</td><td>Open the settings pop-up. Use the slider to set the <b>memo text size</b> in 5 steps. The setting is remembered. <kbd>Alt</kbd>+<kbd>&lt;</kbd> / <kbd>Alt</kbd>+<kbd>&gt;</kbd> change it without opening the pop-up. Settings also has <b>Manage tags</b> and the on/off option of the floating <b>outline</b>, plus an option for a <b>translucent header and outline</b> (blur; off by default). Press <kbd>Esc</kbd> or &#10005; to close.</td></tr>
-<tr><td>Backup &amp; Restore (floppy disk)</td><td>Open the Backup &amp; Restore screen. <kbd>Alt</kbd>+<kbd>D</kbd></td></tr>
 <tr><td>? (circle)</td><td>Open this page.</td></tr>
 </table>
 
@@ -94,7 +93,7 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;padding:12px;border:1px solid va
 <tr><td><kbd>Alt</kbd>+<kbd>H</kbd></td><td>Show / hide the outline (headings list) in preview</td></tr>
 <tr><td><kbd>Alt</kbd>+<kbd>G</kbd></td><td>Search all memos (full text)</td></tr>
 <tr><td><kbd>Alt</kbd>+<kbd>C</kbd></td><td>Duplicate the current memo</td></tr>
-<tr><td><kbd>Alt</kbd>+<kbd>D</kbd></td><td>Backup &amp; Restore screen (floppy disk button)</td></tr>
+<tr><td><kbd>Alt</kbd>+<kbd>D</kbd></td><td>Backup &amp; Restore screen (also the <b>Backup &amp; Restore</b> button at the bottom left of the memo list)</td></tr>
 <tr><td><kbd>Alt</kbd>+<kbd>B</kbd></td><td>Backup all memos</td></tr>
 <tr><td><kbd>Alt</kbd>+<kbd>O</kbd></td><td>Restore from a backup file</td></tr>
 <tr><td><kbd>Alt</kbd>+<kbd>1</kbd>&ndash;<kbd>9</kbd>, <kbd>Alt</kbd>+<kbd>0</kbd></td><td>In the memo list: toggle tag filter 1&ndash;9 / clear tag filter</td></tr>
@@ -128,7 +127,7 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;padding:12px;border:1px solid va
 <li>Memos are sorted by most recently used. The <b>Filter</b> box narrows the list by <b>title</b> as you type (the memo text is not searched).</li>
 <li><kbd>Ctrl</kbd>+<kbd>N</kbd> (or <kbd>&darr;</kbd>) next item, <kbd>Ctrl</kbd>+<kbd>P</kbd> (or <kbd>&uarr;</kbd>) previous item.</li>
 <li><kbd>Space</kbd> or <kbd>Enter</kbd> opens the selected memo and closes the list. While the Filter box has text, <kbd>Space</kbd> types a space; use <kbd>Enter</kbd>.</li>
-<li><kbd>Delete</kbd> deletes the selected memo after confirmation. The &times; button on a row does the same; <b>Delete all</b> removes every memo. When a tag or keyword filter is active, it becomes <b>Delete N shown</b> and removes only the memos shown in the list (after a confirmation); the filter is then cleared.</li>
+<li><kbd>Delete</kbd> deletes the selected memo after confirmation. The &times; button on a row does the same; <b>Delete all</b> (bottom right) removes every memo. The <b>Backup &amp; Restore</b> button (bottom left) opens the Backup &amp; Restore screen on top of the list; closing it brings you back to the list. When a tag or keyword filter is active, it becomes <b>Delete N shown</b> and removes only the memos shown in the list (after a confirmation); the filter is then cleared.</li>
 <li><kbd>Esc</kbd> or the &#10005; button closes the list. The same applies to Find.</li>
 </ul>
 
@@ -167,8 +166,8 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;padding:12px;border:1px solid va
 
 <h2>Backup and restore</h2>
 <ul>
-<li><b>Backup</b> (<kbd>Alt</kbd>+<kbd>B</kbd>, or the floppy disk button &rarr; Backup) downloads one .json file with <b>all memos</b> (or only the memos matching the tag filter when one is active; see below) (text, title, background color, tags, ID) and the text size setting.</li>
-<li><b>Restore</b> (<kbd>Alt</kbd>+<kbd>O</kbd>, or the floppy disk button &rarr; Restore) reads a backup file. You can also drag and drop the .json file onto the window, or open it with Import. Then choose:
+<li><b>Backup</b> (<kbd>Alt</kbd>+<kbd>B</kbd>, or the <b>Backup &amp; Restore</b> button in the memo list &rarr; Backup) downloads one .json file with <b>all memos</b> (or only the memos matching the tag filter when one is active; see below) (text, title, background color, tags, ID) and the text size setting.</li>
+<li><b>Restore</b> (<kbd>Alt</kbd>+<kbd>O</kbd>, or the <b>Backup &amp; Restore</b> button in the memo list &rarr; Restore) reads a backup file. You can also drag and drop the .json file onto the window, or open it with Import. Then choose:
 <ul>
 <li><b>Merge</b>: keep your current memos and add the ones from the backup. If a memo exists in both (same ID), the newer one is kept.</li>
 <li><b>Replace all</b>: discard the current memos and use the backup. If you have any memos, a backup of them is downloaded first (so you can undo), and you are asked to confirm.</li>

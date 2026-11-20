@@ -330,6 +330,7 @@ const coarse=matchMedia('(pointer:coarse)').matches,dlgs=[dF,dS,dT,dG,dM,dR,dD,d
 const focusBody=()=>{if(dlgs.some(d=>d.open))return;if(preview)pv.focus({preventScroll:true});else if(!coarse)ed.focus({preventScroll:true})};
 dlgs.forEach(d=>d.addEventListener('close',focusBody));
 dL.addEventListener('keydown',e=>{if(e.isComposing)return;
+  if(e.target.tagName==='BUTTON'&&(e.key==='Enter'||e.key==='Delete'||e.key===' '))return;      /* a focused button (Backup & Restore, Delete all, close) works by itself */
   if(e.key==='Enter'||e.key==='Delete'||e.key===' ')flushFl();
   if(e.altKey&&/^Digit[0-9]$/.test(e.code)){e.preventDefault();const d=+e.code.slice(5);if(d===0)tagSel.clear();else{const t=allTags()[d-1];if(t)toggleTag(t.t)}sel=0;drawList();return}const k=e.key,inF=document.activeElement===fl;
   const mv=d=>{e.preventDefault();if(view.length){sel=(sel+d+view.length)%view.length;drawList()}};
@@ -528,7 +529,8 @@ const openRestore=()=>ri.click();
 const openData=()=>{if(dD.open)return;save();const n=memos.length,k=pool().length,part=tagSel.size>0;
   $('dn').textContent=part?'Backup will include '+k+' of '+n+' memos (tags: '+fltText()+'). Clear the tag filter to back up all memos.':n+' memo'+(n===1?'':'s')+' saved on this device.';
   $('bBk').textContent=part?'Backup '+k+' of '+n:'Backup';dD.showModal()};
-$('fx').onclick=()=>{tagSel.clear();drawFlt();if(dL.open)drawList()};$('bTag').onclick=openTags;$('tgs').addEventListener('click',openTags);$('bGear').onclick=openData;$('xD').onclick=()=>dD.close();$('xG').onclick=()=>dG.close();$('bGa').onclick=()=>addTag(gi.value);
+$('fx').onclick=()=>{tagSel.clear();drawFlt();if(dL.open)drawList()};$('bTag').onclick=openTags;$('tgs').addEventListener('click',openTags);$('bBkL').onclick=openData;
+dD.addEventListener('close',()=>{if(dL.open){drawFlt();sel=0;drawList();$('bBkL').focus()}});   /* opened from the memo list: back to the list, refreshed (a restore may have changed the memos) */$('xD').onclick=()=>dD.close();$('xG').onclick=()=>dG.close();$('bGa').onclick=()=>addTag(gi.value);
 gi.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.isComposing){e.preventDefault();addTag(gi.value)}});
 $('xM').onclick=()=>dM.close();$('xR').onclick=()=>dR.close();
 $('bTagM').onclick=openMng;$('bBk').onclick=()=>doBackup();$('bRs').onclick=openRestore;

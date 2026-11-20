@@ -117,6 +117,8 @@ body.drop #content::after{content:"Drop a file to open it";position:absolute;ins
 .mrow button{padding:4px 10px;font-size:.85rem}
 .btns{display:flex;flex-wrap:wrap;gap:8px}
 .foot button+button{margin-left:8px}
+#dList .foot{display:flex;justify-content:space-between;align-items:center;gap:8px}
+#dList .foot button+button{margin-left:0}
 #ul li b{font-weight:400}
 #ul li i{font-style:normal;font-size:.8rem;opacity:.65;margin-left:.6em}
 body[data-mode=edit] #ttl{font-style:italic}
