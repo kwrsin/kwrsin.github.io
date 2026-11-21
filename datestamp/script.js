@@ -1,5 +1,5 @@
 // ==========================================
-// Date Formatter - Core Application Logic
+// DATE STAMP - Core Application Logic
 // ==========================================
 
 (() => {

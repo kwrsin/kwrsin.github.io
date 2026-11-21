@@ -1,4 +1,4 @@
-# Date Formatter
+# DATE STAMP
 
 An intuitive web-based date and time formatting tool with interactive calendar controls, versatile format presets, and dark mode support.
 
