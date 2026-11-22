@@ -397,6 +397,7 @@ document.addEventListener('keydown',e=>{if(dL.open||dT.open||dG.open||dM.open||d
     if(!e.ctrlKey&&!e.altKey&&!e.metaKey&&!e.shiftKey&&!e.isComposing&&(e.key==='ArrowDown'||e.key==='ArrowUp')&&!dS.open&&!dF.open&&!(e.target.closest&&e.target.closest('input,select,textarea'))){e.preventDefault();olStep(e.key==='ArrowDown'?1:-1);return}
     if(e.key==='Enter'&&!e.ctrlKey&&!e.altKey&&!e.metaKey&&!e.isComposing&&!(e.target.closest&&e.target.closest('#ol'))){e.preventDefault();olClose();return}}const c=e.ctrlKey||e.metaKey,k=e.key.toLowerCase();
   if(e.altKey&&imeBusy(e))return;                         /* IME conversion in progress */
+  if(e.altKey&&!c&&!e.shiftKey&&e.code==='KeyI'){e.preventDefault();focusText();return}   /* Alt+I (Option+I on a Mac) */
   if(e.altKey&&!c&&(e.code==='Comma'||e.code==='Period')){e.preventDefault();fsStep(e.code==='Comma'?-1:1);return}
   if(dS.open){if(isEsc(e)&&!imeBusy(e)){e.preventDefault();dS.close()}return}
   if(dF.open){if(e.altKey&&!c&&e.code==='KeyF'){e.preventDefault();kw.focus();kw.select()}else if(isEsc(e)&&!imeBusy(e)){e.preventDefault();dF.close()}return}
@@ -677,11 +678,13 @@ const toPreview=off=>{const mk=blockMarks();if(!mk.length)return false;let i=0;f
   pv.scrollTop=pv.scrollTop+top+f*(nTop-top)-refMargin();return true};
 /* Switching to the editor on a PC (Alt+Enter or the header button): the editor gets the focus. The caret stays where it was if that is on screen, otherwise it moves to the first visible line.
    The caret is already inside the visible part, so the browser has no reason to scroll the editor (a synced position survives in Firefox / Safari too). */
-const focusEditor=()=>{if(coarse)return;
+const focusEditor=force=>{if(coarse&&!force)return;           /* force: asked for with a key (Alt+I), so also on a touch device */
   const top=ed.scrollTop,limit=top+ed.clientHeight-(olNarrow()?bar.offsetHeight:0)-40;let pos=ed.selectionStart;
   try{const y=yOf(pos);if(y<top+refMargin()-2||y>limit)pos=offsetAtY(top+refMargin())}catch(e){}
   ed.setSelectionRange(pos,pos);ed.focus({preventScroll:true});
   ed.scrollTop=top;requestAnimationFrame(()=>{ed.scrollTop=top});clearCaretOfBar()};
+/* Alt+I: put the focus back on the text, whatever has it now: the editor with the caret shown (where it was, or on the first visible line if that is off screen), or the preview when it is shown. */
+const focusText=()=>{if(preview){pv.focus({preventScroll:true});return}focusEditor(true)};
 const toggleMode=()=>{
   const toEdit=preview;
   if(!syncOn){setMode(!preview,false);if(toEdit)focusEditor();return}
