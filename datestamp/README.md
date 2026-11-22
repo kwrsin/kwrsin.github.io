@@ -18,6 +18,10 @@ This application is a collaborative creation developed jointly by **kwrsin** and
 ### Key Features
 
 - **Interactive Calendar & Quick Shift**: Instant jump to "Today", visual day picker, month navigation, and quick offset buttons (`-7d`, `-1d`, `Today`, `+1d`, `+7d`).
+- **Keyboard Shortcuts Navigation**:
+  - Arrow Keys (`←` / `→` / `↑` / `↓`): Navigate days and weeks directly on the calendar grid.
+  - Month Jump (`Ctrl+←` / `Ctrl+→` or `Cmd+←` / `Cmd+→`): Seamlessly switch to previous/next month.
+  - Copy Result (`Ctrl+C` / `Cmd+C`): Quickly copy the formatted date output to clipboard.
 - **Dark Mode Support**: Seamless toggle between light and dark themes with system preference detection (`prefers-color-scheme`) and persistent storage.
 - **Relative Time Indicator**: Real-time display of relative difference (e.g., "Just now", "Yesterday", "In 3 days") using `Intl.RelativeTimeFormat`.
 - **Extended Token Formatting**: Full support for standard and advanced date/time tokens:
@@ -55,6 +59,10 @@ Co-authored-by: Antigravity <antigravity@google.com>
 ### 主な機能
 
 - **インタラクティブなカレンダー ＆ クイック日付調整**: 月送りナビゲーション、日付ピッカーに加え、素早く日付を変更できるクイックシフトボタン（`-7d`, `-1d`, `Today`, `+1d`, `+7d`）を搭載。
+- **キーボードショートカット対応**:
+  - カーソルキー（`←` / `→` / `↑` / `↓`）: カレンダーの日・週を直接上下左右に移動。
+  - 前月・次月移動（`Ctrl+←` / `Ctrl+→` または `Cmd+←` / `Cmd+→`）: 前の月、次の月に素早く移動。
+  - フォーマット結果コピー（`Ctrl+C` / `Cmd+C`）: 生成された日付テキストをワンタップでクリップボードへコピー。
 - **ダークモード対応**: OSの設定（`prefers-color-scheme`）に連動しつつ、ヘッダーのトグルボタンでライト/ダークを自由に変更・保存可能。
 - **相対時間表示**: 選択中の日時と現在日時の差分を「今日」「昨日」「3日後」「2時間前」のようにリアルタイム表示（`Intl.RelativeTimeFormat`）。
 - **トークン大幅拡張**:

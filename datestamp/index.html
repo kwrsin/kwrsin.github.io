@@ -55,9 +55,9 @@
     <section class="section section-calendar">
       <div class="calendar-controls">
         <div class="cal-nav-group">
-          <button type="button" class="cal-nav-btn" id="prevMonthBtn" aria-label="Previous Month">&lsaquo;</button>
+          <button type="button" class="cal-nav-btn" id="prevMonthBtn" aria-label="Previous Month (Ctrl+Left)" title="Previous Month (Ctrl+←)">&lsaquo;</button>
           <span class="cal-header-title" id="calTitle">2026年 11月</span>
-          <button type="button" class="cal-nav-btn" id="nextMonthBtn" aria-label="Next Month">&rsaquo;</button>
+          <button type="button" class="cal-nav-btn" id="nextMonthBtn" aria-label="Next Month (Ctrl+Right)" title="Next Month (Ctrl+→)">&rsaquo;</button>
         </div>
         <button type="button" class="cal-today-btn" id="todayBtn">Today</button>
       </div>
@@ -74,6 +74,11 @@
         <button type="button" class="shift-btn shift-btn-today" id="shiftTodayBtn" title="Jump to today">Today</button>
         <button type="button" class="shift-btn" data-shift-days="1" title="1 day later">+1d</button>
         <button type="button" class="shift-btn" data-shift-days="7" title="1 week later">+7d</button>
+      </div>
+
+      <div class="calendar-hints">
+        <span class="hint-item"><kbd>&larr;</kbd><kbd>&rarr;</kbd><kbd>&uarr;</kbd><kbd>&darr;</kbd> Day / Week</span>
+        <span class="hint-item"><kbd>Ctrl</kbd>+<kbd>&larr;</kbd><kbd>&rarr;</kbd> Month</span>
       </div>
 
       <div class="time-picker-bar">

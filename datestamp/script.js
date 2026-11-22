@@ -369,12 +369,48 @@
 
   // 日付のオフセット変更 (±1日, ±7日など)
   function shiftDate(days) {
+    // 表示月と選択日の年月がずれている場合は、表示月を基準に調整
+    if (state.viewYear !== state.selectedDate.getFullYear() || state.viewMonth !== state.selectedDate.getMonth()) {
+      const daysInViewMonth = new Date(state.viewYear, state.viewMonth + 1, 0).getDate();
+      const safeDay = Math.min(state.selectedDate.getDate(), daysInViewMonth);
+      state.selectedDate.setFullYear(state.viewYear, state.viewMonth, safeDay);
+    }
     state.selectedDate.setDate(state.selectedDate.getDate() + days);
     state.viewYear = state.selectedDate.getFullYear();
     state.viewMonth = state.selectedDate.getMonth();
     renderCalendar();
     syncTimeInputFromDate(state.selectedDate);
     updateResult();
+  }
+
+  // 月のオフセット変更 (±1ヶ月)
+  function shiftMonth(delta) {
+    const baseYear = state.viewYear;
+    const baseMonth = state.viewMonth;
+    const currentDay = state.selectedDate.getDate();
+
+    // 目標年月を計算
+    const targetDate = new Date(baseYear, baseMonth + delta, 1);
+    const targetYear = targetDate.getFullYear();
+    const targetMonth = targetDate.getMonth();
+
+    // 目標月の末日を算出して日数をクランプ (例: 3/31 -> 2/28)
+    const daysInTargetMonth = new Date(targetYear, targetMonth + 1, 0).getDate();
+    const targetDay = Math.min(currentDay, daysInTargetMonth);
+
+    state.selectedDate.setFullYear(targetYear, targetMonth, targetDay);
+    state.viewYear = targetYear;
+    state.viewMonth = targetMonth;
+    renderCalendar();
+    syncTimeInputFromDate(state.selectedDate);
+    updateResult();
+  }
+
+  // ショートカット発動時のボタンフィードバック演出
+  function flashButton(button) {
+    if (!button) return;
+    button.classList.add('keyboard-active');
+    setTimeout(() => button.classList.remove('keyboard-active'), 150);
   }
 
   // 「今日」にジャンプ
@@ -446,14 +482,20 @@
     // コピーボタン処理
     elements.copyBtn.addEventListener('click', copyResultToClipboard);
 
-    // ショートカットキー: Ctrl + C / Cmd + C で日付をコピー
+    // キーボードショートカット
     document.addEventListener('keydown', (e) => {
+      // ユーザーが入力欄（input / textarea等）にフォーカスしているかを判定
+      const activeEl = document.activeElement;
+      const isInputActive = activeEl && (
+        activeEl.tagName === 'INPUT' ||
+        activeEl.tagName === 'TEXTAREA' ||
+        activeEl.isContentEditable
+      );
+
+      // ショートカットキー: Ctrl + C / Cmd + C で日付をコピー
       if ((e.ctrlKey || e.metaKey) && (e.key === 'c' || e.key === 'C')) {
-        // ユーザーがテキストを選択している場合は通常のテキストコピーを許可
         const selection = window.getSelection ? window.getSelection().toString() : '';
-        const activeEl = document.activeElement;
-        const isInputFocusedWithSelection = activeEl &&
-          (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA') &&
+        const isInputFocusedWithSelection = isInputActive &&
           typeof activeEl.selectionStart === 'number' &&
           activeEl.selectionStart !== activeEl.selectionEnd;
 
@@ -464,6 +506,54 @@
         // 選択範囲がない場合は日付をクリップボードにコピー
         e.preventDefault();
         copyResultToClipboard();
+        return;
+      }
+
+      // 入力フォーム操作中はカレンダー移動ショートカットをスキップ
+      if (isInputActive) {
+        return;
+      }
+
+      // ショートカットキー: Ctrl + Left / Right (Cmd + Left / Right) で前の月、次の月に移動
+      if ((e.ctrlKey || e.metaKey) && !e.altKey && !e.shiftKey) {
+        if (e.key === 'ArrowLeft') {
+          e.preventDefault();
+          shiftMonth(-1);
+          flashButton(elements.prevMonthBtn);
+          return;
+        }
+        if (e.key === 'ArrowRight') {
+          e.preventDefault();
+          shiftMonth(1);
+          flashButton(elements.nextMonthBtn);
+          return;
+        }
+      }
+
+      // ショートカットキー: カーソルキーでカレンダーの上下左右移動
+      // ArrowLeft: 前日 (-1d)
+      // ArrowRight: 翌日 (+1d)
+      // ArrowUp: 前週 (-7d)
+      // ArrowDown: 次週 (+7d)
+      if (!e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey) {
+        switch (e.key) {
+          case 'ArrowLeft':
+            e.preventDefault();
+            shiftDate(-1);
+            break;
+          case 'ArrowRight':
+            e.preventDefault();
+            shiftDate(1);
+            break;
+          case 'ArrowUp':
+            e.preventDefault();
+            shiftDate(-7);
+            break;
+          case 'ArrowDown':
+            e.preventDefault();
+            shiftDate(7);
+            break;
+        }
       }
     });
 
