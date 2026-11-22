@@ -175,7 +175,7 @@ const render=t=>clean(isHtml(t)?t:renderMd(t));
 
 const applyBg=()=>{const c=cur.bg;box.style.background=c;box.style.color=c?fg(c):'';box.style.setProperty('--link',c?fg(c):'');box.style.setProperty('--mbg',c||'');
   bg.value=c||(matchMedia('(prefers-color-scheme:dark)').matches?'#222831':'#eeeeee')};
-const setMode=(p,focus)=>{preview=p;document.body.dataset.mode=p?'preview':'edit';setTitle();if(p){pv.innerHTML=render(cur.text);olBuild()}else olUpdate();sw.dataset.mode=p?'preview':'edit';const sl=p?'Switch to edit (Alt+Enter)':'Switch to preview (Alt+Enter)';sw.title=sl;sw.setAttribute('aria-label',sl);ed.hidden=p;pv.hidden=!p;olUpdate();barOff=false;bar.classList.remove('hide');if(!p&&focus&&!coarse)ed.focus();if(p){clearHit();pv.focus({preventScroll:true})}};
+const setMode=(p,focus)=>{preview=p;document.body.dataset.mode=p?'preview':'edit';setTitle();if(p){pv.innerHTML=render(cur.text);olBuild()}else olUpdate();sw.dataset.mode=p?'preview':'edit';const sl=p?'Switch to edit (Enter / Alt+Enter)':'Switch to preview (Alt+Enter)';sw.title=sl;sw.setAttribute('aria-label',sl);ed.hidden=p;pv.hidden=!p;olUpdate();barOff=false;bar.classList.remove('hide');if(!p&&focus&&!coarse)ed.focus();if(p){clearHit();pv.focus({preventScroll:true})}};
 const load=(m,p)=>{cur=m;clearHit();setTitle();ed.value=m.text;applyBg();ed.hidden=pv.hidden=false;ed.scrollTop=pv.scrollTop=0;ly=0;setMode(p);try{localStorage.setItem(KC,m.id)}catch(e){}};
 const pool=()=>memos.filter(m=>[...tagSel].every(k=>hasTag(m,k)));
 const canRotate=()=>{const p=pool();return p.length>1||(p.length===1&&p[0].id!==cur.id)};
@@ -243,11 +243,13 @@ const mkRe=(k,isRe,csens)=>{const src=isRe?k:reEsc(k),fl=(csens?'':'i')+'gm',re=
 const reMsg=e=>e.message==='empty'?'This pattern can match empty text. Make it more specific.':'Invalid regular expression';
 const HK='lwsm.hist';let hist=[];
 try{hist=JSON.parse(localStorage.getItem(HK)||'[]').filter(h=>h&&typeof h.k==='string'&&h.k).slice(0,5)}catch(e){}
-const addHist=(k,re,cs)=>{if(!k)return;re=!!re;cs=!!cs;hist=[{k,re,cs},...hist.filter(h=>!(h.k===k&&h.re===re&&h.cs===cs))].slice(0,5);try{localStorage.setItem(HK,JSON.stringify(hist))}catch(e){}};
-const histUI=(inp,btn,ul,onPick)=>{let sel=-1;
+/* cur (Current memo) is only given by the full-text search; Find leaves it out. Entries that differ only in cur are different entries. */
+const addHist=(k,re,cs,cur)=>{if(!k)return;re=!!re;cs=!!cs;const n={k,re,cs};if(typeof cur==='boolean')n.cur=cur;
+  hist=[n,...hist.filter(h=>!(h.k===k&&h.re===re&&h.cs===cs&&(h.cur===true)===(cur===true)))].slice(0,5);try{localStorage.setItem(HK,JSON.stringify(hist))}catch(e){}};
+const histUI=(inp,btn,ul,onPick,showCur)=>{let sel=-1;
   const draw=()=>{ul.textContent='';
     hist.forEach((h,i)=>{const li=document.createElement('li'),s=document.createElement('span');if(i===sel)li.className='on';s.className='hk';s.textContent=h.k;li.append(s);
-      for(const [on,t,tip] of [[h.re,'.*','Regex'],[h.cs,'Aa','Case sensitive']])if(on){const b=document.createElement('span');b.className='hb';b.textContent=t;b.title=tip;li.append(b)}
+      for(const [on,t,tip] of [[h.re,'.*','Regex'],[h.cs,'Aa','Case sensitive'],[showCur&&h.cur===true,'Cur','Current memo']])if(on){const b=document.createElement('span');b.className='hb';b.textContent=t;b.title=tip;li.append(b)}
       li.onmousedown=e=>e.preventDefault();li.onclick=()=>pick(i);ul.append(li)});
     const c=document.createElement('li');c.className='hc';c.textContent='Clear history';c.onmousedown=e=>e.preventDefault();
     c.onclick=()=>{hist=[];try{localStorage.removeItem(HK)}catch(e){}show(false)};ul.append(c)};
@@ -387,6 +389,7 @@ for(const d of [dF,dS]){
     e.preventDefault();e.stopPropagation();d.close()},true);
   d.addEventListener('cancel',e=>{e.preventDefault();d.close()})}
 ed.addEventListener('keydown',e=>{if(dF.open&&isEsc(e)&&!imeBusy(e)){e.preventDefault();e.stopImmediatePropagation();dF.close()}},true);
+document.addEventListener('keyup',e=>{if(e.key==='Enter'){swallowEnter=false;clearTimeout(swT)}},true);
 document.addEventListener('keydown',e=>{if(dL.open||dT.open||dG.open||dM.open||dR.open||dD.open||dGr.open||dDis.open)return;
   if(isEsc(e)&&!imeBusy(e)&&!olNav.hidden){e.preventDefault();olClose();return}
   if(!olNav.hidden){const kk=e.key.toLowerCase();
@@ -398,7 +401,11 @@ document.addEventListener('keydown',e=>{if(dL.open||dT.open||dG.open||dM.open||d
   if(dS.open){if(isEsc(e)&&!imeBusy(e)){e.preventDefault();dS.close()}return}
   if(dF.open){if(e.altKey&&!c&&e.code==='KeyF'){e.preventDefault();kw.focus();kw.select()}else if(isEsc(e)&&!imeBusy(e)){e.preventDefault();dF.close()}return}
   const run=f=>{e.preventDefault();f()},al=e.altKey&&!c,ak=x=>al&&e.code===x,kb=x=>e.key===x||e.code===kc[x];
-  if(ak('KeyN'))run(doNew);else if(c&&k==='o')run(doImport);else if(c&&k==='s')run(doExport);else if(ak('KeyF'))run(openFind);
+  /* Enter in the preview (the preview itself or the page has the focus; a link, a button or a Copy button keeps its own Enter): switch to the editor.
+     The press is swallowed so that no line break reaches the editor, and so is the key repeat while Enter is held down. Alt+Enter below still switches both ways. */
+  if(e.key==='Enter'&&!e.altKey&&!c&&!e.shiftKey&&preview&&!e.repeat&&!imeBusy(e)&&(e.target===pv||e.target===document.body||e.target===document.documentElement)){
+    e.preventDefault();swallowEnter=true;clearTimeout(swT);swT=setTimeout(()=>{swallowEnter=false},1500);toggleMode()}
+  else if(ak('KeyN'))run(doNew);else if(c&&k==='o')run(doImport);else if(c&&k==='s')run(doExport);else if(ak('KeyF'))run(openFind);
   else if(al&&kb(']'))run(()=>rotate(1));else if(al&&kb('['))run(()=>rotate(-1));else if(al&&e.shiftKey&&(e.code==='Backspace'||e.key==='Backspace'))run(doDelete);else if(al&&(k==='r'||e.code==='KeyR'))run(openTitle);else if(ak('KeyT'))run(openTags);else if(ak('KeyM'))run(openMng);else if(ak('KeyB'))run(doBackup);else if(ak('KeyO'))run(openRestore);else if(ak('KeyD'))run(openData);else if(ak('KeyC'))run(doDuplicate);else if(ak('KeyG'))run(openGrep);else if(ak('KeyH'))run(olToggle);else if(ak('KeyV'))run(toggleBar);else if(ak('KeyL'))run(openList);else if(al&&(e.key==='Enter'||e.code==='NumpadEnter'))run(toggleMode);else if(c&&!e.altKey&&e.code==='KeyU'&&!preview&&document.activeElement===ed&&!imeBusy(e))run(()=>convCase(e.shiftKey));else if(ak('KeyX')&&!e.shiftKey&&!preview&&document.activeElement===ed)run(delLine);else if(ak('KeyZ')&&!e.shiftKey&&!preview&&document.activeElement===ed)run(dupLine);else if(ak('KeyW')&&!e.shiftKey&&!preview&&document.activeElement===ed)run(selectLines);else if(e.shiftKey&&!e.altKey&&!c&&(e.key==='Enter'||e.code==='NumpadEnter')&&!preview&&document.activeElement===ed&&!imeBusy(e))run(blankBelow)});
 /* links in the preview: HTML <a href> and also links on SVG shapes (<a href> / <a xlink:href>, whose .href is not a string) */
 pv.addEventListener('click',e=>{
@@ -478,7 +485,7 @@ const drawGRes=()=>{gl.textContent='';gSel=-1;const r=gRes;$('gres').hidden=!r;i
     li.append(a,sn);li.onclick=()=>gotoHit(h);gl.append(li)}};
 const runGrep=async()=>{if(gRun)return;const k=gk.value;if(!k)return;save();
   let re;try{re=mkRe(k,grx.checked,gcs.checked)}catch(e){$('gerr').textContent=reMsg(e);$('gerr').hidden=false;return}
-  $('gerr').hidden=true;gHist.close();addHist(k,grx.checked,gcs.checked);
+  $('gerr').hidden=true;gHist.close();addHist(k,grx.checked,gcs.checked,gcur.checked);
   const cs=gcs.checked,isRe=grx.checked,cm=memos.find(x=>x.id===cur.id),scope=gcur.checked?(cm?[cm]:[]):pool();
   gRun=true;gAbort=false;gRes=null;gShow(true);$('gn').textContent='0 hits';
   const hits=[];let memosHit=0,trunc=false,t0=performance.now();
@@ -509,7 +516,9 @@ const openGrep=()=>{if(dGr.open)return;save();drawGScope();gShow(gRun);drawGRes(
 $('bGrep').onclick=openGrep;$('xGr').onclick=()=>dGr.close();$('bGr').onclick=runGrep;$('bGc').onclick=()=>{gAbort=true};
 dGr.addEventListener('close',()=>{if(gRun)gAbort=true});
 gk.addEventListener('input',()=>{gSel=-1;[...gl.children].forEach(li=>li.classList.remove('on'))});
-const gHist=histUI(gk,$('hG'),$('hlG'),h=>{gk.value=h.k;gcs.checked=h.cs;grx.checked=h.re;gk.dispatchEvent(new Event('input'))});
+const gHist=histUI(gk,$('hG'),$('hlG'),h=>{gk.value=h.k;gcs.checked=h.cs;grx.checked=h.re;
+  if(typeof h.cur==='boolean'){gcur.checked=h.cur;drawGScope()}                 /* older entries (and Find's) have no cur: the option stays as it is */
+  gk.dispatchEvent(new Event('input'))},true);
 gcur.addEventListener('change',drawGScope);
 dGr.addEventListener('cancel',e=>{if(!$('hlG').hidden)e.preventDefault()});
 dGr.addEventListener('keydown',e=>{if(e.isComposing)return;
@@ -692,7 +701,7 @@ const toggleMode=()=>{
 
 /* ---- editor keys: Tab / Shift+Tab (spaces or tab, set in Settings) and auto-indent on a new line ---- */
 const TBK='lwsm.tab',AIK='lwsm.autoindent',sTab=$('sTab'),sAuto=$('sAuto');
-let tabMode='tab',autoIndent=true,tabFree=false,inAuto=false;
+let tabMode='tab',autoIndent=true,tabFree=false,inAuto=false,swallowEnter=false,swT=0;
 try{tabMode=localStorage.getItem(TBK)||'tab';autoIndent=localStorage.getItem(AIK)!=='0'}catch(e){}
 if(!['tab','s2','s4'].includes(tabMode))tabMode='tab';
 sTab.value=tabMode;sAuto.checked=autoIndent;
@@ -762,6 +771,7 @@ const dupLine=()=>{const t=ed.value,s=ed.selectionStart,e=ed.selectionEnd,d=ed.s
   else{ed.setSelectionRange(e,e);insText(t.slice(s,e))}                                                  /* a selection: right after it */
   ed.setSelectionRange(s,e,d)};                                                                          /* the caret / selection stays on the original */
 ed.addEventListener('keydown',e=>{
+  if(swallowEnter&&e.key==='Enter'){e.preventDefault();return}            /* the Enter that switched to the editor is still held down */
   if(e.key==='Escape'){tabFree=true;return}                      /* Esc, then Tab: leave the editor as usual */
   if(e.key!=='Tab'||e.ctrlKey||e.altKey||e.metaKey||e.isComposing){if(!['Shift','Control','Alt','Meta'].includes(e.key))tabFree=false;return}
   if(tabFree){tabFree=false;return}

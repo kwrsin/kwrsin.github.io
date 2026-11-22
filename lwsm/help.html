@@ -31,9 +31,9 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;padding:12px;border:1px solid va
 <h2>Basics</h2>
 <ul>
 <li>Type in the editor. Every change is <b>saved automatically</b> in your browser (local storage on this device). Nothing is sent to a server.</li>
-<li>The <b>eye / pencil button</b> in the header switches between <b>Preview</b> and <b>Edit</b> (<kbd>Alt</kbd>+<kbd>Enter</kbd>). The icon shows what the button will switch to. The app opens the last memo you used, in preview.</li>
+<li>The <b>eye / pencil button</b> in the header switches between <b>Preview</b> and <b>Edit</b>. From the keyboard: <kbd>Enter</kbd> or <kbd>Alt</kbd>+<kbd>Enter</kbd> in the preview goes to the editor, <kbd>Alt</kbd>+<kbd>Enter</kbd> in the editor goes back to the preview. The icon shows what the button will switch to. The app opens the last memo you used, in preview.</li>
 <li>The browser tab title starts with <b>👁️</b> (preview) or <b>✏️</b> (editing), and the memo title in the header is shown in <i>italics</i> while you are editing.</li>
-<li><b>Scroll sync</b> (Settings, off by default): when on, switching between preview and edit with <kbd>Alt</kbd>+<kbd>Enter</kbd> or the eye / pencil button moves the other view to about the same place in the text, block by block (paragraph, list, code block, &hellip;). It only matters when the memo is long enough to scroll. The cursor is not moved, and on a PC the editor does not take the keyboard focus after the switch (click in the text to type). Switching to another memo does not sync. HTML memos are matched by proportion only.</li>
+<li><b>Scroll sync</b> (Settings, off by default): when on, switching between preview and edit with <kbd>Enter</kbd> / <kbd>Alt</kbd>+<kbd>Enter</kbd> or the eye / pencil button moves the other view to about the same place in the text, block by block (paragraph, list, code block, &hellip;). It only matters when the memo is long enough to scroll. The cursor is not moved, and on a PC the editor does not take the keyboard focus after the switch (click in the text to type). Switching to another memo does not sync. HTML memos are matched by proportion only.</li>
 <li>On a phone or tablet, switching to edit mode does <b>not</b> open the soft keyboard (so the scroll position stays put). Tap the text where you want to type.</li>
 <li>Memos can be written in <b>Markdown</b> or <b>HTML</b>. A memo that starts with an HTML tag is treated as HTML. In preview, scripts, styles, and event attributes are removed for safety. <code>iframe</code> tags are removed too, except YouTube, CodePen and Google Maps embeds (see below).</li>
 <li>Links in the preview open in a <b>new tab</b>.</li>
@@ -64,7 +64,7 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;padding:12px;border:1px solid va
 <tr><td>New (file with plus)</td><td>Start a new memo. <kbd>Alt</kbd>+<kbd>N</kbd></td></tr>
 <tr><td>List (lines)</td><td>Open the memo list. <kbd>Alt</kbd>+<kbd>L</kbd></td></tr>
 <tr><td>&lt; &nbsp; &gt;</td><td>Go to the previous / next memo. Wraps around at both ends. Only memos matching the tag filter are used when a filter is set. If you leave a new memo that is still empty, the next memo opens in preview. <kbd>Alt</kbd>+<kbd>[</kbd> / <kbd>Alt</kbd>+<kbd>]</kbd></td></tr>
-<tr><td>Preview / Edit (eye / pencil)</td><td>Switch between preview and edit mode. The icon shows what the button will switch to: a pencil while you are previewing, an eye while you are editing. <kbd>Alt</kbd>+<kbd>Enter</kbd></td></tr>
+<tr><td>Preview / Edit (eye / pencil)</td><td>Switch between preview and edit mode. The icon shows what the button will switch to: a pencil while you are previewing, an eye while you are editing. <kbd>Enter</kbd> / <kbd>Alt</kbd>+<kbd>Enter</kbd> (preview &rarr; edit), <kbd>Alt</kbd>+<kbd>Enter</kbd> (edit &rarr; preview)</td></tr>
 <tr><td>Find (magnifier)</td><td>Find and replace (see below). <kbd>Alt</kbd>+<kbd>F</kbd></td></tr>
 <tr><td>Search all memos (document with magnifier)</td><td>Search the <b>text</b> of all memos (see below). <kbd>Alt</kbd>+<kbd>G</kbd></td></tr>
 <tr><td>Background color (square) and Reset (circular arrow)</td><td>Change the background color of the current memo, or go back to the default color.</td></tr>
@@ -85,7 +85,8 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;padding:12px;border:1px solid va
 <tr><td><kbd>Ctrl</kbd>+<kbd>S</kbd></td><td>Export</td></tr>
 <tr><td><kbd>Alt</kbd>+<kbd>F</kbd></td><td>Find / replace (while it is open, focuses the Keyword box)</td></tr>
 <tr><td><kbd>Alt</kbd>+<kbd>L</kbd></td><td>Memo list</td></tr>
-<tr><td><kbd>Alt</kbd>+<kbd>Enter</kbd></td><td>Switch preview / edit</td></tr>
+<tr><td><kbd>Enter</kbd></td><td>In the preview: switch to the editor. It works when the preview (not a link or a button) has the focus and no screen is open; with the outline list open, <kbd>Enter</kbd> keeps closing the list. In the editor it is a normal line break.</td></tr>
+<tr><td><kbd>Alt</kbd>+<kbd>Enter</kbd></td><td>Switch preview / edit (both ways)</td></tr>
 <tr><td><kbd>Alt</kbd>+<kbd>]</kbd> / <kbd>Alt</kbd>+<kbd>[</kbd></td><td>Next / previous memo</td></tr>
 <tr><td><kbd>Alt</kbd>+<kbd>&lt;</kbd> / <kbd>Alt</kbd>+<kbd>&gt;</kbd></td><td>Make the memo text smaller / larger (5 steps). Same as the key without Shift: <kbd>Alt</kbd>+<kbd>,</kbd> / <kbd>Alt</kbd>+<kbd>.</kbd></td></tr>
 <tr><td><kbd>Alt</kbd>+<kbd>T</kbd></td><td>Tags of the current memo</td></tr>

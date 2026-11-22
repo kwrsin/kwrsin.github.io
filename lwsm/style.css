@@ -32,7 +32,7 @@ dialog select{font:inherit;color:inherit;background:transparent;border:1.5px sol
 #pv{overflow-wrap:anywhere}
 #pv:focus{outline:none}
 #pv{contain:paint}
-#pv:empty::before{content:"Nothing here yet. Press Alt+Enter to edit.";opacity:.55}
+#pv:empty::before{content:"Nothing here yet. Press Enter to edit.";opacity:.55}
 #pv>*{max-width:76ch}
 #pv a{color:var(--link)}
 #pv img{max-width:100%}
