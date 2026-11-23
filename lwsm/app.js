@@ -10,6 +10,12 @@ const dT=$('dTitle'),ti=$('ti'),tt=$('ttl');
 const dL=$('dList'),fl=$('fl'),ul=$('ul');
 let ly=0,barOff=false,noHideUntil=0,syncOn=false,hit=null,memos=[],cur,tagSel=new Set(),rest=null,preview=true,timer,sel=0,view=[];
 try{memos=JSON.parse(localStorage.getItem(KM)||'[]')}catch(e){}
+/* Remember the tag filter (Settings, off by default): the selected tags are saved whenever they change, and restored when the app opens.
+   Tags that no longer exist are dropped by the first drawFlt. */
+const FKK='lwsm.fltkeep',FK='lwsm.flt';let fltKeep=false,fltSaved='';
+try{fltKeep=localStorage.getItem(FKK)==='1';if(fltKeep){const a=JSON.parse(localStorage.getItem(FK)||'[]');
+  if(Array.isArray(a))a.filter(x=>typeof x==='string'&&x&&x.length<=100).slice(0,50).forEach(x=>tagSel.add(x.toLowerCase()));fltSaved=JSON.stringify([...tagSel])}}catch(e){}
+const saveFlt=()=>{if(!fltKeep)return;const s=JSON.stringify([...tagSel]);if(s===fltSaved)return;fltSaved=s;try{localStorage.setItem(FK,s)}catch(e){}};   /* only when it changed */
 
 const newMemo=()=>({id:crypto.randomUUID?crypto.randomUUID():Date.now()+'-'+Math.random().toString(36).slice(2),text:'',bg:'',updated:Date.now()});
 const strip=l=>l.replace(/<[^>]*>/g,'').replace(/^[\s#>*\-+`_~|=]+/,'').trim();
@@ -440,7 +446,7 @@ const allTags=()=>{const c=new Map();for(const m of memos)for(const t of m.tags|
 const chip=(label,cls,fn)=>{const b=document.createElement('button');b.type='button';b.className='chip'+(cls?' '+cls:'');b.textContent=label;b.onclick=fn;return b};
 const toggleTag=t=>{const k=t.toLowerCase();tagSel.has(k)?tagSel.delete(k):tagSel.add(k)};
 const drawFlt=()=>{const ts=allTags();for(const k of [...tagSel])if(!ts.some(x=>x.t.toLowerCase()===k))tagSel.delete(k);
-  const f=$('flt');f.hidden=!tagSel.size;if(tagSel.size)f.firstChild.textContent='Filter: '+[...tagSel].map(k=>'#'+(ts.find(x=>x.t.toLowerCase()===k)||{t:k}).t).join(' ')};
+  const f=$('flt');f.hidden=!tagSel.size;if(tagSel.size)f.firstChild.textContent='Filter: '+[...tagSel].map(k=>'#'+(ts.find(x=>x.t.toLowerCase()===k)||{t:k}).t).join(' ');saveFlt()};
 const drawTagBar=()=>{const ts=allTags();for(const k of [...tagSel])if(!ts.some(x=>x.t.toLowerCase()===k))tagSel.delete(k);tl.innerHTML='';
   ts.forEach((x,i)=>{const on=tagSel.has(x.t.toLowerCase());const b=chip((i<9?(i+1)+' ':'')+x.t,on?'on':'',()=>{toggleTag(x.t);sel=0;drawList()});
     b.tabIndex=-1;b.setAttribute('aria-pressed',on);if(i<9)b.title='Alt+'+(i+1);tl.append(b)});drawFlt()};
@@ -710,6 +716,9 @@ if(!['tab','s2','s4'].includes(tabMode))tabMode='tab';
 sTab.value=tabMode;sAuto.checked=autoIndent;
 sTab.addEventListener('change',()=>{tabMode=sTab.value;try{localStorage.setItem(TBK,tabMode)}catch(e){}});
 sAuto.addEventListener('change',()=>{autoIndent=sAuto.checked;try{localStorage.setItem(AIK,autoIndent?'1':'0')}catch(e){}});
+const sFlt=$('sFlt');sFlt.checked=fltKeep;
+sFlt.addEventListener('change',()=>{fltKeep=sFlt.checked;try{localStorage.setItem(FKK,fltKeep?'1':'0');
+  if(fltKeep){fltSaved='';saveFlt()}else{localStorage.removeItem(FK);fltSaved=''}}catch(e){}});     /* on: save the present selection now; off: forget the saved one */
 const LAK='lwsm.listassist',sList=$('sList');let listAssist=true;
 try{listAssist=localStorage.getItem(LAK)!=='0'}catch(e){}
 sList.checked=listAssist;
