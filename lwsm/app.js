@@ -396,6 +396,8 @@ for(const d of [dF,dS]){
   d.addEventListener('cancel',e=>{e.preventDefault();d.close()})}
 ed.addEventListener('keydown',e=>{if(dF.open&&isEsc(e)&&!imeBusy(e)){e.preventDefault();e.stopImmediatePropagation();dF.close()}},true);
 document.addEventListener('keyup',e=>{if(e.key==='Enter'){swallowEnter=false;clearTimeout(swT)}},true);
+/* Alt+0 on the main screen (preview or editor): clear the tag filter. (In the memo list Alt+0 does the same through the list's own keys.) */
+const clearTagFilter=()=>{if(!tagSel.size){say('No tag filter',1200);return}tagSel.clear();drawFlt();if(dL.open)drawList();say('Tag filter cleared',1500)};
 document.addEventListener('keydown',e=>{if(dL.open||dT.open||dG.open||dM.open||dR.open||dD.open||dGr.open||dDis.open)return;
   if(isEsc(e)&&!imeBusy(e)&&!olNav.hidden){e.preventDefault();olClose();return}
   if(!olNav.hidden){const kk=e.key.toLowerCase();
@@ -404,6 +406,7 @@ document.addEventListener('keydown',e=>{if(dL.open||dT.open||dG.open||dM.open||d
     if(e.key==='Enter'&&!e.ctrlKey&&!e.altKey&&!e.metaKey&&!e.isComposing&&!(e.target.closest&&e.target.closest('#ol'))){e.preventDefault();olClose();return}}const c=e.ctrlKey||e.metaKey,k=e.key.toLowerCase();
   if(e.altKey&&imeBusy(e))return;                         /* IME conversion in progress */
   if(e.altKey&&!c&&!e.shiftKey&&e.code==='KeyI'){e.preventDefault();focusText();return}   /* Alt+I (Option+I on a Mac) */
+  if(e.altKey&&!c&&!e.shiftKey&&e.code==='Digit0'){e.preventDefault();clearTagFilter();return}   /* Alt+0 */
   if(e.altKey&&!c&&(e.code==='Comma'||e.code==='Period')){e.preventDefault();fsStep(e.code==='Comma'?-1:1);return}
   if(dS.open){if(isEsc(e)&&!imeBusy(e)){e.preventDefault();dS.close()}return}
   if(dF.open){if(e.altKey&&!c&&e.code==='KeyF'){e.preventDefault();kw.focus();kw.select()}else if(isEsc(e)&&!imeBusy(e)){e.preventDefault();dF.close()}return}
@@ -413,7 +416,7 @@ document.addEventListener('keydown',e=>{if(dL.open||dT.open||dG.open||dM.open||d
   if(e.key==='Enter'&&!e.altKey&&!c&&!e.shiftKey&&preview&&!e.repeat&&!imeBusy(e)&&(e.target===pv||e.target===document.body||e.target===document.documentElement)){
     e.preventDefault();swallowEnter=true;clearTimeout(swT);swT=setTimeout(()=>{swallowEnter=false},1500);toggleMode()}
   else if(ak('KeyN'))run(doNew);else if(c&&k==='o')run(doImport);else if(c&&k==='s')run(doExport);else if(ak('KeyF'))run(openFind);
-  else if(al&&kb(']'))run(()=>rotate(1));else if(al&&kb('['))run(()=>rotate(-1));else if(al&&e.shiftKey&&(e.code==='Backspace'||e.key==='Backspace'))run(doDelete);else if(al&&(k==='r'||e.code==='KeyR'))run(openTitle);else if(ak('KeyT'))run(openTags);else if(ak('KeyM'))run(openMng);else if(ak('KeyB'))run(doBackup);else if(ak('KeyO'))run(openRestore);else if(ak('KeyD'))run(openData);else if(ak('KeyC'))run(doDuplicate);else if(ak('KeyG'))run(openGrep);else if(ak('KeyH'))run(olToggle);else if(ak('KeyV'))run(toggleBar);else if(ak('KeyL'))run(openList);else if(al&&(e.key==='Enter'||e.code==='NumpadEnter'))run(toggleMode);else if(c&&!e.altKey&&e.code==='KeyU'&&!preview&&document.activeElement===ed&&!imeBusy(e))run(()=>convCase(e.shiftKey));else if(ak('KeyX')&&!e.shiftKey&&!preview&&document.activeElement===ed)run(delLine);else if(ak('KeyZ')&&!e.shiftKey&&!preview&&document.activeElement===ed)run(dupLine);else if(ak('KeyW')&&!e.shiftKey&&!preview&&document.activeElement===ed)run(selectLines);else if(e.shiftKey&&!e.altKey&&!c&&(e.key==='Enter'||e.code==='NumpadEnter')&&!preview&&document.activeElement===ed&&!imeBusy(e))run(blankBelow)});
+  else if(al&&kb(']'))run(()=>rotate(1));else if(al&&kb('['))run(()=>rotate(-1));else if(al&&e.shiftKey&&(e.code==='Backspace'||e.key==='Backspace'))run(doDelete);else if(al&&(k==='r'||e.code==='KeyR'))run(openTitle);else if(ak('KeyT'))run(openTags);else if(ak('KeyM'))run(openMng);else if(ak('KeyB'))run(doBackup);else if(ak('KeyO'))run(openRestore);else if(ak('KeyD'))run(openData);else if(ak('KeyC'))run(doDuplicate);else if(ak('KeyG'))run(openGrep);else if(ak('KeyH'))run(olToggle);else if(ak('KeyV'))run(toggleBar);else if(ak('KeyL'))run(openList);else if(al&&(e.key==='Enter'||e.code==='NumpadEnter'))run(toggleMode);else if(c&&!e.altKey&&e.code==='KeyU'&&!preview&&document.activeElement===ed&&!imeBusy(e))run(()=>convCase(e.shiftKey));else if(ak('KeyX')&&!e.shiftKey&&!preview&&document.activeElement===ed)run(delLine);else if(ak('KeyZ')&&!e.shiftKey&&!preview&&document.activeElement===ed)run(dupLine);else if(ak('KeyW')&&!e.shiftKey&&!preview&&document.activeElement===ed)run(selectLines);else if(ak('KeyW')&&e.shiftKey&&!preview&&document.activeElement===ed)run(selectLinesUp);else if(al&&e.shiftKey&&(e.key==='ArrowUp'||e.key==='ArrowDown')&&!preview&&document.activeElement===ed)run(()=>moveLines(e.key==='ArrowUp'?-1:1));else if(e.shiftKey&&!e.altKey&&!c&&(e.key==='Enter'||e.code==='NumpadEnter')&&!preview&&document.activeElement===ed&&!imeBusy(e))run(blankBelow)});
 /* links in the preview: HTML <a href> and also links on SVG shapes (<a href> / <a xlink:href>, whose .href is not a string) */
 pv.addEventListener('click',e=>{
   const dv=e.target.closest('svg[data-drawio-viewer]');if(dv&&!e.target.closest('a')){e.preventDefault();openDrawio(dv);return}   /* draw.io diagram: a link on a shape still works as a link */
@@ -539,14 +542,17 @@ dGr.addEventListener('keydown',e=>{if(e.isComposing)return;
 /* ---- backup / restore ---- */
 const stamp=()=>{const d=new Date(),p=n=>String(n).padStart(2,'0');return d.getFullYear()+p(d.getMonth()+1)+p(d.getDate())+'-'+p(d.getHours())+p(d.getMinutes())+p(d.getSeconds())};
 const fltText=()=>[...tagSel].map(k=>'#'+((allTags().find(x=>x.t.toLowerCase()===k)||{t:k}).t)).join(' ');
+/* For backups: the selected tags in alphabetical order (the keys are lower case; plain code-point order, so that every device gives the same file name for the same set of tags) */
+const fltSorted=()=>[...tagSel].sort((a,b)=>a<b?-1:a>b?1:0).map(k=>(allTags().find(x=>x.t.toLowerCase()===k)||{t:k}).t);
+const fltTextSorted=()=>fltSorted().map(t=>'#'+t).join(' ');
 const doBackup=all=>{save();const part=!all&&tagSel.size>0,list=part?pool():memos;
   if(part&&!list.length){say('No memos match the tag filter',1800);return}
   const data={app:'lwsm',version:1,exported:new Date().toISOString(),settings:{fontLevel:fsLv},memos:list};
-  if(part){data.partial=true;data.filter=[...tagSel].map(k=>(allTags().find(x=>x.t.toLowerCase()===k)||{t:k}).t)}
+  if(part){data.partial=true;data.filter=fltSorted()}
   const slug=part?'-'+data.filter.join('+').replace(/[^\w\u3040-\u30ff\u3400-\u9fff+-]+/g,'_').slice(0,40):'';
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,1)],{type:'application/json'}));
   a.download='lwsm-backup'+slug+'-'+stamp()+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
-  say('Backup saved ('+(part?list.length+' of '+memos.length+' memos, '+fltText():list.length+' memos')+')',2500)};
+  say('Backup saved ('+(part?list.length+' of '+memos.length+' memos, '+fltTextSorted():list.length+' memos')+')',2500)};
 const parseBackup=t=>{let d;try{d=JSON.parse(t)}catch(e){return null}
   if(!d||d.app!=='lwsm'||!Array.isArray(d.memos))return null;const ms=[];
   for(const m of d.memos){if(!m||typeof m.id!=='string'||typeof m.text!=='string')continue;
@@ -575,7 +581,7 @@ const ri=document.createElement('input');ri.type='file';ri.accept='.json,applica
 ri.onchange=async()=>{const f=ri.files[0];ri.value='';if(!f)return;const p=parseBackup(await f.text());if(!p){alert('This is not a valid LWSM backup file.');return}startRestore(p)};
 const openRestore=()=>ri.click();
 const openData=()=>{if(dD.open)return;save();const n=memos.length,k=pool().length,part=tagSel.size>0;
-  $('dn').textContent=part?'Backup will include '+k+' of '+n+' memos (tags: '+fltText()+'). Clear the tag filter to back up all memos.':n+' memo'+(n===1?'':'s')+' saved on this device.';
+  $('dn').textContent=part?'Backup will include '+k+' of '+n+' memos (tags: '+fltTextSorted()+'). Clear the tag filter to back up all memos.':n+' memo'+(n===1?'':'s')+' saved on this device.';
   $('bBk').textContent=part?'Backup '+k+' of '+n:'Backup';dD.showModal()};
 $('fx').onclick=()=>{tagSel.clear();drawFlt();if(dL.open)drawList()};$('bTag').onclick=openTags;$('tgs').addEventListener('click',openTags);$('bBkL').onclick=openData;
 dD.addEventListener('close',()=>{if(dL.open&&!dR.open){drawFlt();sel=0;drawList();$('bBkL').focus()}});   /* opened from the memo list: back to the list (a restore in progress refreshes it when it is done) */$('xD').onclick=()=>dD.close();$('xG').onclick=()=>dG.close();$('bGa').onclick=()=>addTag(gi.value);
@@ -771,6 +777,21 @@ const delLine=()=>{const t=ed.value,s0=ed.selectionStart,e0=ed.selectionEnd,d0=e
 /* make sure the line holding position p is on screen (not under the header) */
 const revealPos=p=>{try{const y=yOf(p),lh=parseFloat(getComputedStyle(ed).lineHeight)||24,top=ed.scrollTop,vh=ed.clientHeight,topM=olNarrow()?8:refMargin(),botM=(olNarrow()?bar.offsetHeight:0)+8;
   if(y+lh>top+vh-botM)ed.scrollTop=y+lh-vh+botM;else if(y<top+topM)ed.scrollTop=Math.max(0,y-topM)}catch(x){}};
+/* Alt+Shift+Up / Down = move the line(s) the selection touches by one line. The text of the two blocks is swapped in one edit (one Undo); the selection goes along with the lines. */
+const moveLines=dir=>{const t=ed.value,s=ed.selectionStart,e=ed.selectionEnd,d=ed.selectionDirection,[a,b]=selLines(t,s,e);let dl;
+  if(dir<0){if(a===0)return;const pa=lineStart(t,a-1),prev=t.slice(pa,a-1),block=t.slice(a,b);
+    ed.setSelectionRange(pa,b);insText(block+'\n'+prev);dl=-(prev.length+1)}
+  else{if(b>=t.length)return;const ne=lineEnd(t,b+1),block=t.slice(a,b),next=t.slice(b+1,ne);
+    ed.setSelectionRange(a,ne);insText(next+'\n'+block);dl=next.length+1}
+  ed.setSelectionRange(s+dl,e+dl,d);
+  const v=ed.value,es=ed.selectionEnd;revealPos(dir<0?ed.selectionStart:(es>ed.selectionStart&&v[es-1]==='\n'?es-1:es))};
+/* Alt+Shift+W = select the line upward: the line (with its line break), and again: one more line above each time. The selection runs backward, so Shift+Up goes on from there. */
+const selectLinesUp=()=>{const t=ed.value,s=ed.selectionStart,e=ed.selectionEnd;let ns,ne;
+  const aligned=e>s&&s===lineStart(t,s)&&(e===t.length||t[e-1]==='\n');
+  if(s===e){ns=lineStart(t,s);ne=Math.min(lineEnd(t,s)+1,t.length)}
+  else if(aligned){ne=e;ns=s>0?lineStart(t,s-1):0}
+  else{const [a,b]=selLines(t,s,e);ns=a;ne=Math.min(b+1,t.length)}
+  ed.setSelectionRange(ns,ne,'backward');revealPos(ns)};
 /* Alt+W = select the line (with its line break); pressing it again adds the next line below, one at a time. Judged from the selection itself: a selection made another way counts. */
 const selectLines=()=>{const t=ed.value,s=ed.selectionStart,e=ed.selectionEnd;let ns,ne;
   const aligned=e>s&&s===lineStart(t,s)&&(e===t.length||t[e-1]==='\n');                  /* whole lines already */
