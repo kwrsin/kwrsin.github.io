@@ -279,15 +279,7 @@ const find=()=>{const k=kw.value;if(!k)return false;if(preview)setMode(false);
   if(!found.length){stat('Not found');clearHit();return false}
   const nx=found.find(a=>a[0]>=from)||found[0];
   showHit(nx[0],nx[1]);stat((found.indexOf(nx)+1)+' / '+found.length+(found.length>=20000?'+':''));return true};
-const replace=()=>{const k=kw.value;if(!k)return;if(preview)setMode(false);const r=rp.value;
-  let re;try{re=mkRe(k,rx.checked,cs.checked)}catch(e){stat(reMsg(e));return}
-  if(all.checked){const t=ed.value;let n=0,m;while((m=re.exec(t))){if(!m[0].length){re.lastIndex++;continue}n++}
-    re.lastIndex=0;ed.value=rx.checked?t.replace(re,r):t.replace(re,()=>r);stat(n+' replaced');changed();return}
-  if(hit){const t=ed.value,a=hit.i,sr=new RegExp(re.source,re.flags.replace('g','')+'y');sr.lastIndex=a;const m=sr.exec(t);
-    if(m&&m.index===a&&m[0].length===hit.len){sr.lastIndex=a;
-      const frag=rx.checked?(o=>o.slice(a,a+o.length-t.length+hit.len))(sr[Symbol.replace](t,r)):r;   /* $1, $2 ... work in regex mode */
-      ed.setRangeText(frag,a,a+hit.len,'end');changed()}}
-  find()};
+const replace=()=>{const k=kw.value;if(!k)return;if(preview)setMode(false);const r=rp.value;let re;try{re=mkRe(k,rx.checked,cs.checked)}catch(e){stat(reMsg(e));return}const ins=(x,s,e)=>{ed.focus();ed.setSelectionRange(s,e);if(!document.execCommand('insertText',false,x))ed.setRangeText(x,s,e,'end')};if(all.checked){const t=ed.value;let n=0,m;while((m=re.exec(t))){if(!m[0].length){re.lastIndex++;continue}n++}re.lastIndex=0;const v=rx.checked?t.replace(re,r):t.replace(re,()=>r);if(n>0)ins(v,0,t.length);stat(n+' replaced');changed();return}if(hit){const t=ed.value,a=hit.i,sr=new RegExp(re.source,re.flags.replace('g','')+'y');sr.lastIndex=a;const m=sr.exec(t);if(m&&m.index===a&&m[0].length===hit.len){sr.lastIndex=a;const f=rx.checked?(o=>o.slice(a,a+o.length-t.length+hit.len))(sr[Symbol.replace](t,r)):r;ins(f,a,a+hit.len);changed()}}find()};
 
 /* list */
 const drawList=()=>{const q=fl.value.trim().toLowerCase();drawTagBar();
