@@ -408,7 +408,7 @@ document.addEventListener('keydown',e=>{if(dL.open||dT.open||dG.open||dM.open||d
   if(e.key==='Enter'&&!e.altKey&&!c&&!e.shiftKey&&preview&&!e.repeat&&!imeBusy(e)&&(e.target===pv||e.target===document.body||e.target===document.documentElement)){
     e.preventDefault();swallowEnter=true;clearTimeout(swT);swT=setTimeout(()=>{swallowEnter=false},1500);toggleMode()}
   else if(ak('KeyN'))run(doNew);else if(c&&k==='o')run(doImport);else if(c&&k==='s')run(doExport);else if(ak('KeyF'))run(openFind);
-  else if(al&&kb(']'))run(()=>rotate(1));else if(al&&kb('['))run(()=>rotate(-1));else if(al&&e.shiftKey&&(e.code==='Backspace'||e.key==='Backspace'))run(doDelete);else if(al&&(k==='r'||e.code==='KeyR'))run(openTitle);else if(ak('KeyT'))run(openTags);else if(ak('KeyM'))run(openMng);else if(ak('KeyB'))run(doBackup);else if(ak('KeyO'))run(openRestore);else if(ak('KeyD'))run(openData);else if(ak('KeyC'))run(doDuplicate);else if(ak('KeyG'))run(openGrep);else if(ak('KeyH'))run(olToggle);else if(ak('KeyV'))run(toggleBar);else if(ak('KeyL'))run(openList);else if(al&&(e.key==='Enter'||e.code==='NumpadEnter'))run(toggleMode);else if(c&&!e.altKey&&e.code==='KeyU'&&!preview&&document.activeElement===ed&&!imeBusy(e))run(()=>convCase(e.shiftKey));else if(ak('KeyX')&&!e.shiftKey&&!preview&&document.activeElement===ed)run(delLine);else if(ak('KeyZ')&&!e.shiftKey&&!preview&&document.activeElement===ed)run(dupLine);else if(ak('KeyW')&&!e.shiftKey&&!preview&&document.activeElement===ed)run(selectLines);else if(ak('KeyW')&&e.shiftKey&&!preview&&document.activeElement===ed)run(selectLinesUp);else if(al&&e.shiftKey&&(e.key==='ArrowUp'||e.key==='ArrowDown')&&!preview&&document.activeElement===ed)run(()=>moveLines(e.key==='ArrowUp'?-1:1));else if(e.shiftKey&&!e.altKey&&!c&&(e.key==='Enter'||e.code==='NumpadEnter')&&!preview&&document.activeElement===ed&&!imeBusy(e))run(blankBelow)});
+  else if(al&&kb(']'))run(()=>rotate(1));else if(al&&kb('['))run(()=>rotate(-1));else if(al&&e.shiftKey&&(e.code==='Backspace'||e.key==='Backspace'))run(doDelete);else if(al&&(k==='r'||e.code==='KeyR'))run(openTitle);else if(ak('KeyT'))run(openTags);else if(ak('KeyM'))run(openMng);else if(ak('KeyB'))run(doBackup);else if(ak('KeyO'))run(openRestore);else if(ak('KeyD'))run(openData);else if(ak('KeyC'))run(doDuplicate);else if(ak('KeyG'))run(openGrep);else if(ak('KeyH'))run(olToggle);else if(ak('KeyV'))run(toggleBar);else if(ak('KeyL'))run(openList);else if(al&&(e.key==='Enter'||e.code==='NumpadEnter'))run(toggleMode);else if(c&&!e.altKey&&e.code==='KeyU'&&!preview&&document.activeElement===ed&&!imeBusy(e))run(()=>convCase(e.shiftKey));else if(ak('KeyX')&&!e.shiftKey&&!preview&&document.activeElement===ed)run(delLine);else if(ak('KeyZ')&&!e.shiftKey&&!preview&&document.activeElement===ed)run(dupLine);else if(ak('KeyW')&&!e.shiftKey&&!preview&&document.activeElement===ed)run(()=>stretchLines(1));else if(ak('KeyW')&&e.shiftKey&&!preview&&document.activeElement===ed)run(()=>stretchLines(-1));else if(al&&e.shiftKey&&(e.key==='ArrowUp'||e.key==='ArrowDown')&&!preview&&document.activeElement===ed)run(()=>moveLines(e.key==='ArrowUp'?-1:1));else if(e.shiftKey&&!e.altKey&&!c&&(e.key==='Enter'||e.code==='NumpadEnter')&&!preview&&document.activeElement===ed&&!imeBusy(e))run(blankBelow)});
 /* links in the preview: HTML <a href> and also links on SVG shapes (<a href> / <a xlink:href>, whose .href is not a string) */
 pv.addEventListener('click',e=>{
   const dv=e.target.closest('svg[data-drawio-viewer]');if(dv&&!e.target.closest('a')){e.preventDefault();openDrawio(dv);return}   /* draw.io diagram: a link on a shape still works as a link */
@@ -736,8 +736,8 @@ const lineStart=(t,p)=>p<=0?0:t.lastIndexOf('\n',p-1)+1;
 const lineEnd=(t,p)=>{const i=t.indexOf('\n',p);return i<0?t.length:i};
 /* [start of the first, end (before the line break) of the last] line touched by the selection; a selection that ends at the very start of a line does not touch that line */
 const selLines=(t,s,e)=>{const p=(e>s&&t[e-1]==='\n')?e-1:e;return [lineStart(t,s),lineEnd(t,p)]};
-const blankBelow=()=>{const t=ed.value,s=ed.selectionStart,e=ed.selectionEnd,d=ed.selectionDirection,b=selLines(t,s,e)[1];
-  ed.setSelectionRange(b,b);insText('\n');ed.setSelectionRange(s,e,d)};          /* the caret / selection stays where it was */
+const blankBelow=()=>{const t=ed.value,b=selLines(t,ed.selectionStart,ed.selectionEnd)[1];
+  ed.setSelectionRange(b,b);insText('\n');revealPos(ed.selectionStart)};            /* the caret ends up on the new empty line; a selection is dropped */
 /* copy text to the clipboard through a temporary text box (works without a secure connection); true if it worked. The editor's focus and selection are put back. */
 const clipCopy=t=>{try{
   const af=document.activeElement;
@@ -777,20 +777,21 @@ const moveLines=dir=>{const t=ed.value,s=ed.selectionStart,e=ed.selectionEnd,d=e
     ed.setSelectionRange(a,ne);insText(next+'\n'+block);dl=next.length+1}
   ed.setSelectionRange(s+dl,e+dl,d);
   const v=ed.value,es=ed.selectionEnd;revealPos(dir<0?ed.selectionStart:(es>ed.selectionStart&&v[es-1]==='\n'?es-1:es))};
-/* Alt+Shift+W = select the line upward: the line (with its line break), and again: one more line above each time. The selection runs backward, so Shift+Up goes on from there. */
-const selectLinesUp=()=>{const t=ed.value,s=ed.selectionStart,e=ed.selectionEnd;let ns,ne;
+/* Alt+W / Alt+Shift+W = select whole lines and stretch or shrink the selection one line at a time. The line where it started stays: the other end moves.
+   Alt+W moves that end one line down, Alt+Shift+W one line up. Which end moves is read from the selection itself (its direction), so a selection made another way works too:
+   a forward selection (started at its top) is stretched at the bottom, a backward one at the top; the key that points the other way shrinks it. At one line, the key chooses
+   the side, and the direction turns when the selection goes over to the other side. Nothing selected: the line. A part of a line: the lines it touches (nothing is shrunk yet). */
+const stretchLines=dir=>{const t=ed.value,s=ed.selectionStart,e=ed.selectionEnd,backward0=ed.selectionDirection==='backward';let ns,ne,bw;
   const aligned=e>s&&s===lineStart(t,s)&&(e===t.length||t[e-1]==='\n');
-  if(s===e){ns=lineStart(t,s);ne=Math.min(lineEnd(t,s)+1,t.length)}
-  else if(aligned){ne=e;ns=s>0?lineStart(t,s-1):0}
-  else{const [a,b]=selLines(t,s,e);ns=a;ne=Math.min(b+1,t.length)}
-  ed.setSelectionRange(ns,ne,'backward');revealPos(ns)};
-/* Alt+W = select the line (with its line break); pressing it again adds the next line below, one at a time. Judged from the selection itself: a selection made another way counts. */
-const selectLines=()=>{const t=ed.value,s=ed.selectionStart,e=ed.selectionEnd;let ns,ne;
-  const aligned=e>s&&s===lineStart(t,s)&&(e===t.length||t[e-1]==='\n');                  /* whole lines already */
-  if(s===e){ns=lineStart(t,s);ne=Math.min(lineEnd(t,s)+1,t.length)}
-  else if(aligned){ns=s;ne=e>=t.length?e:Math.min(lineEnd(t,e)+1,t.length)}              /* one more line */
-  else{const [a,b]=selLines(t,s,e);ns=a;ne=Math.min(b+1,t.length)}                      /* complete the lines it touches */
-  ed.setSelectionRange(ns,ne,'forward');revealPos((ne>ns&&t[ne-1]==='\n')?ne-1:ne)};
+  if(s===e){ns=lineStart(t,s);ne=Math.min(lineEnd(t,s)+1,t.length);bw=dir<0}
+  else if(!aligned){const [a,b]=selLines(t,s,e);ns=a;ne=Math.min(b+1,t.length);bw=backward0}
+  else{
+    const last=lineStart(t,t[e-1]==='\n'?e-1:e),single=last===s;                       /* start of the last selected line */
+    const down=()=>e>=t.length?e:Math.min(lineEnd(t,e)+1,t.length),up=()=>s>0?lineStart(t,s-1):0;
+    if(single){if(dir>0){ns=s;ne=down();bw=false}else{ns=up();ne=e;bw=true}}           /* one line: the key chooses the side */
+    else if(!backward0){if(dir>0){ns=s;ne=down()}else{ns=s;ne=last}bw=false}          /* the start is the anchor: the end moves */
+    else{if(dir<0){ns=up();ne=e}else{ns=lineEnd(t,s)+1;ne=e}bw=true}}                  /* the end is the anchor: the start moves */
+  ed.setSelectionRange(ns,ne,bw?'backward':'forward');revealPos(bw?ns:((ne>ns&&t[ne-1]==='\n')?ne-1:ne))};
 const dupLine=()=>{const t=ed.value,s=ed.selectionStart,e=ed.selectionEnd,d=ed.selectionDirection;
   if(s===e){const a=lineStart(t,s),b=lineEnd(t,s);ed.setSelectionRange(b,b);insText('\n'+t.slice(a,b))}      /* no selection: the line, below it */
   else{ed.setSelectionRange(e,e);insText(t.slice(s,e))}                                                  /* a selection: right after it */
