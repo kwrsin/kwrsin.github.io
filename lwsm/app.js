@@ -62,7 +62,7 @@ const mapsFrame=(e,u,d)=>{
     let dec;try{dec=decodeURIComponent(m[1])}catch(x){return null}
     if(/[\s"'<>`\\\x00-\x1f\x7f]/.test(dec))return null;                         /* what the value means once decoded: no space, quote, angle bracket, backslash or control character */
     src='https://www.google.com/maps/embed?pb='+m[1]}
-  else if(u.pathname==='/maps/d/embed'){
+  else if(u.pathname==='/maps/d/embed' || u.pathname==='/maps/d/u/0/embed'){
     const p=u.searchParams,mid=p.get('mid');if(!mid||!/^[A-Za-z0-9_-]{10,80}$/.test(mid))return null;
     const q=new URL('https://www.google.com/maps/d/embed');q.searchParams.set('mid',mid);
     const hl=p.get('hl');if(hl&&/^[A-Za-z]{2,3}(?:-[A-Za-z0-9]{2,4})?$/.test(hl))q.searchParams.set('hl',hl);
