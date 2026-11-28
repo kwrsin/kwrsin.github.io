@@ -1,0 +1,8 @@
+/* TEAM */
+Co-creator: kwrsin
+Co-creator: Antigravity
+
+/* SITE */
+Name: ICON SHELF
+Language: English (default) / Japanese
+Standards: HTML5, CSS3, TypeScript, React, PWA
